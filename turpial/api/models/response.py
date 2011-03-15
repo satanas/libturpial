@@ -7,7 +7,23 @@
 
 class Response:
     ERROR_CODES = {
-        666: 'Error del orto'
+        401: 'Unauthorized credentials',
+        402: 'Status duplicated',
+        403: 'Already friend',
+        404: 'Invalid request',
+        405: 'Already requested to follow',
+        406: 'Rate Limit',
+        407: 'Invalid search',
+        408: 'Too long search',
+        
+        500: 'Internal server error',
+        501: 'Not implemented',
+        502: 'Service down',
+        503: 'Service overloaded',
+        504: 'Server timeout',
+        505: 'Can\'t connect to server',
+        
+        999: 'Unknown error',
     }
     
     def __init__(self, items=None, code=0):
