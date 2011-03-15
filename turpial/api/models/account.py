@@ -8,14 +8,15 @@
 from turpial.api.common import DefProtocols
 from turpial.api.models.profile import Profile
 from turpial.api.protocols.twitter import twitter
+from turpial.api.protocols.identica import identica
 
 class Account:    
     def __init__(self, username, password, id_, protocol_id):
         self.id_ = id_
         if protocol_id == DefProtocols.TWITTER:
-            self.protocol = twitter.Main(self.id_)
-        #elif protocol_id == DefProtocols.IDENTICA:
-        #    self.protocol = identica.Main(self._id)
+            self.protocol = twitter.Main(username, self.id_)
+        elif protocol_id == DefProtocols.IDENTICA:
+            self.protocol = identica.Main(username, self.id_)
         self.profile = Profile()
         self.profile.username = username
         self.profile.password = password

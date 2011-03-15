@@ -26,5 +26,4 @@ POST_ACTIONS = [
     'create',
     
     'retweet',
-
 ]
