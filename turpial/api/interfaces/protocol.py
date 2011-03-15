@@ -104,139 +104,102 @@ class Protocol(TurpialHTTP):
     def get_timeline(self, count):
         ''' 
         Fetch the timeline from the server 
-        Returns: a Response object with self.timeline
         '''
         raise NotImplementedError
         
     def get_replies(self, count):
         ''' 
         Fetch the mentions from the server 
-        Returns: a Response object with self.replies
         '''
         raise NotImplementedError
         
     def get_directs(self, count):
         ''' 
         Fetch the directs from the server 
-        Returns: a Response object with self.directs
         '''
         raise NotImplementedError
         
     def get_sent(self, count):
         ''' 
         Fetch the sent messages from the server 
-        Returns: a Response object with self.sent
         '''
         raise NotImplementedError
         
     def get_favorites(self, count):
         ''' 
         Fetch the favorites from the server 
-        Returns: a Response object with self.favorites
         '''
         raise NotImplementedError
         
     def get_rate_limits(self):
         ''' 
-        Fetch the rate limits from API 
-        Returns: a Response object with a RateLimit
+        Fetch the rate limits for the service
         '''
         raise NotImplementedError
         
-    def get_conversation(self, id):
+    def get_conversation(self, id_):
         ''' 
-        Fetch the whole conversation from a single status
-        Returns: a Response object of statuses
+        Fetch the whole conversation related to a single status
         '''
         raise NotImplementedError
         
     def get_friends_list(self):
         ''' 
         Fetch the whole friends list
-        Returns: a Response object of profiles
         '''
         raise NotImplementedError
         
     def get_profile(self, user):
         ''' 
         Fetch an especific user profile
-        Returns: a Response object with the profile
         '''
         raise NotImplementedError
         
     def update_profile(self, name, url, bio, location):
         ''' 
         Update the user profile
-        Returns: a Response object with the user profile
         '''
         raise NotImplementedError
         
-    def update_status(self, in_reply_to_id):
+    def update_status(self, text, in_reply_to_id=None):
         ''' 
         Post an update
-        Returns: a Response object with the posted status
         '''
         raise NotImplementedError
-        
-    def destroy_status(self, id):
+    
+    def destroy_status(self, id_):
         ''' 
         Destroy a posted update
-        Returns: four Response object with self.timeline, self.favorites
-        
-        Implement this function in this way:
-        
-        self.to_del.append(id)
-        # All the dirty work goes here
-        self._destroy_status(id)
         '''
         raise NotImplementedError
         
-    def repeat(self, id):
+    def repeat(self, id_):
         ''' 
         Repeat to all your friends an update posted by somebody
-        Returns: a Response object with self.timeline
         '''
         raise NotImplementedError
         
-    def mark_favorite(self, id):
+    def mark_favorite(self, id_):
         ''' 
         Mark an update as favorite
-        Returns: three Response object with self.timeline, self.replies,
-        self.favorites
-        
-        Implement this function in this way:
-        
-        self.to_fav.append(id)
-        # All the dirty work goes here
-        self._set_status_favorite(id)
         '''
         raise NotImplementedError
         
-    def unmark_favorite(self, id):
+    def unmark_favorite(self, id_):
         ''' 
         Unmark an update as favorite
-        Returns: three Response object with self.timeline, self.replies,
-        self.favorites
-        
-        Implement this function in this way:
-        
-        self.to_unfav.append(id)
-        # All the dirty work goes here
-        self._unset_status_favorite(id)
         '''
         raise NotImplementedError
         
     def follow(self, user):
         ''' 
         Follow somebody
-        Returns: four objects: single_friend_list, self.profile, user and True
         '''
         raise NotImplementedError
         
     def unfollow(self, user):
         ''' 
         Unfollow somebody
-        Returns: four objects: single_friend_list, self.profile, user and False
         '''
         raise NotImplementedError
         
@@ -245,36 +208,26 @@ class Protocol(TurpialHTTP):
         #raise NotImplementedError
         pass
         
-    def destroy_direct(self, id):
+    def destroy_direct(self, id_):
         ''' 
         Destroy a direct message
-        Returns: a Response object with self.directs
-        
-        Implement this function in this way:
-        
-        self.to_del.append(id)
-        # All the dirty work goes here
-        self._destroy_status(id)
         '''
         raise NotImplementedError
         
     def search(self, query, count):
         ''' 
-        Execute a query in server
-        Returns: a Response object with query results
+        Execute a search query in server
         '''
         raise NotImplementedError
         
     def get_lists(self):
         ''' 
-        Fetch all lists for the user in that protocol
-        Returns: a Response object with query results
+        Fetch all user lists for service
         '''
         raise NotImplementedError
         
-    def get_list_statuses(self, args):
+    def get_list_statuses(self, list_id):
         ''' 
         Fetch all statuses for a specific list
-        Returns: a Response object with query results
         '''
         raise NotImplementedError
