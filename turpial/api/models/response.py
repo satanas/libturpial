@@ -15,6 +15,8 @@ class Response:
         406: 'Rate Limit',
         407: 'Invalid search',
         408: 'Too long search',
+        409: 'Invalid account',
+        410: 'Invalid column',
         
         500: 'Internal server error',
         501: 'Not implemented',
