@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-"""Implementación del protocolo Twitter para Turpial"""
+""" Twitter implementation for Turpial"""
 #
 # Author: Wil Alvarez (aka Satanas)
 # May 25, 2010
 
-import os
 import urllib2
-import tempfile
 
 from turpial.api.common import UpdateType, STATUSPP
 from turpial.api.models.status import Status
@@ -17,10 +15,14 @@ from turpial.api.interfaces.protocol import Protocol
 from turpial.api.protocols.twitter.globals import CONSUMER_KEY, CONSUMER_SECRET
 
 class Main(Protocol):
-    def __init__(self, account_id):
-        Protocol.__init__(self, account_id, 'Twitter', 
-            'http://api.twitter.com/1', 'http://search.twitter.com', 
-            'http://twitter.com/search?q=%23', None, 'http://www.twitter.com')
+    def __init__(self, username, account_id):
+        p_name = 'Twitter(%s)' % username
+        Protocol.__init__(self, account_id, p_name, 
+            'http://api.twitter.com/1', 
+            'http://search.twitter.com', 
+            'http://twitter.com/search?q=%23', 
+            None, 
+            'http://www.twitter.com')
         
         self.uname = None
         self.token = None
@@ -159,17 +161,17 @@ class Main(Protocol):
         return profile
         
     def get_timeline(self, count=STATUSPP):
-        self.log.debug('Updating timeline')
+        self.log.debug('Getting timeline')
         rtn = self.request('/statuses/home_timeline', {'count': count})
         return self.json_to_status(rtn)
         
     def get_replies(self, count=STATUSPP):
-        self.log.debug('Updating replies')
+        self.log.debug('Getting replies')
         rtn = self.request('/statuses/mentions', {'count': count})
         return self.json_to_status(rtn)
         
     def get_directs(self, count=STATUSPP):
-        self.log.debug('Updating directs')
+        self.log.debug('Getting directs')
         rtn = self.request('/direct_messages', {'count': count / 2})
         directs = self.json_to_status(rtn, _type=UpdateType.DM)
         rtn2 = self.request('/direct_messages/sent', {'count': count / 2})
@@ -177,12 +179,12 @@ class Main(Protocol):
         return directs
             
     def get_sent(self, count=STATUSPP):
-        self.log.debug('Updating my statuses')
+        self.log.debug('Getting my statuses')
         rtn = self.request('/statuses/user_timeline', {'count': count})
         return self.json_to_status(rtn)
         
     def get_favorites(self):
-        self.log.debug('Updating favorites')
+        self.log.debug('Getting favorites')
         rtn = self.request('/favorites')
         return self.json_to_status(rtn)
         
