@@ -103,8 +103,10 @@ class TurpialHTTP:
         else:
             return handle.read()
     
-    def request(self, url, args={}, format=DEFAULT_FORMAT):
-        request_url = "%s%s" % (self.urls['api'], url)
+    def request(self, url, args={}, format=DEFAULT_FORMAT, base_url=None):
+        if not base_url:
+            base_url = self.urls['api']
+        request_url = "%s%s" % (base_url, url)
         httpreq = self.build_http_request(request_url, args, format)
         authreq = self.auth_http_request(httpreq, self.auth_args)
         return self.fetch_http_resource(authreq, format)
