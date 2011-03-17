@@ -17,6 +17,7 @@ class Response:
         408: 'Too long search',
         409: 'Invalid account',
         410: 'Invalid column',
+        411: 'Error getting friend list',
         
         500: 'Internal server error',
         501: 'Not implemented',
@@ -41,5 +42,8 @@ class Response:
         else:
             self.items = items
         
+    def __getitem__(self, key):
+        return self.items[key]
+    
     def add(self, item):
         self.items.append(item)
