@@ -33,7 +33,7 @@ class Response:
         self.code = code
         
         if code > 0:
-            self.errmsg = ERROR_CODES[code]
+            self.errmsg = self.ERROR_CODES[code]
         else:
             self.errmsg = ''
         
