@@ -115,7 +115,7 @@ class Main(Protocol):
             elif tweet.has_key('from_user'):
                 username = tweet['from_user']
                 avatar = tweet['profile_image_url']
-            print username
+            
             in_reply_to_id = None
             in_reply_to_user = None
             if tweet.has_key('in_reply_to_status_id') and \
@@ -282,4 +282,4 @@ class Main(Protocol):
         self.log.debug('Searching: %s' % query)
         rtn = self.request('/search',{'q': query, 'rpp': count}, 
             base_url=self.urls['search'])
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn['results'])
