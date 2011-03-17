@@ -188,6 +188,50 @@ class Main(Protocol):
         rtn = self.request('/favorites')
         return self.json_to_status(rtn)
         
+    def get_conversation(self, status_id):
+        self.log.debug('Getting conversation')
+        conversation = []
+        
+        while 1:
+            rtn = self.request('/statuses/show', {'id': status_id})
+            self.log.debug('--Fetched status: %s' % status_id)
+            conversation.append(self.json_to_status(rtn))
+            
+            if rtn['in_reply_to_status_id']:
+                status_id = str(rtn['in_reply_to_status_id'])
+            else:
+                break
+        return conversation
+        
+    def get_friends(self):
+        self.log.debug('Getting friends list')
+        tries = 0
+        count = 0
+        cursor = -1
+        friends = []
+        
+        while 1:
+            try:
+                rtn = self.request('/statuses/friends', {'cursor': cursor})
+            except Exception, exc:
+                tries += 1
+                if tries < 3:
+                    continue
+                else:
+                    raise Exception
+                
+            for user in rtn['users']:
+                friends.append(self.json_to_profile(user))
+                count += 1
+            
+            if rtn['next_cursor'] > 0:
+                cursor = rtn['next_cursor']
+            else:
+                break
+        
+        self.log.debug('--Downloaded %i friends' % count)
+        return friends
+        
     def update_status(self, text, in_reply_id=None):
         self.log.debug(u'Updating status: %s' % text)
         if in_reply_id:

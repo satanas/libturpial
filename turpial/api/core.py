@@ -30,6 +30,10 @@ class Core:
         self.log.debug('Registering account %s' % username)
         self.accman.register(username, password, protocol_id)
         
+    def list_accounts(self):
+        self.log.debug('Listing accounts')
+        return self.accman.list()
+        
     def login(self, acc_id):
         self.log.debug('Authenticating with %s' % acc_id)
         try:
@@ -57,6 +61,14 @@ class Core:
         except KeyError:
             return Response(code=410)
     
+    def get_friends(self, acc_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.get_friends())
+        except Exception:
+            self.log.debug('Error getting friends list')
+            return Response(code=411)
+            
     def update_status(self, acc_id, text, in_reply_id=None):
         try:
             account = self.accman.get(acc_id)
