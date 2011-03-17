@@ -115,7 +115,7 @@ class Main(Protocol):
             elif tweet.has_key('from_user'):
                 username = tweet['from_user']
                 avatar = tweet['profile_image_url']
-            
+            print username
             in_reply_to_id = None
             in_reply_to_user = None
             if tweet.has_key('in_reply_to_status_id') and \
@@ -233,7 +233,7 @@ class Main(Protocol):
         return friends
         
     def update_status(self, text, in_reply_id=None):
-        self.log.debug(u'Updating status: %s' % text)
+        self.log.debug('Updating status: %s' % text)
         if in_reply_id:
             args = {'status': text, 'in_reply_to_status_id': in_reply_id}
         else:
@@ -242,3 +242,44 @@ class Main(Protocol):
         rtn = self.request('/statuses/update', args)
         return self.json_to_status(rtn)
         
+    def destroy_status(self, status_id):
+        self.log.debug('Destroying status: %s' % status_id)
+        rtn = self.request('/statuses/destroy', {'id': status_id})
+        return self.json_to_status(rtn)
+        
+    def mark_favorite(self, status_id):
+        self.log.debug('Marking status %s as favorite' % status_id)
+        rtn = self.request('/favorites/create', {'id': status_id})
+        return self.json_to_status(rtn)
+        
+    def unmark_favorite(self, status_id):
+        self.log.debug('Unmarking status %s as favorite' % status_id)
+        rtn = self.request('/favorites/destroy', {'id': status_id})
+        return self.json_to_status(rtn)
+        
+    def follow(self, screen_name):
+        self.log.debug('Follow to %s' % screen_name)
+        rtn = self.request('/friendships/create', {'screen_name': screen_name})
+        return self.json_to_profile(rtn)
+        
+    def unfollow(self, screen_name):
+        self.log.debug('Unfollow to %s' % screen_name)
+        rtn = self.request('/friendships/destroy', {'screen_name': screen_name})
+        return self.json_to_profile(rtn)
+        
+    def send_direct(self, screen_name, text):
+        self.log.debug('Sending direct to %s' % screen_name)
+        args = {'screen_name': screen_name, 'text': text}
+        rtn = self.request('/direct_messages/new', args)
+        return self.json_to_status(rtn)
+        
+    def destroy_direct(self, status_id):
+        self.log.debug('Destroying direct %s' % status_id)
+        rtn = self.request('/direct_messages/destroy', {'id': status_id})
+        return self.json_to_status(rtn)
+        
+    def search(self, query, count=STATUSPP):
+        self.log.debug('Searching: %s' % query)
+        rtn = self.request('/search',{'q': query, 'rpp': count}, 
+            base_url=self.urls['search'])
+        return self.json_to_status(rtn)

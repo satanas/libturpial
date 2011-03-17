@@ -20,9 +20,14 @@ class Account:
         self.profile = Profile()
         self.profile.username = username
         self.profile.password = password
+        self.friends = None
     
     def auth(self):
         self.profile = self.protocol.auth(self.profile.username, self.profile.password)
+        
+    def get_friends(self):
+        self.friends = self.protocol.get_friends()
+        return self.friends
         
     def __getattr__(self, name):
         try:
