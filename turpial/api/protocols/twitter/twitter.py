@@ -10,9 +10,12 @@ import urllib2
 from turpial.api.common import UpdateType, STATUSPP
 from turpial.api.models.status import Status
 from turpial.api.models.profile import Profile
+from turpial.api.models.ratelimit import RateLimit
 from turpial.api.protocols.twitter import oauth
 from turpial.api.interfaces.protocol import Protocol
 from turpial.api.protocols.twitter.globals import CONSUMER_KEY, CONSUMER_SECRET
+
+#TODO: Implement get_retweet_users
 
 class Main(Protocol):
     def __init__(self, username, account_id):
@@ -149,6 +152,14 @@ class Main(Protocol):
             status.account_id = self.account_id
             status.is_own = own
             return status
+            
+    def json_to_ratelimit(self, response):
+        rate = RateLimit()
+        rate.hourly_limit = response['hourly_limit']
+        rate.remaining_hits = response['remaining_hits']
+        rate.reset_time = response['reset_time']
+        rate.reset_time_in_seconds = response['reset_time_in_seconds']
+        return rate
         
     def auth(self, username, password):
         ''' Start OAuth '''
@@ -186,6 +197,63 @@ class Main(Protocol):
     def get_favorites(self):
         self.log.debug('Getting favorites')
         rtn = self.request('/favorites')
+        return self.json_to_status(rtn)
+        
+    def get_lists(self):
+        self.log.debug('Getting user lists')
+        tries = 0
+        count = 0
+        cursor = -1
+        lists = []
+        
+        # Downloading own lists
+        while 1:
+            try:
+                rtn = self.request('/%s/lists' % self.uname, {'cursor': cursor})
+            except Exception, exc:
+                tries += 1
+                if tries < 3:
+                    continue
+                else:
+                    raise Exception
+                
+            for ls in rtn['lists']:
+                lists.append(self.json_to_list(ls))
+                count += 1
+            if rtn['next_cursor'] > 0:
+                cursor = rtn['next_cursor']
+                continue
+            else:
+                break
+        
+        # Downloading suscribed lists
+        while 1:
+            try:
+                rtn = self.request('/%s/lists/subscriptions' % self.uname, 
+                    {'cursor': cursor})
+            except Exception, exc:
+                tries += 1
+                if tries < 3:
+                    continue
+                else:
+                    raise Exception
+                
+            for ls in rtn['lists']:
+                lists.append(self.json_to_list(ls))
+                count += 1
+            if rtn['next_cursor'] > 0:
+                cursor = rtn['next_cursor']
+                continue
+            else:
+                break
+        
+        self.log.debug('--Downloaded %i lists' % count)
+        return lists
+        
+    def get_list_statuses(self, list_id, user, count=STATUSPP):
+        self.log.debug('Getting list %s statuses' % list_id)
+        rtn = self.request('/%s/lists/%s/statuses' % (user, list_id), 
+            {'per_page': count})
         return self.json_to_status(rtn)
         
     def get_conversation(self, status_id):
@@ -232,6 +300,19 @@ class Main(Protocol):
         self.log.debug('--Downloaded %i friends' % count)
         return friends
         
+    def get_rate_limits(self):
+        self.log.debug('Getting rate limits')
+        rtn = self.request('/account/rate_limit_status')
+        return self.json_to_ratelimit(rtn)
+        
+    def update_profile(self, name='', url='', bio='', location=''):
+        self.log.debug('Updating profile')
+        
+        args = {'name': name, 'url': url, 'description': bio, 
+            'location': location}
+        rtn = self.request('/account/update_profile', args)
+        return self.json_to_profile(rtn)
+    
     def update_status(self, text, in_reply_id=None):
         self.log.debug('Updating status: %s' % text)
         if in_reply_id:
@@ -247,6 +328,24 @@ class Main(Protocol):
         rtn = self.request('/statuses/destroy', {'id': status_id})
         return self.json_to_status(rtn)
         
+    def send_direct(self, screen_name, text):
+        self.log.debug('Sending direct to %s' % screen_name)
+        args = {'screen_name': screen_name, 'text': text}
+        rtn = self.request('/direct_messages/new', args)
+        return self.json_to_status(rtn)
+        
+    def destroy_direct(self, status_id):
+        self.log.debug('Destroying direct %s' % status_id)
+        rtn = self.request('/direct_messages/destroy', {'id': status_id})
+        return self.json_to_status(rtn)
+        
+    def repeat(self, status_id):
+        self.log.debug('Retweeting status %s' % status_id)
+        rtn = self.request('/statuses/retweet', {'id': status_id})
+        status = self.json_to_status(rtn)
+        #status.reposted_by = self.__get_retweet_users(status_id)
+        return status
+    
     def mark_favorite(self, status_id):
         self.log.debug('Marking status %s as favorite' % status_id)
         rtn = self.request('/favorites/create', {'id': status_id})
@@ -266,17 +365,6 @@ class Main(Protocol):
         self.log.debug('Unfollow to %s' % screen_name)
         rtn = self.request('/friendships/destroy', {'screen_name': screen_name})
         return self.json_to_profile(rtn)
-        
-    def send_direct(self, screen_name, text):
-        self.log.debug('Sending direct to %s' % screen_name)
-        args = {'screen_name': screen_name, 'text': text}
-        rtn = self.request('/direct_messages/new', args)
-        return self.json_to_status(rtn)
-        
-    def destroy_direct(self, status_id):
-        self.log.debug('Destroying direct %s' % status_id)
-        rtn = self.request('/direct_messages/destroy', {'id': status_id})
-        return self.json_to_status(rtn)
         
     def search(self, query, count=STATUSPP):
         self.log.debug('Searching: %s' % query)

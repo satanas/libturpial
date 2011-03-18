@@ -88,6 +88,10 @@ class Protocol(TurpialHTTP):
         ''' Returns a Status object from a JSON response '''
         raise NotImplementedError
         
+    def json_to_ratelimit(self, response):
+        ''' Returns a RateLimit object from a JSON response '''
+        raise NotImplementedError
+        
     def response_to_statuses(self, response, mute=False):
         ''' Take the server response and transform into an array of Status 
         objects inside a Response object '''
