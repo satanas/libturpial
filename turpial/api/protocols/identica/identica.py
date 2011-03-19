@@ -57,9 +57,6 @@ class Main(Protocol):
                 if not resp:
                     continue
                 status = self.json_to_status(resp, _type)
-                #if status.retweet_by:
-                #    users = self.__get_retweet_users(status._id)
-                #    status.retweet_by = users
                 statuses.append(status)
             return statuses
         else:
@@ -151,6 +148,70 @@ class Main(Protocol):
         rtn = self.request('/favorites')
         return self.json_to_status(rtn)
         
+    def get_lists(self):
+        return []
+        
+    def get_list_statuses(self, list_id, user, count=STATUSPP):
+        pass
+    
+    def get_conversation(self, status_id):
+        self.log.debug('Getting conversation')
+        conversation = []
+        
+        while 1:
+            rtn = self.request('/statuses/show', {'id': status_id})
+            self.log.debug('--Fetched status: %s' % status_id)
+            conversation.append(self.json_to_status(rtn))
+            
+            if rtn['in_reply_to_status_id']:
+                status_id = str(rtn['in_reply_to_status_id'])
+            else:
+                break
+        return conversation
+        
+    def get_friends(self):
+        self.log.debug('Getting friends list')
+        tries = 0
+        count = 0
+        cursor = -1
+        friends = []
+        
+        while 1:
+            try:
+                rtn = self.request('/statuses/friends', {'cursor': cursor})
+            except Exception, exc:
+                tries += 1
+                if tries < 3:
+                    continue
+                else:
+                    raise Exception
+                
+            for user in rtn:
+                friends.append(self.json_to_profile(user))
+                count += 1
+            break
+            '''
+            if rtn['next_cursor'] > 0:
+                cursor = rtn['next_cursor']
+            else:
+                break
+            '''
+        self.log.debug('--Downloaded %i friends' % count)
+        return friends
+        
+    def get_rate_limits(self):
+        self.log.debug('Getting rate limits')
+        rtn = self.request('/account/rate_limit_status')
+        return self.json_to_ratelimit(rtn)
+        
+    def update_profile(self, name='', url='', bio='', location=''):
+        self.log.debug('Updating profile')
+        
+        args = {'name': name, 'url': url, 'description': bio, 
+            'location': location}
+        rtn = self.request('/account/update_profile', args)
+        return self.json_to_profile(rtn)
+    
     def update_status(self, text, in_reply_id=None):
         self.log.debug(u'Updating status: %s' % text)
         if in_reply_id:
@@ -160,3 +221,47 @@ class Main(Protocol):
         
         rtn = self.request('/statuses/update', args)
         return self.json_to_status(rtn)
+    
+    def destroy_status(self, status_id):
+        self.log.debug('Destroying status: %s' % status_id)
+        rtn = self.request('/statuses/destroy', {'id': status_id})
+        return self.json_to_status(rtn)
+        
+    def send_direct(self, screen_name, text):
+        self.log.debug('Sending direct to %s' % screen_name)
+        args = {'screen_name': screen_name, 'text': text}
+        rtn = self.request('/direct_messages/new', args)
+        return self.json_to_status(rtn)
+        
+    def repost(self, status_id):
+        self.log.debug('Repeating status %s' % status_id)
+        rtn = self.request('/statuses/retweet', {'id': status_id})
+        status = self.json_to_status(rtn)
+        #status.reposted_by = self.__get_retweet_users(status_id)
+        return status
+    
+    def mark_favorite(self, status_id):
+        self.log.debug('Marking status %s as favorite' % status_id)
+        rtn = self.request('/favorites/create', {'id': status_id})
+        return self.json_to_status(rtn)
+        
+    def unmark_favorite(self, status_id):
+        self.log.debug('Unmarking status %s as favorite' % status_id)
+        rtn = self.request('/favorites/destroy', {'id': status_id})
+        return self.json_to_status(rtn)
+        
+    def follow(self, screen_name):
+        self.log.debug('Follow to %s' % screen_name)
+        rtn = self.request('/friendships/create', {'screen_name': screen_name})
+        return self.json_to_profile(rtn)
+        
+    def unfollow(self, screen_name):
+        self.log.debug('Unfollow to %s' % screen_name)
+        rtn = self.request('/friendships/destroy', {'screen_name': screen_name})
+        return self.json_to_profile(rtn)
+        
+    def search(self, query, count=STATUSPP):
+        self.log.debug('Searching: %s' % query)
+        rtn = self.request('/search',{'q': query, 'rpp': count}, 
+            base_url=self.urls['search'])
+        return self.json_to_status(rtn['results'])
