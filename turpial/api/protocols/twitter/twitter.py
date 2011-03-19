@@ -15,8 +15,6 @@ from turpial.api.protocols.twitter import oauth
 from turpial.api.interfaces.protocol import Protocol
 from turpial.api.protocols.twitter.globals import CONSUMER_KEY, CONSUMER_SECRET
 
-#TODO: Implement get_retweet_users
-
 class Main(Protocol):
     def __init__(self, username, account_id):
         p_name = 'Twitter(%s)' % username
