@@ -67,7 +67,7 @@ class Main(Protocol):
         if isinstance(response, list):
             profiles = []
             for pf in response:
-                profile = self.json_to_status(json_to_profile)
+                profile = self.json_to_profile(pf)
                 profiles.append(profile)
             return profiles
         else:
@@ -96,9 +96,9 @@ class Main(Protocol):
                 if not resp:
                     continue
                 status = self.json_to_status(resp, _type)
-                #if status.retweet_by:
-                #    users = self.__get_retweet_users(status._id)
-                #    status.retweet_by = users
+                if status.retweet_by:
+                    users = self.get_retweet_users(status._id)
+                    status.retweet_by = users
                 statuses.append(status)
             return statuses
         else:
@@ -162,7 +162,6 @@ class Main(Protocol):
         return rate
         
     def auth(self, username, password):
-        ''' Start OAuth '''
         self.log.debug('Starting OAuth')
         
         self.__fetch_xauth_access_token(username, password)
@@ -305,6 +304,15 @@ class Main(Protocol):
         rtn = self.request('/account/rate_limit_status')
         return self.json_to_ratelimit(rtn)
         
+    def get_retweet_users(self, status_id):
+        self.log.debug('Getting users of a retweet')
+        users = []
+        rtn = self.request('/statuses/%s/retweeted_by' % status_id)
+        for item in rtn:
+            profile = self.json_to_profile(item)
+            users.append(profile.username)
+        return users
+        
     def update_profile(self, name='', url='', bio='', location=''):
         self.log.debug('Updating profile')
         
@@ -339,7 +347,7 @@ class Main(Protocol):
         rtn = self.request('/direct_messages/destroy', {'id': status_id})
         return self.json_to_status(rtn)
         
-    def repeat(self, status_id):
+    def repost(self, status_id):
         self.log.debug('Retweeting status %s' % status_id)
         rtn = self.request('/statuses/retweet', {'id': status_id})
         status = self.json_to_status(rtn)
