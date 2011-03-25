@@ -199,6 +199,11 @@ class Main(Protocol):
         self.log.debug('--Downloaded %i friends' % count)
         return friends
         
+    def get_profile(self, user):
+        self.log.debug('Getting profile of user %s' % user)
+        rtn = self.request('/users/show', {'screen_name': user})
+        return self.json_to_profile(rtn)
+    
     def get_rate_limits(self):
         self.log.debug('Getting rate limits')
         rtn = self.request('/account/rate_limit_status')

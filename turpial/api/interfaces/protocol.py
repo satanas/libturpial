@@ -135,19 +135,25 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
         
-    def get_rate_limits(self):
+    def get_lists(self):
         ''' 
-        Fetch the rate limits for the service
+        Fetch all user lists for service
         '''
         raise NotImplementedError
         
+    def get_list_statuses(self, list_id):
+        ''' 
+        Fetch all statuses for a specific list
+        '''
+        raise NotImplementedError
+    
     def get_conversation(self, id_):
         ''' 
         Fetch the whole conversation related to a single status
         '''
         raise NotImplementedError
         
-    def get_friends_list(self):
+    def get_friends(self):
         ''' 
         Fetch the whole friends list
         '''
@@ -156,6 +162,12 @@ class Protocol(TurpialHTTP):
     def get_profile(self, user):
         ''' 
         Fetch an especific user profile
+        '''
+        raise NotImplementedError
+        
+    def get_rate_limits(self):
+        ''' 
+        Fetch the rate limits for the service
         '''
         raise NotImplementedError
         
@@ -224,14 +236,4 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
         
-    def get_lists(self):
-        ''' 
-        Fetch all user lists for service
-        '''
-        raise NotImplementedError
-        
-    def get_list_statuses(self, list_id):
-        ''' 
-        Fetch all statuses for a specific list
-        '''
-        raise NotImplementedError
+    

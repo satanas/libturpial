@@ -297,6 +297,11 @@ class Main(Protocol):
         self.log.debug('--Downloaded %i friends' % count)
         return friends
         
+    def get_profile(self, user):
+        self.log.debug('Getting profile of user %s' % user)
+        rtn = self.request('/users/show')
+        return self.json_to_profile(rtn)
+        
     def get_rate_limits(self):
         self.log.debug('Getting rate limits')
         rtn = self.request('/account/rate_limit_status')
@@ -349,7 +354,7 @@ class Main(Protocol):
         self.log.debug('Retweeting status %s' % status_id)
         rtn = self.request('/statuses/retweet', {'id': status_id})
         status = self.json_to_status(rtn)
-        #status.reposted_by = self.__get_retweet_users(status_id)
+        status.reposted_by = self.get_retweet_users(status_id)
         return status
     
     def mark_favorite(self, status_id):
