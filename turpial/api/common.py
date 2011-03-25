@@ -5,7 +5,7 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 13, 2011
 
-VERSION = 0.7.0-a1
+VERSION = '0.7.0-a1'
 STATUSPP = 20
 
 class DefProtocols:
