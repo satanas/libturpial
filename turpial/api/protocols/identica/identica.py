@@ -5,13 +5,16 @@
 # Author: Wil Alvarez (aka Satanas)
 # Jun 08, 2010
 
+import re
+
 from turpial.api.common import UpdateType, STATUSPP
 from turpial.api.models.status import Status
 from turpial.api.models.profile import Profile
 from turpial.api.interfaces.protocol import Protocol
 
-
 class Main(Protocol):
+    GROUP_PATTERN = re.compile('(?<![\w])![\wáéíóúÁÉÍÓÚñÑçÇ]+')
+    
     def __init__(self, username, account_id):
         p_name = 'Identi.ca(%s)' % username
         Protocol.__init__(self, account_id, p_name, 
@@ -63,49 +66,50 @@ class Main(Protocol):
             retweet_by = None
             if response.has_key('retweeted_status'):
                 retweet_by = response['user']['screen_name']
-                tweet = response['retweeted_status']
+                dent = response['retweeted_status']
             else:
-                tweet = response
+                dent = response
             
-            if tweet.has_key('user'):
-                username = tweet['user']['screen_name']
-                avatar = tweet['user']['profile_image_url']
-            elif tweet.has_key('sender'):
-                username = tweet['sender']['screen_name']
-                avatar = tweet['sender']['profile_image_url']
-            elif tweet.has_key('from_user'):
-                username = tweet['from_user']
-                avatar = tweet['profile_image_url']
+            if dent.has_key('user'):
+                username = dent['user']['screen_name']
+                avatar = dent['user']['profile_image_url']
+            elif dent.has_key('sender'):
+                username = dent['sender']['screen_name']
+                avatar = dent['sender']['profile_image_url']
+            elif dent.has_key('from_user'):
+                username = dent['from_user']
+                avatar = dent['profile_image_url']
             
             in_reply_to_id = None
             in_reply_to_user = None
-            if tweet.has_key('in_reply_to_status_id') and \
-               tweet['in_reply_to_status_id']:
-                in_reply_to_id = tweet['in_reply_to_status_id']
-                in_reply_to_user = tweet['in_reply_to_screen_name']
+            if dent.has_key('in_reply_to_status_id') and \
+               dent['in_reply_to_status_id']:
+                in_reply_to_id = dent['in_reply_to_status_id']
+                in_reply_to_user = dent['in_reply_to_screen_name']
                 
             fav = False
-            if tweet.has_key('favorited'):
-                fav = tweet['favorited']
+            if dent.has_key('favorited'):
+                fav = dent['favorited']
             
             source = None
-            if tweet.has_key('source'):
-                source = tweet['source']
+            if dent.has_key('source'):
+                source = dent['source']
             
             own = True if (username.lower() == self.uname.lower()) else False
             
             status = Status()
-            status.id_ = str(tweet['id'])
+            status.id_ = str(dent['id'])
             status.username = username
             status.avatar = avatar
-            status.source = source
-            status.text = tweet['text']
+            status.source = self.get_source(source)
+            status.text = dent['text']
             status.in_reply_to_id = in_reply_to_id
             status.in_reply_to_user = in_reply_to_user
             status.is_favorite = fav
             status.reposted_by = retweet_by
-            status.datetime = self.get_str_time(tweet['created_at'])
-            status.timestamp = self.get_int_time(tweet['created_at'])
+            status.datetime = self.get_str_time(dent['created_at'])
+            status.timestamp = self.get_int_time(dent['created_at'])
+            status.entities = self.get_entities(dent)
             status._type = _type
             status.account_id = self.account_id
             status.is_own = own
@@ -119,6 +123,14 @@ class Main(Protocol):
         profile = self.json_to_profile(rtn)
         self.uname = profile.username
         return profile
+        
+    def get_entities(self, status):
+        entities = Protocol.get_entities(self, status)
+        groups = []
+        for item in self.GROUP_PATTERN.findall(status['text']):
+            groups.append(item)
+        entities['groups'] = groups
+        return entities
         
     def get_timeline(self, count=STATUSPP):
         self.log.debug('Getting timeline')

@@ -21,3 +21,4 @@ class Status:
         self._type = None
         self.account_id = None
         self.is_own = False
+        self.entities = {}

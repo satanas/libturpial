@@ -5,9 +5,11 @@
 # Author: Wil Alvarez (aka Satanas)
 # May 20, 2010
 
+import re
 import time
 import logging
 import datetime
+import xml.sax.saxutils as saxutils
 
 from turpial.api.interfaces.http import TurpialHTTP
 from turpial.api.protocols.twitter.globals import POST_ACTIONS
@@ -15,6 +17,13 @@ from turpial.api.protocols.twitter.globals import POST_ACTIONS
 class Protocol(TurpialHTTP):
     ''' Base class to define basic functions that must have any protocol
     implementation '''
+    
+    HASHTAG_PATTERN = re.compile('(?<![\w])#[\wáéíóúÁÉÍÓÚñÑçÇ]+')
+    MENTION_PATTERN = re.compile('(?<![\w])@[\w]+')
+    CLIENT_PATTERN = re.compile('<a href="(.*?)">(.*?)</a>')
+    # According to RFC 3986 - http://www.ietf.org/rfc/rfc3986.txt
+    URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$&\'()*+,;=]*)')
+    
     def __init__(self, account_id, name, api_url, search_url, tags_url=None, 
         groups_url=None, profiles_url=None):
         TurpialHTTP.__init__(self, POST_ACTIONS)
@@ -75,6 +84,42 @@ class Protocol(TurpialHTTP):
     def get_int_time(self, strdate):
         t = self.convert_time(strdate)
         return time.mktime(t)
+    
+    def get_entities(self, status):
+        entities = {}
+        text = status['text']
+        
+        urls = []
+        for item in self.URL_PATTERN.findall(text):
+            url = item[0]
+            # Removes the last parenthesis
+            if url[-1] == ')':
+                url = url[:-1]
+            urls.append(url)
+        entities['urls'] = urls
+        
+        hashtags = []
+        for item in self.HASHTAG_PATTERN.findall(text):
+            hashtags.append(item)
+        entities['hashtags'] = hashtags
+        
+        mentions = []
+        for item in self.MENTION_PATTERN.findall(text):
+            mentions.append(item)
+        entities['mentions'] = mentions
+        return entities
+    
+    def get_source(self, source):
+        if not source:
+            return None
+        text = saxutils.unescape(source)
+        text = text.replace('&quot;', '"')
+        if text == 'web':
+            return text
+        rtn = self.CLIENT_PATTERN.search(text)
+        if rtn:
+            return rtn.groups()[1]
+        return source
     
     # ------------------------------------------------------------
     # Methods to be overwritten

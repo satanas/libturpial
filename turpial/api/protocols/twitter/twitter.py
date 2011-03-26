@@ -94,15 +94,15 @@ class Main(Protocol):
                 if not resp:
                     continue
                 status = self.json_to_status(resp, _type)
-                if status.retweet_by:
-                    users = self.get_retweet_users(status._id)
-                    status.retweet_by = users
+                if status.reposted_by:
+                    users = self.get_retweet_users(status.id_)
+                    status.reposted_by = users
                 statuses.append(status)
             return statuses
         else:
-            retweet_by = None
+            reposted_by = None
             if response.has_key('retweeted_status'):
-                retweet_by = response['user']['screen_name']
+                reposted_by = response['user']['screen_name']
                 tweet = response['retweeted_status']
             else:
                 tweet = response
@@ -138,14 +138,15 @@ class Main(Protocol):
             status.id_ = str(tweet['id'])
             status.username = username
             status.avatar = avatar
-            status.source = source
+            status.source = self.get_source(source)
             status.text = tweet['text']
             status.in_reply_to_id = in_reply_to_id
             status.in_reply_to_user = in_reply_to_user
             status.is_favorite = fav
-            status.reposted_by = retweet_by
+            status.reposted_by = reposted_by
             status.datetime = self.get_str_time(tweet['created_at'])
             status.timestamp = self.get_int_time(tweet['created_at'])
+            status.entities = self.get_entities(tweet)
             status._type = _type
             status.account_id = self.account_id
             status.is_own = own
@@ -168,32 +169,58 @@ class Main(Protocol):
         self.uname = profile.username
         return profile
         
+    def get_entities(self, tweet):
+        if tweet['entities']:
+            entities = {}
+            mentions = []
+            for mention in tweet['entities']['user_mentions']:
+                mentions.append('@'+mention['screen_name'])
+            entities['mentions'] = mentions
+            
+            urls = []
+            for url in tweet['entities']['urls']:
+                urls.append(url['url'])
+            entities['url'] = urls
+            
+            hashtags = []
+            for ht in tweet['entities']['hashtags']:
+                hashtags.append('#'+ht['text'])
+            entities['hashtags'] = hashtags
+        else:
+            entities = Protocol.get_entities(self, text)
+        return entities
+        
     def get_timeline(self, count=STATUSPP):
         self.log.debug('Getting timeline')
-        rtn = self.request('/statuses/home_timeline', {'count': count})
+        rtn = self.request('/statuses/home_timeline', {'count': count, 
+            'include_entities': True})
         return self.json_to_status(rtn)
         
     def get_replies(self, count=STATUSPP):
         self.log.debug('Getting replies')
-        rtn = self.request('/statuses/mentions', {'count': count})
+        rtn = self.request('/statuses/mentions', {'count': count,
+            'include_entities': True})
         return self.json_to_status(rtn)
         
     def get_directs(self, count=STATUSPP):
         self.log.debug('Getting directs')
-        rtn = self.request('/direct_messages', {'count': count / 2})
+        rtn = self.request('/direct_messages', {'count': count / 2, 
+            'include_entities': True})
         directs = self.json_to_status(rtn, _type=UpdateType.DM)
-        rtn2 = self.request('/direct_messages/sent', {'count': count / 2})
+        rtn2 = self.request('/direct_messages/sent', {'count': count / 2,
+        'include_entities': True})
         directs += self.json_to_status(rtn2, _type=UpdateType.DM)
         return directs
             
     def get_sent(self, count=STATUSPP):
         self.log.debug('Getting my statuses')
-        rtn = self.request('/statuses/user_timeline', {'count': count})
+        rtn = self.request('/statuses/user_timeline', {'count': count,
+            'include_entities': True})
         return self.json_to_status(rtn)
         
     def get_favorites(self):
         self.log.debug('Getting favorites')
-        rtn = self.request('/favorites')
+        rtn = self.request('/favorites', {'include_entities': True})
         return self.json_to_status(rtn)
         
     def get_lists(self):
@@ -250,7 +277,7 @@ class Main(Protocol):
     def get_list_statuses(self, list_id, user, count=STATUSPP):
         self.log.debug('Getting list %s statuses' % list_id)
         rtn = self.request('/%s/lists/%s/statuses' % (user, list_id), 
-            {'per_page': count})
+            {'per_page': count, 'include_entities': True})
         return self.json_to_status(rtn)
         
     def get_conversation(self, status_id):
@@ -258,7 +285,8 @@ class Main(Protocol):
         conversation = []
         
         while 1:
-            rtn = self.request('/statuses/show', {'id': status_id})
+            rtn = self.request('/statuses/show', {'id': status_id,
+                'include_entities': True})
             self.log.debug('--Fetched status: %s' % status_id)
             conversation.append(self.json_to_status(rtn))
             
