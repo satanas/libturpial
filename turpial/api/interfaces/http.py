@@ -74,7 +74,7 @@ class TurpialHTTP:
         self.log.debug('Request to: %s' % uri)
         
         if len(args) > 0:
-            encoded_args = urlencode(args)
+            encoded_args = urlencode(dict([k, v.encode('utf-8')] for k, v in args.items()))
         
         if method == "GET":
             if encoded_args:
