@@ -170,7 +170,7 @@ class Main(Protocol):
         return profile
         
     def get_entities(self, tweet):
-        if tweet['entities']:
+        if tweet.has_key('entities'):
             entities = {}
             mentions = []
             for mention in tweet['entities']['user_mentions']:
@@ -187,7 +187,7 @@ class Main(Protocol):
                 hashtags.append('#'+ht['text'])
             entities['hashtags'] = hashtags
         else:
-            entities = Protocol.get_entities(self, text)
+            entities = Protocol.get_entities(self, tweet)
         return entities
         
     def get_timeline(self, count=STATUSPP):
