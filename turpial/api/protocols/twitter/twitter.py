@@ -358,24 +358,27 @@ class Main(Protocol):
             args = {'status': text, 'in_reply_to_status_id': in_reply_id}
         else:
             args = {'status': text}
-        
+        args['include_entities'] = True
         rtn = self.request('/statuses/update', args)
         return self.json_to_status(rtn)
         
     def destroy_status(self, status_id):
         self.log.debug('Destroying status: %s' % status_id)
-        rtn = self.request('/statuses/destroy', {'id': status_id})
+        rtn = self.request('/statuses/destroy', {'id': status_id,
+            'include_entities': True})
         return self.json_to_status(rtn)
         
     def send_direct(self, screen_name, text):
         self.log.debug('Sending direct to %s' % screen_name)
-        args = {'screen_name': screen_name, 'text': text}
+        args = {'screen_name': screen_name, 'text': text, 
+            'include_entities': True}
         rtn = self.request('/direct_messages/new', args)
         return self.json_to_status(rtn)
         
     def destroy_direct(self, status_id):
         self.log.debug('Destroying direct %s' % status_id)
-        rtn = self.request('/direct_messages/destroy', {'id': status_id})
+        rtn = self.request('/direct_messages/destroy', {'id': status_id,
+            'include_entities': True})
         return self.json_to_status(rtn)
         
     def repost(self, status_id):
@@ -387,12 +390,14 @@ class Main(Protocol):
     
     def mark_favorite(self, status_id):
         self.log.debug('Marking status %s as favorite' % status_id)
-        rtn = self.request('/favorites/create', {'id': status_id})
+        rtn = self.request('/favorites/create', {'id': status_id,
+            'include_entities': True})
         return self.json_to_status(rtn)
         
     def unmark_favorite(self, status_id):
         self.log.debug('Unmarking status %s as favorite' % status_id)
-        rtn = self.request('/favorites/destroy', {'id': status_id})
+        rtn = self.request('/favorites/destroy', {'id': status_id,
+            'include_entities': True})
         return self.json_to_status(rtn)
         
     def follow(self, screen_name):
