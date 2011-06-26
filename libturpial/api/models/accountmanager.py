@@ -7,7 +7,7 @@
 
 import logging
 
-from turpial.api.models.account import Account
+from libturpial.api.models.account import Account
 
 class AccountManager:
     def __init__(self):
@@ -25,6 +25,7 @@ class AccountManager:
         account_id = "%s-%s" % (username, protocol_id)
         if self.__accounts.has_key(account_id):
             self.log.debug('Account %s is already registered' % account_id)
+            self.__accounts[account_id].update(password)
         else:
             account = Account(username, password, account_id, protocol_id)
             self.__accounts[account_id] = account

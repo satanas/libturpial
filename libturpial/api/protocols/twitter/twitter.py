@@ -7,13 +7,13 @@
 
 import urllib2
 
-from turpial.api.common import UpdateType, STATUSPP
-from turpial.api.models.status import Status
-from turpial.api.models.profile import Profile
-from turpial.api.models.ratelimit import RateLimit
-from turpial.api.protocols.twitter import oauth
-from turpial.api.interfaces.protocol import Protocol
-from turpial.api.protocols.twitter.globals import CONSUMER_KEY, CONSUMER_SECRET
+from libturpial.api.common import UpdateType, STATUSPP
+from libturpial.api.models.status import Status
+from libturpial.api.models.profile import Profile
+from libturpial.api.models.ratelimit import RateLimit
+from libturpial.api.protocols.twitter import oauth
+from libturpial.api.interfaces.protocol import Protocol
+from libturpial.api.protocols.twitter.globals import CONSUMER_KEY, CONSUMER_SECRET
 
 class Main(Protocol):
     def __init__(self, username, account_id):
@@ -307,6 +307,8 @@ class Main(Protocol):
             try:
                 rtn = self.request('/statuses/friends', {'cursor': cursor})
             except Exception, exc:
+                self.log.debug('Error (%i) getting friends.\n %s' % (tries, 
+                    traceback.print_exc()))
                 tries += 1
                 if tries < 3:
                     continue

@@ -11,8 +11,8 @@ import logging
 import datetime
 import xml.sax.saxutils as saxutils
 
-from turpial.api.interfaces.http import TurpialHTTP
-from turpial.api.protocols.twitter.globals import POST_ACTIONS
+from libturpial.api.interfaces.http import TurpialHTTP
+from libturpial.api.protocols.twitter.globals import POST_ACTIONS
 
 class Protocol(TurpialHTTP):
     ''' Base class to define basic functions that must have any protocol

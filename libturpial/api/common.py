@@ -8,7 +8,7 @@
 VERSION = '0.7.0-a1'
 STATUSPP = 20
 
-class DefProtocols:
+class ProtocolType:
     TWITTER = 'twitter'
     IDENTICA = 'identica'
 

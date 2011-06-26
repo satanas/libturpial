@@ -10,9 +10,9 @@ import Queue
 import logging
 import traceback
 
-from turpial.api.common import ColumnType, STATUSPP
-from turpial.api.models.response import Response
-from turpial.api.models.accountmanager import AccountManager
+from libturpial.api.common import ColumnType, STATUSPP
+from libturpial.api.models.response import Response
+from libturpial.api.models.accountmanager import AccountManager
 
 #TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -78,3 +78,11 @@ class Core:
             self.log.debug('Error updating status')
             return Response(code=999)
             
+    def unfollow(self, acc_id, username):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.unfollow(username))
+        except Exception, exc:
+            print traceback.print_exc()
+            self.log.debug('Error unfolowing user')
+            return Response(code=999)

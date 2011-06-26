@@ -7,10 +7,10 @@
 
 import re
 
-from turpial.api.common import UpdateType, STATUSPP
-from turpial.api.models.status import Status
-from turpial.api.models.profile import Profile
-from turpial.api.interfaces.protocol import Protocol
+from libturpial.api.common import UpdateType, STATUSPP
+from libturpial.api.models.status import Status
+from libturpial.api.models.profile import Profile
+from libturpial.api.interfaces.protocol import Protocol
 
 class Main(Protocol):
     GROUP_PATTERN = re.compile('(?<![\w])![\wáéíóúÁÉÍÓÚñÑçÇ]+')

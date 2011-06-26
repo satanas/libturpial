@@ -5,17 +5,17 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 13, 2011
 
-from turpial.api.common import DefProtocols
-from turpial.api.models.profile import Profile
-from turpial.api.protocols.twitter import twitter
-from turpial.api.protocols.identica import identica
+from libturpial.api.common import ProtocolType
+from libturpial.api.models.profile import Profile
+from libturpial.api.protocols.twitter import twitter
+from libturpial.api.protocols.identica import identica
 
 class Account:    
     def __init__(self, username, password, id_, protocol_id):
         self.id_ = id_
-        if protocol_id == DefProtocols.TWITTER:
+        if protocol_id == ProtocolType.TWITTER:
             self.protocol = twitter.Main(username, self.id_)
-        elif protocol_id == DefProtocols.IDENTICA:
+        elif protocol_id == ProtocolType.IDENTICA:
             self.protocol = identica.Main(username, self.id_)
         self.profile = Profile()
         self.profile.username = username
@@ -28,6 +28,12 @@ class Account:
     def get_friends(self):
         self.friends = self.protocol.get_friends()
         return self.friends
+        
+    def update(self, password):
+        self.profile.password = password
+        
+    def unfollow(self, username):
+        return self.protocol.unfollow(username)
         
     def __getattr__(self, name):
         try:
