@@ -7,10 +7,11 @@
 
 import os
 import Queue
+import urllib2
 import logging
 import traceback
 
-from libturpial.api.common import ColumnType, STATUSPP
+from libturpial.common import ProtocolType, ColumnType, STATUSPP
 from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 
@@ -26,13 +27,19 @@ class Core:
         self.log.debug('Started')
         self.accman = AccountManager()
         
+    def __print_traceback(self):
+        if self.log.getEffectiveLevel() == logging.DEBUG:
+            print traceback.print_exc()
+            
     def register_account(self, username, password, protocol_id):
         self.log.debug('Registering account %s' % username)
-        self.accman.register(username, password, protocol_id)
+        return self.accman.register(username, password, protocol_id)
         
     def list_accounts(self):
-        self.log.debug('Listing accounts')
         return self.accman.list()
+        
+    def list_protocols(self):
+        return [ProtocolType.TWITTER, ProtocolType.IDENTICA]
         
     def login(self, acc_id):
         self.log.debug('Authenticating with %s' % acc_id)
@@ -40,7 +47,7 @@ class Core:
             account = self.accman.get(acc_id)
             return Response(account.auth())
         except Exception, exc:
-            print traceback.print_exc()
+            self.__print_traceback()
             self.log.debug('Authentication Error')
             return Response(code=401)
         
@@ -60,6 +67,9 @@ class Core:
             return Response(rtn)
         except KeyError:
             return Response(code=410)
+        except urllib2.HTTPError, exc:
+            if exc.code == 401:
+                return Response(code=401)
     
     def get_friends(self, acc_id):
         try:
@@ -69,12 +79,28 @@ class Core:
             self.log.debug('Error getting friends list')
             return Response(code=411)
             
+    def get_own_profile(self, acc_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response([account.profile])
+        except KeyError, exc:
+            self.log.debug('Error getting user profile')
+            return Response(code=409)
+    
+    def get_user_profile(self, acc_id, user):
+        try:
+            account = self.accman.get(acc_id)
+            return Response([account.get_profile(user)])
+        except Exception:
+            self.log.debug('Error getting user profile')
+            return Response(code=409)
+            
     def update_status(self, acc_id, text, in_reply_id=None):
         try:
             account = self.accman.get(acc_id)
             return Response(account.update_status(text, in_reply_id))
         except Exception, exc:
-            print traceback.print_exc()
+            self.__print_traceback()
             self.log.debug('Error updating status')
             return Response(code=999)
             
@@ -83,6 +109,8 @@ class Core:
             account = self.accman.get(acc_id)
             return Response(account.unfollow(username))
         except Exception, exc:
-            print traceback.print_exc()
+            self.__print_traceback()
             self.log.debug('Error unfolowing user')
             return Response(code=999)
+    
+        

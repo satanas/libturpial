@@ -7,7 +7,7 @@
 
 import urllib2
 
-from libturpial.api.common import UpdateType, STATUSPP
+from libturpial.common import UpdateType, STATUSPP
 from libturpial.api.models.status import Status
 from libturpial.api.models.profile import Profile
 from libturpial.api.models.ratelimit import RateLimit
@@ -81,6 +81,7 @@ class Main(Protocol):
             profile.followers_count = response['followers_count']
             profile.friends_count = response['friends_count']
             profile.statuses_count = response['statuses_count']
+            profile.protected = response['protected']
             if response.has_key('status'):
                 profile.last_update = response['status']['text']
                 profile.last_update_id = response['status']['id']
@@ -329,7 +330,7 @@ class Main(Protocol):
         
     def get_profile(self, user):
         self.log.debug('Getting profile of user %s' % user)
-        rtn = self.request('/users/show')
+        rtn = self.request('/users/show', {'screen_name': user})
         return self.json_to_profile(rtn)
         
     def get_rate_limits(self):

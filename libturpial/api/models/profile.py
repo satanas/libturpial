@@ -26,3 +26,4 @@ class Profile:
         self.last_update_id = None
         self.recent_updates = []
         self.tmp_avatar_path = None
+        self.protected = None

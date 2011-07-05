@@ -5,7 +5,7 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 13, 2011
 
-from libturpial.api.common import ProtocolType
+from libturpial.common import ProtocolType
 from libturpial.api.models.profile import Profile
 from libturpial.api.protocols.twitter import twitter
 from libturpial.api.protocols.identica import identica
@@ -21,6 +21,7 @@ class Account:
         self.profile.username = username
         self.profile.password = password
         self.friends = None
+        self.logged_in = False
     
     def auth(self):
         self.profile = self.protocol.auth(self.profile.username, self.profile.password)

@@ -7,7 +7,7 @@
 
 import re
 
-from libturpial.api.common import UpdateType, STATUSPP
+from libturpial.common import UpdateType, STATUSPP
 from libturpial.api.models.status import Status
 from libturpial.api.models.profile import Profile
 from libturpial.api.interfaces.protocol import Protocol

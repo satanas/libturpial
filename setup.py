@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import glob
-import os
-import re
-
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -13,22 +9,21 @@ except ImportError:
     from setuptools import setup, find_packages
 
 from distutils.command.build import build
-from libturpial.api.common import VERSION
+from libturpial.common import VERSION
 
 LONG_DESCRIPTION = """
-Turpial API is a library that allow programs to handle multiple microblogging 
+libturpial is a library that allow programs to handle multiple microblogging 
 accounts in services like Twitter and Identi.ca. Is light, fully featured and
 easy to use.
 """
 
-# TODO: Maybe find some better ways to do this
 data_files=[
-    ('share/doc/turpial_api', ['ChangeLog', 'AUTHORS', 'COPYING']),
+    ('share/doc/libturpial', ['ChangeLog', 'AUTHORS', 'COPYING']),
 ]
 
-setup(name="turpialapi",
+setup(name="libturpial",
     version=VERSION,
-    description="Turpial API library",
+    description="Turpial library",
     long_description=LONG_DESCRIPTION,
     author="Wil Alvarez",
     author_email="wil.alejandro@gmail.com",

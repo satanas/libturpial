@@ -30,6 +30,7 @@ class AccountManager:
             account = Account(username, password, account_id, protocol_id)
             self.__accounts[account_id] = account
             self.log.debug('Account %s was registered successfully' % account_id)
+        return account_id
         
     def unregister(self, account_id):
         if self.__accounts.has_key(account_id):

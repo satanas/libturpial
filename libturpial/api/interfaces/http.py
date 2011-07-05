@@ -32,7 +32,6 @@ class TurpialHTTP:
         self.auth_args = {}
         self.post_actions = post_actions
         self.log = logging.getLogger('TurpialHTTP')
-        
         # timeout in seconds
         timeout = 20
         socket.setdefaulttimeout(timeout)

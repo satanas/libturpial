@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-"""Módulo para manejar los archivos de configuración de usuario del Turpial"""
+"""Module to handle basic configuration of Turpial"""
 #
 # Author: Wil Alvarez (aka Satanas)
-# Dic 24, 2009
+# Jun 26, 2011
 
 import os
 import logging
@@ -17,7 +17,7 @@ except:
 
 GLOBAL_CFG = {
     'App':{
-        'version': '1.5.2-a1',
+        'version': '0.0.0-a1',
     },
     'Proxy':{
         'username': '',
@@ -27,6 +27,7 @@ GLOBAL_CFG = {
         'url': '',
     }
 }
+
 PROTOCOL_CFG = {
     'Login':{
         'username': '',
@@ -228,29 +229,8 @@ class ConfigHandler(ConfigBase):
         for user in lst:
             _fd.write(user + '\n')
         _fd.close()
-
-
-class ConfigApp(ConfigBase):
-    """Configuracion de la aplicacion"""
-    
-    def __init__(self):
-        ConfigBase.__init__(self, default=GLOBAL_CFG)
-        
-        self.dir = os.path.join(os.path.expanduser('~'), '.config', 'turpial')
-        self.filepath = os.path.join(self.dir, 'global')
-        
-        if not os.path.isdir(self.dir): 
-            os.makedirs(self.dir)
-        if not os.path.isfile(self.filepath): 
-            self.create()
-        
-        self.load()
-        
-        if self.read('App', 'version') != self.default['App']['version']:
-            self.write('App', 'version', self.default['App']['version'])
             
 class ConfigProtocol(ConfigBase):
-    """Configuracion del protocolo"""
     
     def __init__(self, protocol):
         ConfigBase.__init__(self, default=PROTOCOL_CFG)
