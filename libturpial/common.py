@@ -6,9 +6,15 @@
 # Mar 13, 2011
 
 import os
+import sys
 
-VERSION = '0.7.0-a1'
+VERSION = '0.7.0-a2'
 STATUSPP = 20
+OS_LINUX = 'linux'
+OS_WINDOWS = 'windows'
+OS_MAC = 'darwin'
+OS_JAVA = 'java'
+OS_UNKNOWN = 'unknown'
 
 class ProtocolType:
     TWITTER = 'twitter'
@@ -42,3 +48,16 @@ def clean_bytecodes(root_path, logger=None):
                 os.remove(path)
     if logger:
         logger.debug("Everything is clean now")
+        
+def detect_os():
+    """ Returns a string according to the OS host """
+    if sys.platform.startswith('linux'):
+        return OS_LINUX
+    elif sys.platform.startswith('win32'):
+        return OS_WINDOWS
+    elif sys.platform.startswith('darwin'):
+        return OS_MAC
+    elif sys.platform.startswith('java'):
+        return OS_JAVA
+    else:
+        return OS_UNKNOWN
