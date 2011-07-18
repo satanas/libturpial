@@ -35,6 +35,10 @@ class Core:
         self.log.debug('Registering account %s' % username)
         return self.accman.register(username, password, protocol_id)
         
+    def unregister_account(self, account_id):
+        self.log.debug('Unregistering account %s' % account_id)
+        return self.accman.unregister(account_id)
+        
     def list_accounts(self):
         return self.accman.list()
         
