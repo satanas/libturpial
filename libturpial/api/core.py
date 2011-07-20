@@ -27,29 +27,29 @@ class Core:
         self.log = logging.getLogger('Core')
         self.log.debug('Started')
         self.accman = AccountManager()
-        
+    
     def __print_traceback(self):
         if self.log.getEffectiveLevel() == logging.DEBUG:
             print traceback.print_exc()
-            
+    
     def register_account(self, username, password, protocol_id):
         self.log.debug('Registering account %s' % username)
         return self.accman.register(username, password, protocol_id)
-        
+    
     def unregister_account(self, account_id):
         self.log.debug('Unregistering account %s' % account_id)
         return self.accman.unregister(account_id)
-        
+    
     def list_accounts(self):
         return self.accman.list()
-        
+    
     def list_protocols(self):
         return [ProtocolType.TWITTER, ProtocolType.IDENTICA]
-        
+    
     def list_columns(self, acc_id):
         account = self.accman.get(acc_id)
         return account.get_columns()
-        
+    
     def login(self, acc_id):
         self.log.debug('Authenticating with %s' % acc_id)
         try:
@@ -67,7 +67,7 @@ class Core:
             self.__print_traceback()
             self.log.debug('Unknown Error')
             return Response(code=999)
-        
+    
     def get_column_statuses(self, acc_id, col_id, count=STATUSPP):
         try:
             account = self.accman.get(acc_id)
@@ -93,6 +93,8 @@ class Core:
             if exc.code == 401:
                 return Response(code=401)
         except Exception, exc:
+            self.__print_traceback()
+            self.log.debug('Unknown Error')
             return Response(code=999)
     
     def get_friends(self, acc_id):
@@ -102,7 +104,7 @@ class Core:
         except Exception:
             self.log.debug('Error getting friends list')
             return Response(code=411)
-            
+    
     def get_own_profile(self, acc_id):
         try:
             account = self.accman.get(acc_id)
@@ -118,7 +120,7 @@ class Core:
         except Exception:
             self.log.debug('Error getting user profile')
             return Response(code=999)
-            
+    
     def update_status(self, acc_id, text, in_reply_id=None):
         try:
             account = self.accman.get(acc_id)
@@ -127,7 +129,16 @@ class Core:
             self.__print_traceback()
             self.log.debug('Error updating status')
             return Response(code=999)
-            
+    
+    def destroy_status(self, acc_id, status_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.destroy_status(status_id))
+        except Exception, exc:
+            self.__print_traceback()
+            self.log.debug('Error destroying status')
+            return Response(code=999)
+    
     def update_profile(self, acc_id, args):
         try:
             account = self.accman.get(acc_id)
@@ -156,4 +167,38 @@ class Core:
             self.log.debug('Error unfolowing user')
             return Response(code=999)
     
-        
+    def send_direct(self, acc_id, username, message):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.send_direct(username, message))
+        except Exception, exc:
+            self.__print_traceback()
+            self.log.debug('Error sendind direct message')
+            return Response(code=999)
+    
+    def destroy_direct(self, acc_id, status_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.destroy_direct(status_id))
+        except Exception, exc:
+            self.__print_traceback()
+            self.log.debug('Error destroying direct message')
+            return Response(code=999)
+    
+    def mark_favorite(self, acc_id, status_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.mark_favorite(status_id))
+        except Exception, exc:
+            self.__print_traceback()
+            self.log.debug('Error marking status as favorite')
+            return Response(code=999)
+    
+    def unmark_favorite(self, acc_id, status_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.unmark_favorite(status_id))
+        except Exception, exc:
+            self.__print_traceback()
+            self.log.debug('Error unmarking status as favorite')
+            return Response(code=999)

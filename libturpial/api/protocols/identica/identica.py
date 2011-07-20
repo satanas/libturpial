@@ -155,7 +155,7 @@ class Main(Protocol):
         rtn = self.request('/statuses/user_timeline', {'count': count})
         return self.json_to_status(rtn)
         
-    def get_favorites(self):
+    def get_favorites(self, count=STATUSPP):
         self.log.debug('Getting favorites')
         rtn = self.request('/favorites')
         return self.json_to_status(rtn)

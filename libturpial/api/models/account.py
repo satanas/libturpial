@@ -50,9 +50,6 @@ class Account:
     def update(self, password):
         self.profile.password = password
         
-    def unfollow(self, username):
-        return self.protocol.unfollow(username)
-        
     def set_profile(self, profile):
         self.profile = profile
     
