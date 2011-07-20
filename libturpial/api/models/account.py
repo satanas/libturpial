@@ -35,7 +35,7 @@ class Account:
         for li in self.lists:
             self.columns.append(li.name)
         
-    def get_friends(self):
+    def get_friends_list(self):
         return self.friends
         
     def get_columns(self):

@@ -44,6 +44,9 @@ class Response:
         
     def __getitem__(self, key):
         return self.items[key]
+        
+    def __len__(self):
+        return len(self.items)
     
     def add(self, item):
         self.items.append(item)

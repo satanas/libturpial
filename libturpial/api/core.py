@@ -60,8 +60,8 @@ class Core:
             return Response(code=505)
         except Exception, exc:
             self.__print_traceback()
-            self.log.debug('Authentication Error')
-            return Response(code=401)
+            self.log.debug('Unknown Error')
+            return Response(code=999)
         
     def get_column_statuses(self, acc_id, col_id, count=STATUSPP):
         try:
@@ -93,7 +93,7 @@ class Core:
     def get_friends(self, acc_id):
         try:
             account = self.accman.get(acc_id)
-            return Response(account.get_friends())
+            return Response(account.get_friends_list())
         except Exception:
             self.log.debug('Error getting friends list')
             return Response(code=411)

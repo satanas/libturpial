@@ -6,6 +6,7 @@
 # May 25, 2010
 
 import urllib2
+import traceback
 
 from libturpial.common import UpdateType, STATUSPP
 from libturpial.api.models.list import List
@@ -275,26 +276,32 @@ class Main(Protocol):
         
     def get_friends(self):
         self.log.debug('Getting friends list')
-        tries = 0
         count = 0
         cursor = -1
-        friends = []
+        current = 0
+        max_friends_req = 100
         
+        friends = []
         while 1:
-            try:
-                rtn = self.request('/statuses/friends', {'cursor': cursor})
-            except Exception, exc:
-                self.log.debug('Error (%i) getting friends.\n %s' % (tries, 
-                    traceback.print_exc()))
-                tries += 1
-                if tries < 3:
-                    continue
+            # Fetch user_ids (up to 5000 for each request)
+            rtn = self.request('/friends/ids', {'cursor': cursor})
+            total = len(rtn['ids'])
+            while 1:
+                if current + max_friends_req <= total:
+                    batch = rtn['ids'][current:current + max_friends_req]
+                    current += max_friends_req
                 else:
-                    raise Exception
+                    batch = rtn['ids'][current:total]
+                    current = total
                 
-            for user in rtn['users']:
-                friends.append(self.json_to_profile(user))
-                count += 1
+                # Fetch user details (up to 100 for each request)
+                user_ids = ','.join([str(x) for x in batch])
+                rtn2 = self.request('/users/lookup', {'user_id': user_ids})
+                for user in rtn2:
+                    friends.append(self.json_to_profile(user))
+                    count += 1
+                if current == total:
+                    break
             
             if rtn['next_cursor'] > 0:
                 cursor = rtn['next_cursor']
