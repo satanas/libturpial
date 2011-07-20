@@ -8,7 +8,7 @@
 import os
 import sys
 
-VERSION = '0.7.0-a2'
+VERSION = '0.8.0-a1'
 STATUSPP = 20
 OS_LINUX = 'linux'
 OS_WINDOWS = 'windows'

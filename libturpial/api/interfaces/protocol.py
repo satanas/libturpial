@@ -284,5 +284,10 @@ class Protocol(TurpialHTTP):
         Execute a search query in server
         '''
         raise NotImplementedError
-        
+    
+    def trends(self):
+        ''' 
+        Search for trends
+        '''
+        raise NotImplementedError
     

@@ -15,8 +15,8 @@ from libturpial.common import ProtocolType, ColumnType, STATUSPP
 from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 
-#TODO: Implement basic code to identify generic proxies in ui_base
-#TODO: Implement a way to detect all exceptions in all cases
+# TODO: Implement basic code to identify generic proxies in ui_base
+# TODO: Implement a way to detect all exceptions in all cases
 
 class Core:
     '''Turpial core'''
@@ -201,4 +201,25 @@ class Core:
         except Exception, exc:
             self.__print_traceback()
             self.log.debug('Error unmarking status as favorite')
+            return Response(code=999)
+    
+    def search(self, acc_id, query):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.search(query))
+        except Exception, exc:
+            self.__print_traceback()
+            self.log.debug('Error searching')
+            return Response(code=999)
+    
+    def trends(self, acc_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.trends())
+        except NotImplementedError:
+            self.log.debug('Trends are not implemented')
+            return Response(code=501)
+        except Exception, exc:
+            self.__print_traceback()
+            self.log.debug('Error searching for trends')
             return Response(code=999)

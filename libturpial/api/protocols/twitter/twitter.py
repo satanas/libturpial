@@ -15,6 +15,7 @@ from libturpial.api.models.profile import Profile
 from libturpial.api.models.ratelimit import RateLimit
 from libturpial.api.protocols.twitter import oauth
 from libturpial.api.interfaces.protocol import Protocol
+from libturpial.api.models.trend import Trend, TrendsResults
 from libturpial.api.protocols.twitter.globals import CONSUMER_KEY, CONSUMER_SECRET
 
 class Main(Protocol):
@@ -181,7 +182,22 @@ class Main(Protocol):
             _list.single_unit = 'tweet'
             _list.plural_unit = 'tweets'
             return _list
-        
+    
+    def json_to_trend(self, response):
+        if isinstance(response, list):
+            trends = []
+            for tr in response:
+                trend = self.json_to_trend(tr)
+                trends.append(trend)
+            return trends
+        else:
+            trend = Trend()
+            trend.name = response['name']
+            trend.promoted = False
+            if response['promoted_content']:
+                trend.promoted = True
+            return trend
+    
     def auth(self, username, password):
         self.log.debug('Starting OAuth')
         
@@ -286,6 +302,8 @@ class Main(Protocol):
             # Fetch user_ids (up to 5000 for each request)
             rtn = self.request('/friends/ids', {'cursor': cursor})
             total = len(rtn['ids'])
+            if total == 0:
+                return friends
             while 1:
                 if current + max_friends_req <= total:
                     batch = rtn['ids'][current:current + max_friends_req]
@@ -410,3 +428,27 @@ class Main(Protocol):
         rtn = self.request('/search',{'q': query, 'rpp': count}, 
             base_url=self.urls['search'])
         return self.json_to_status(rtn['results'])
+        
+    def trends(self):
+        self.log.debug('Searching for current trends')
+        rtn = self.request('/trends/current')
+        results = rtn['trends'].popitem()
+        current = TrendsResults()
+        current.title = 'Current Trends'
+        current.timestamp = results[0]
+        current.items = self.json_to_trend(results[1])
+        
+        rtn = self.request('/trends/daily')
+        results = rtn['trends'].popitem()
+        daily = TrendsResults()
+        daily.title = 'Daily Trends'
+        daily.timestamp = results[0]
+        daily.items = self.json_to_trend(results[1])
+        
+        rtn = self.request('/trends/weekly')
+        results = rtn['trends'].popitem()
+        weekly = TrendsResults()
+        weekly.title = 'Weekly Trends'
+        weekly.timestamp = results[0]
+        weekly.items = self.json_to_trend(results[1])
+        return [current, daily, weekly]
