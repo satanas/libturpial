@@ -54,6 +54,10 @@ class Core:
         try:
             account = self.accman.get(acc_id)
             return Response(account.auth())
+        except URLError, exc:
+            self.__print_traceback()
+            self.log.debug('Network Error')
+            return Response(code=505)
         except Exception, exc:
             self.__print_traceback()
             self.log.debug('Authentication Error')
