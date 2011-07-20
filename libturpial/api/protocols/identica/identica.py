@@ -160,7 +160,7 @@ class Main(Protocol):
         rtn = self.request('/favorites')
         return self.json_to_status(rtn)
         
-    def get_lists(self):
+    def get_lists(self, username):
         return []
         
     def get_list_statuses(self, list_id, user, count=STATUSPP):
@@ -221,11 +221,20 @@ class Main(Protocol):
         rtn = self.request('/account/rate_limit_status')
         return self.json_to_ratelimit(rtn)
         
-    def update_profile(self, name='', url='', bio='', location=''):
+    def update_profile(self, p_args):
         self.log.debug('Updating profile')
         
-        args = {'name': name, 'url': url, 'description': bio, 
-            'location': location}
+        # We use if's instead update method to guarantee valid arguments
+        args = {}
+        if p_args.has_key('name'):
+            args['name'] = p_args['name']
+        if p_args.has_key('url'):
+            args['url'] = p_args['url']
+        if p_args.has_key('description'):
+            args['description'] = p_args['description']
+        if p_args.has_key('location'):
+            args['location'] = p_args['location']
+        
         rtn = self.request('/account/update_profile', args)
         return self.json_to_profile(rtn)
     

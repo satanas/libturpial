@@ -8,6 +8,7 @@
 import urllib2
 
 from libturpial.common import UpdateType, STATUSPP
+from libturpial.api.models.list import List
 from libturpial.api.models.status import Status
 from libturpial.api.models.profile import Profile
 from libturpial.api.models.ratelimit import RateLimit
@@ -161,6 +162,25 @@ class Main(Protocol):
         rate.reset_time_in_seconds = response['reset_time_in_seconds']
         return rate
         
+    def json_to_list(self, response):
+        if isinstance(response, list):
+            lists = []
+            for li in response:
+                _list = self.json_to_list(li)
+                lists.append(_list)
+            return lists
+        else:
+            _list = List()
+            _list.id_ = str(response['id'])
+            _list.user = response['user']
+            _list.name = response['slug']
+            _list.title = response['name']
+            _list.suscribers = response['subscriber_count']
+            _list.description = response['description']
+            _list.single_unit = 'tweet'
+            _list.plural_unit = 'tweets'
+            return _list
+        
     def auth(self, username, password):
         self.log.debug('Starting OAuth')
         
@@ -224,61 +244,17 @@ class Main(Protocol):
         rtn = self.request('/favorites', {'include_entities': True})
         return self.json_to_status(rtn)
         
-    def get_lists(self):
+    def get_lists(self, username):
         self.log.debug('Getting user lists')
-        tries = 0
-        count = 0
-        cursor = -1
-        lists = []
-        
-        # Downloading own lists
-        while 1:
-            try:
-                rtn = self.request('/%s/lists' % self.uname, {'cursor': cursor})
-            except Exception, exc:
-                tries += 1
-                if tries < 3:
-                    continue
-                else:
-                    raise Exception
-                
-            for ls in rtn['lists']:
-                lists.append(self.json_to_list(ls))
-                count += 1
-            if rtn['next_cursor'] > 0:
-                cursor = rtn['next_cursor']
-                continue
-            else:
-                break
-        
-        # Downloading suscribed lists
-        while 1:
-            try:
-                rtn = self.request('/%s/lists/subscriptions' % self.uname, 
-                    {'cursor': cursor})
-            except Exception, exc:
-                tries += 1
-                if tries < 3:
-                    continue
-                else:
-                    raise Exception
-                
-            for ls in rtn['lists']:
-                lists.append(self.json_to_list(ls))
-                count += 1
-            if rtn['next_cursor'] > 0:
-                cursor = rtn['next_cursor']
-                continue
-            else:
-                break
-        
-        self.log.debug('--Downloaded %i lists' % count)
+        rtn = self.request('/lists/all', {'screen_name': username})
+        lists = self.json_to_list(rtn)
+        self.log.debug('--Downloaded %i lists' % len(lists))
         return lists
         
-    def get_list_statuses(self, list_id, user, count=STATUSPP):
-        self.log.debug('Getting list %s statuses' % list_id)
-        rtn = self.request('/%s/lists/%s/statuses' % (user, list_id), 
-            {'per_page': count, 'include_entities': True})
+    def get_list_statuses(self, list_id, count=STATUSPP):
+        self.log.debug('Getting statuses from list %s' % list_id)
+        rtn = self.request('/lists/statuses', {'list_id': list_id, 
+            'per_page': count, 'include_entities': True})
         return self.json_to_status(rtn)
         
     def get_conversation(self, status_id):
@@ -347,11 +323,20 @@ class Main(Protocol):
             users.append(profile.username)
         return users
         
-    def update_profile(self, name='', url='', bio='', location=''):
+    def update_profile(self, p_args):
         self.log.debug('Updating profile')
         
-        args = {'name': name, 'url': url, 'description': bio, 
-            'location': location}
+        # We use if's instead update method to guarantee valid arguments
+        args = {}
+        if p_args.has_key('name'):
+            args['name'] = p_args['name']
+        if p_args.has_key('url'):
+            args['url'] = p_args['url']
+        if p_args.has_key('description'):
+            args['description'] = p_args['description']
+        if p_args.has_key('location'):
+            args['location'] = p_args['location']
+        
         rtn = self.request('/account/update_profile', args)
         return self.json_to_profile(rtn)
     

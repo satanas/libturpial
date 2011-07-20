@@ -45,6 +45,10 @@ class Core:
     def list_protocols(self):
         return [ProtocolType.TWITTER, ProtocolType.IDENTICA]
         
+    def list_columns(self, acc_id):
+        account = self.accman.get(acc_id)
+        return account.get_columns()
+        
     def login(self, acc_id):
         self.log.debug('Authenticating with %s' % acc_id)
         try:
@@ -68,12 +72,19 @@ class Core:
                 rtn = account.get_sent(count)
             elif col_id == ColumnType.FAVORITES:
                 rtn = account.get_favorites(count)
+            else:
+                list_id = account.get_list_id(col_id)
+                if list_id is None:
+                    raise KeyError
+                rtn = account.get_list_statuses(list_id, count)
             return Response(rtn)
         except KeyError:
             return Response(code=410)
         except urllib2.HTTPError, exc:
             if exc.code == 401:
                 return Response(code=401)
+        except Exception, exc:
+            return Response(code=999)
     
     def get_friends(self, acc_id):
         try:
@@ -89,7 +100,7 @@ class Core:
             return Response([account.profile])
         except KeyError, exc:
             self.log.debug('Error getting user profile')
-            return Response(code=409)
+            return Response(code=999)
     
     def get_user_profile(self, acc_id, user):
         try:
@@ -97,7 +108,7 @@ class Core:
             return Response([account.get_profile(user)])
         except Exception:
             self.log.debug('Error getting user profile')
-            return Response(code=409)
+            return Response(code=999)
             
     def update_status(self, acc_id, text, in_reply_id=None):
         try:
@@ -108,6 +119,16 @@ class Core:
             self.log.debug('Error updating status')
             return Response(code=999)
             
+    def update_profile(self, acc_id, args):
+        try:
+            account = self.accman.get(acc_id)
+            new_profile = account.update_profile(args)
+            account.set_profile(new_profile)
+            return Response(new_profile)
+        except Exception:
+            self.log.debug('Error updating profile')
+            return Response(code=999)
+        
     def unfollow(self, acc_id, username):
         try:
             account = self.accman.get(acc_id)

@@ -137,6 +137,10 @@ class Protocol(TurpialHTTP):
         ''' Returns a RateLimit object from a JSON response '''
         raise NotImplementedError
         
+    def json_to_list(self, response):
+        ''' Returns a List object from a JSON response '''
+        raise NotImplementedError
+        
     def response_to_statuses(self, response, mute=False):
         ''' Take the server response and transform into an array of Status 
         objects inside a Response object '''
@@ -180,7 +184,7 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
         
-    def get_lists(self):
+    def get_lists(self, username):
         ''' 
         Fetch all user lists for service
         '''
@@ -216,7 +220,7 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
         
-    def update_profile(self, name, url, bio, location):
+    def update_profile(self, profile_args):
         ''' 
         Update the user profile
         '''
