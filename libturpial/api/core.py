@@ -16,6 +16,7 @@ from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 
 #TODO: Implement basic code to identify generic proxies in ui_base
+#TODO: Implement a way to detect all exceptions in all cases
 
 class Core:
     '''Turpial core'''
@@ -55,6 +56,10 @@ class Core:
             account = self.accman.get(acc_id)
             return Response(account.auth())
         except urllib2.URLError, exc:
+            self.__print_traceback()
+            self.log.debug('Network Error')
+            return Response(code=505)
+        except urllib2.HTTPError, exc:
             self.__print_traceback()
             self.log.debug('Network Error')
             return Response(code=505)
@@ -132,7 +137,16 @@ class Core:
         except Exception:
             self.log.debug('Error updating profile')
             return Response(code=999)
-        
+    
+    def follow(self, acc_id, username):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.follow(username))
+        except Exception, exc:
+            self.__print_traceback()
+            self.log.debug('Error folowing user')
+            return Response(code=999)
+    
     def unfollow(self, acc_id, username):
         try:
             account = self.accman.get(acc_id)
