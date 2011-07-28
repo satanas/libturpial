@@ -1,0 +1,58 @@
+     _                _
+ ___| |__   ___  _ __| |_ _   _ 
+/ __| '_ \ / _ \| '__| __| | | |
+\__ \ | | | (_) | |  | |_| |_| |
+|___/_| |_|\___/|_|   \__|\__, |
+                           __/ |
+                          |___/ 
+
+Access many URL shortening services from one library.
+
+Supported URL shortening services for shrinking long urls:
+
+    tinyurl.com                 burnurl.com
+    tr.im                       hurl.ws
+    urlborg.com                 xr.com
+    bit.ly                      snipurl.com
+    is.gd                       hex.io
+    cli.gs
+    twurl.nl (tweetburner)
+    digg.com
+    a.gd
+    buk.me
+    fon.gs
+    fwd4.me
+    chilp.it
+    short.ie
+    short.to
+    to.ly
+    budurl.com
+    kl.am
+
+Shorty can expand any url service by getting the redirect
+location by requesting the tiny url.
+
+Shorty also comes with a service called sandbox. This service stores
+the urls in memory and is useful for testing your application
+independently from a remote service.
+
+See example.py for a demo of using this library.
+
+Build:
+    Each URL service is implemented in its own module inside the services
+    folder. To use this library you must compile all the various modules together.
+    To compile you will use the compile.py script.
+
+        python compile.py <services>
+
+    <services> is a space separated list of the services you want include.
+    If you wish to use all supported services use the --all flag instead.
+    After the script runs a file named 'shorty.py' will appear.
+    This is the module you will be using inside your projects.
+    A copy of the full shorty.py module will be kept in this repository.
+
+Install:
+    Simply include the shorty.py module in your python path.
+    If using a version of python before 2.6 you will also need
+    to have simplejson installed.
+
