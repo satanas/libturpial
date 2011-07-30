@@ -238,9 +238,9 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
         
-    def repost(self, id_):
+    def repeat(self, id_):
         ''' 
-        Repost to all your friends an update posted by somebody
+        Repeat to all your friends an update posted by somebody
         '''
         raise NotImplementedError
         

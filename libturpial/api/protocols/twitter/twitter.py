@@ -394,7 +394,7 @@ class Main(Protocol):
             'include_entities': True})
         return self.json_to_status(rtn)
         
-    def repost(self, status_id):
+    def repeat(self, status_id):
         self.log.debug('Retweeting status %s' % status_id)
         rtn = self.request('/statuses/retweet', {'id': status_id})
         status = self.json_to_status(rtn)

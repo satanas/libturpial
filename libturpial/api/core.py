@@ -139,6 +139,15 @@ class Core:
             self.log.debug('Error destroying status')
             return Response(code=999)
     
+    def repeat_status(self, acc_id, status_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.repeat(status_id))
+        except Exception, exc:
+            self.__print_traceback()
+            self.log.debug('Error repeating status')
+            return Response(code=999)
+            
     def update_profile(self, acc_id, args):
         try:
             account = self.accman.get(acc_id)
