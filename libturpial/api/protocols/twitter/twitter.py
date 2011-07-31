@@ -334,6 +334,11 @@ class Main(Protocol):
         rtn = self.request('/users/show', {'screen_name': user})
         return self.json_to_profile(rtn)
         
+    def get_blocked(self):
+        self.log.debug('Getting list of blocked users')
+        rtn = self.request('/blocks/blocking')
+        return self.json_to_profile(rtn)
+        
     def get_rate_limits(self):
         self.log.debug('Getting rate limits')
         rtn = self.request('/account/rate_limit_status')
@@ -421,6 +426,21 @@ class Main(Protocol):
     def unfollow(self, screen_name):
         self.log.debug('Unfollow to %s' % screen_name)
         rtn = self.request('/friendships/destroy', {'screen_name': screen_name})
+        return self.json_to_profile(rtn)
+        
+    def block(self, screen_name):
+        self.log.debug('Blocking user %s' % screen_name)
+        rtn = self.request('/blocks/create', {'screen_name': screen_name})
+        return self.json_to_profile(rtn)
+        
+    def unblock(self, screen_name):
+        self.log.debug('Unblocking user %s' % screen_name)
+        rtn = self.request('/blocks/destroy', {'screen_name': screen_name})
+        return self.json_to_profile(rtn)
+        
+    def report_spam(self, screen_name):
+        self.log.debug('Reporting user %s as spammer' % screen_name)
+        rtn = self.request('/report_spam', {'screen_name': screen_name})
         return self.json_to_profile(rtn)
         
     def search(self, query, count=STATUSPP):

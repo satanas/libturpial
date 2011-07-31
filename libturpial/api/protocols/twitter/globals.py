@@ -22,10 +22,10 @@ POST_ACTIONS = [
     # Friendship Methods, Favorite Methods
     'destroy',
 
-    # Block Methods, Friendship Methods, Favorite Methods
+    # Block Methods, Friendship Methods, Favorite Methods, Report Spam
     'create',
-    
     'retweet',
+    'report_spam',
 
 ]
 

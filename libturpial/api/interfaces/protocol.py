@@ -214,6 +214,12 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
         
+    def get_blocked(self):
+        ''' 
+        Fetch the list of blocked users
+        '''
+        raise NotImplementedError
+        
     def get_rate_limits(self):
         ''' 
         Fetch the rate limits for the service
@@ -276,6 +282,24 @@ class Protocol(TurpialHTTP):
     def destroy_direct(self, id_):
         ''' 
         Destroy a direct message
+        '''
+        raise NotImplementedError
+        
+    def block(self, user):
+        ''' 
+        Blocks the specified user
+        '''
+        raise NotImplementedError
+    
+    def unblock(self, user):
+        ''' 
+        Unblocks the specified user
+        '''
+        raise NotImplementedError
+    
+    def report_spam(self, user):
+        ''' 
+        Blocks and report the specified user as spammer
         '''
         raise NotImplementedError
         

@@ -16,7 +16,6 @@ from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 
 # TODO: Implement basic code to identify generic proxies in ui_base
-# TODO: Implement a way to detect all exceptions in all cases
 
 class Core:
     '''Turpial core'''
@@ -32,6 +31,47 @@ class Core:
         if self.log.getEffectiveLevel() == logging.DEBUG:
             print traceback.print_exc()
     
+    def __handle_exception(self, exc, extra_info=''):
+        self.__print_traceback()
+        
+        _type = type(exc)
+        response = None
+        if _type == urllib2.URLError:
+            response = Response(code=801)
+        elif _type == urllib2.HTTPError:
+            response = Response(code=801)
+        elif _type == IndexError:
+            return Response(code=808)
+        elif _type == KeyError:
+            response = Response(code=807)
+        elif _type == NotImplementedError:
+            response = Response(code=900)
+        elif _type == urllib2.HTTPError:
+            if exc.code in ERROR_CODES:
+                response = Response(code=exc.code)
+            elif (exc.code == 400):
+                self.log.debug("Error HTTP 400 detected: %s" % msg)
+                response = Response(code=100)
+                response.errmsg = "Sorry, server is limiting your API calls"
+            elif (exc.code == 403):
+                msg = exc.read()
+                self.log.debug("Error HTTP 403 detected: %s" % msg)
+                if msg.find("Status is a duplicate.") > 0:
+                    response = Response(code=802)
+                elif msg.find("is already on your list.") > 0:
+                    response = Response(code=802)
+                elif msg.find("already requested to follow") > 0:
+                    response = Response(code=802)
+                else:
+                    response = Response(code=100)
+                    response.errmsg = msg
+        elif _type == Exception:
+            response = Response(code=999)
+        
+        self.log.debug(response.errmsg)
+        return response
+    
+    ''' Microblogging '''
     def register_account(self, username, password, protocol_id):
         self.log.debug('Registering account %s' % username)
         return self.accman.register(username, password, protocol_id)
@@ -54,19 +94,12 @@ class Core:
         self.log.debug('Authenticating with %s' % acc_id)
         try:
             account = self.accman.get(acc_id)
-            return Response(account.auth())
-        except urllib2.URLError, exc:
-            self.__print_traceback()
-            self.log.debug('Network Error')
-            return Response(code=505)
-        except urllib2.HTTPError, exc:
-            self.__print_traceback()
-            self.log.debug('Network Error')
-            return Response(code=505)
+            if account.logged_in:
+                return Response(code=808)
+            else:
+                return Response(account.auth())
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Unknown Error')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def get_column_statuses(self, acc_id, col_id, count=STATUSPP):
         try:
@@ -84,69 +117,53 @@ class Core:
             else:
                 list_id = account.get_list_id(col_id)
                 if list_id is None:
-                    raise KeyError
+                    raise IndexError
                 rtn = account.get_list_statuses(list_id, count)
             return Response(rtn)
-        except KeyError:
-            return Response(code=410)
-        except urllib2.HTTPError, exc:
-            if exc.code == 401:
-                return Response(code=401)
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Unknown Error')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def get_friends(self, acc_id):
         try:
             account = self.accman.get(acc_id)
             return Response(account.get_friends_list())
-        except Exception:
-            self.log.debug('Error getting friends list')
-            return Response(code=411)
+        except Exception, exc:
+            return self.__handle_exception(exc)
     
     def get_own_profile(self, acc_id):
         try:
             account = self.accman.get(acc_id)
             return Response([account.profile])
-        except KeyError, exc:
-            self.log.debug('Error getting user profile')
-            return Response(code=999)
+        except Exception, exc:
+            return self.__handle_exception(exc)
     
     def get_user_profile(self, acc_id, user):
         try:
             account = self.accman.get(acc_id)
             return Response([account.get_profile(user)])
-        except Exception:
-            self.log.debug('Error getting user profile')
-            return Response(code=999)
+        except Exception, exc:
+            return self.__handle_exception(exc)
     
     def update_status(self, acc_id, text, in_reply_id=None):
         try:
             account = self.accman.get(acc_id)
             return Response(account.update_status(text, in_reply_id))
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error updating status')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def destroy_status(self, acc_id, status_id):
         try:
             account = self.accman.get(acc_id)
             return Response(account.destroy_status(status_id))
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error destroying status')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def repeat_status(self, acc_id, status_id):
         try:
             account = self.accman.get(acc_id)
             return Response(account.repeat(status_id))
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error repeating status')
-            return Response(code=999)
+            return self.__handle_exception(exc)
             
     def update_profile(self, acc_id, args):
         try:
@@ -154,81 +171,86 @@ class Core:
             new_profile = account.update_profile(args)
             account.set_profile(new_profile)
             return Response(new_profile)
-        except Exception:
-            self.log.debug('Error updating profile')
-            return Response(code=999)
+        except Exception, exc:
+            return self.__handle_exception(exc)
     
     def follow(self, acc_id, username):
         try:
             account = self.accman.get(acc_id)
             return Response(account.follow(username))
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error folowing user')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def unfollow(self, acc_id, username):
         try:
             account = self.accman.get(acc_id)
             return Response(account.unfollow(username))
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error unfolowing user')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def send_direct(self, acc_id, username, message):
         try:
             account = self.accman.get(acc_id)
             return Response(account.send_direct(username, message))
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error sendind direct message')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def destroy_direct(self, acc_id, status_id):
         try:
             account = self.accman.get(acc_id)
             return Response(account.destroy_direct(status_id))
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error destroying direct message')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def mark_favorite(self, acc_id, status_id):
         try:
             account = self.accman.get(acc_id)
             return Response(account.mark_favorite(status_id))
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error marking status as favorite')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def unmark_favorite(self, acc_id, status_id):
         try:
             account = self.accman.get(acc_id)
             return Response(account.unmark_favorite(status_id))
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error unmarking status as favorite')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def search(self, acc_id, query):
         try:
             account = self.accman.get(acc_id)
             return Response(account.search(query))
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error searching')
-            return Response(code=999)
+            return self.__handle_exception(exc)
     
     def trends(self, acc_id):
         try:
             account = self.accman.get(acc_id)
             return Response(account.trends())
-        except NotImplementedError:
-            self.log.debug('Trends are not implemented')
-            return Response(code=501)
         except Exception, exc:
-            self.__print_traceback()
-            self.log.debug('Error searching for trends')
-            return Response(code=999)
+            return self.__handle_exception(exc)
+    
+    def block(self, acc_id, user):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.block(user))
+        except Exception, exc:
+            return self.__handle_exception(exc)
+    
+    def unblock(self, acc_id, user):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.unblock(user))
+        except Exception, exc:
+            return self.__handle_exception(exc)
+    
+    def report_spam(self, acc_id, user):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.report_spam(user))
+        except Exception, exc:
+            return self.__handle_exception(exc)
+    
+    ''' Services '''
+    #def short_url(self, url, service):
+        

@@ -285,6 +285,16 @@ class Main(Protocol):
         self.log.debug('Unfollow to %s' % screen_name)
         rtn = self.request('/friendships/destroy', {'screen_name': screen_name})
         return self.json_to_profile(rtn)
+    
+    def block(self, screen_name):
+        self.log.debug('Blocking user %s' % screen_name)
+        rtn = self.request('/blocks/create', {'screen_name': screen_name})
+        return self.json_to_profile(rtn)
+        
+    def unblock(self, screen_name):
+        self.log.debug('Unblocking user %s' % screen_name)
+        rtn = self.request('/blocks/destroy', {'screen_name': screen_name})
+        return self.json_to_profile(rtn)
         
     def search(self, query, count=STATUSPP):
         self.log.debug('Searching: %s' % query)

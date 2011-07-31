@@ -34,6 +34,7 @@ class Account:
             ColumnType.DIRECTS, ColumnType.SENT, ColumnType.FAVORITES]
         for li in self.lists:
             self.columns.append(li.name)
+        self.logged_in = True
         
     def get_friends_list(self):
         return self.friends

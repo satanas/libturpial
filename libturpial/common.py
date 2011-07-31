@@ -31,6 +31,31 @@ class ColumnType:
     DIRECTS = 'directs'
     SENT = 'sent'
     FAVORITES = 'favorites'
+
+ERROR_CODES = {
+    100: "",
+    304: "There was no new data to return",
+    401: "Invalid or missing credentials",
+    404: "Your argument is invalid",
+    406: "What are you trying to search?",
+    420: "Wait! Your search is being too intense",
+    
+    500: "Oops! The server is broken",
+    502: "Oh oh... The server is down",
+    503: "The server is overloaded",
+    
+    801: "There are some network issues",
+    802: "Your status was sent. Don't try again",
+    803: "User is already a friend",
+    804: "You've already requested to follow that user",
+    805: "Invalid account",
+    806: "That column doesn't exist",
+    807: "Server is not responding",
+    808: "Accounr already logged in",
+    
+    900: "Feature not implemented yet",
+    999: "Unknown error",
+}
     
 def clean_bytecodes(root_path, logger=None):
     """Clean all .pyc y .pyo. This is intented to use by all UI interfaces"""
