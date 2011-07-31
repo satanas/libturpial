@@ -11,7 +11,7 @@ import urllib2
 import logging
 import traceback
 
-from libturpial.common import ProtocolType, ColumnType, STATUSPP
+from libturpial.common import ProtocolType, ColumnType, STATUSPP, ERROR_CODES
 from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 from libturpial.api.services.shorturl.servicelist import URL_SERVICES
@@ -39,8 +39,6 @@ class Core:
         response = None
         if _type == urllib2.URLError:
             response = Response(code=801)
-        elif _type == urllib2.HTTPError:
-            response = Response(code=801)
         elif _type == IndexError:
             return Response(code=808)
         elif _type == KeyError:
@@ -51,7 +49,7 @@ class Core:
             if exc.code in ERROR_CODES:
                 response = Response(code=exc.code)
             elif (exc.code == 400):
-                self.log.debug("Error HTTP 400 detected: %s" % msg)
+                self.log.debug("Error HTTP 400 detected: %s" % exc)
                 response = Response(code=100)
                 response.errmsg = "Sorry, server is limiting your API calls"
             elif (exc.code == 403):
@@ -66,7 +64,9 @@ class Core:
                 else:
                     response = Response(code=100)
                     response.errmsg = msg
-        elif _type == Exception:
+        elif _type == ValueError:
+            response = Response(code=404)
+        else:
             response = Response(code=999)
         
         self.log.debug(response.errmsg)
@@ -252,6 +252,13 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
     
+    def is_friend(self, acc_id, user):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.is_friend(user))
+        except Exception, exc:
+            return self.__handle_exception(exc)
+        
     ''' Services '''
     def short_url(self, url, service):
         urlshorter = URL_SERVICES[service].do_service(url)

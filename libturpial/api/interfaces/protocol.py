@@ -315,3 +315,9 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
     
+    def is_friend(self, user):
+        ''' 
+        Returns True is user follows current account, False otherwise
+        '''
+        raise NotImplementedError
+    

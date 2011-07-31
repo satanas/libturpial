@@ -472,3 +472,9 @@ class Main(Protocol):
         weekly.timestamp = results[0]
         weekly.items = self.json_to_trend(results[1])
         return [current, daily, weekly]
+    
+    def is_friend(self, user):
+        self.log.debug('Testing friendship of %s against %s' % (self.uname, user))
+        result = self.request('/friendships/show', 
+            {'source_screen_name': self.uname, 'target_screen_name': user})
+        return result['relationship']['target']['following']

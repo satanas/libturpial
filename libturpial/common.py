@@ -8,7 +8,7 @@
 import os
 import sys
 
-VERSION = '0.5.4-a1'
+VERSION = '0.5.9-a1'
 STATUSPP = 20
 OS_LINUX = 'linux'
 OS_WINDOWS = 'windows'
@@ -36,7 +36,7 @@ ERROR_CODES = {
     100: "",
     304: "There was no new data to return",
     401: "Invalid or missing credentials",
-    404: "Your argument is invalid",
+    404: "Invalid request",
     406: "What are you trying to search?",
     420: "Wait! Your search is being too intense",
     

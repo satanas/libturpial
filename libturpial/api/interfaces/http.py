@@ -103,10 +103,11 @@ class TurpialHTTP:
     def fetch_http_resource(self, httpreq, format):
         req = urllib2.Request(httpreq.strReq, httpreq.argData, httpreq.headers)
         handle = urllib2.urlopen(req)
+        response = handle.read()
         if format == 'json':
-            return json.loads(handle.read())
+            return json.loads(response)
         else:
-            return handle.read()
+            return response
     
     def request(self, url, args={}, format=DEFAULT_FORMAT, base_url=None):
         if not base_url:

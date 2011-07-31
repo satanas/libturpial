@@ -301,3 +301,18 @@ class Main(Protocol):
         rtn = self.request('/search',{'q': query, 'rpp': count}, 
             base_url=self.urls['search'])
         return self.json_to_status(rtn['results'])
+        
+    def is_friend(self, user):
+        self.log.debug('Testing friendship of %s against %s' % (self.uname, user))
+        result = self.request('/friendships/show', 
+            {'source_screen_name': self.uname, 'target_screen_name': user})
+        return result['relationship']['target']['following']
+        '''
+        self.log.debug('Testing friendship with %s' % user)
+        result = self.request('/friendships/exists', {'screen_name_a': self.uname, 
+            'screen_name_b': user}, format='xml')
+        print result
+        if result.find('true') > 0:
+            return True
+        elif result.find('false') > 0:
+            return False '''
