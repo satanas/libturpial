@@ -167,7 +167,7 @@ class Main(Protocol):
         pass
     
     def get_conversation(self, status_id):
-        self.log.debug('Getting conversation')
+        self.log.debug('Getting conversation for status %s' % status_id)
         conversation = []
         
         while 1:

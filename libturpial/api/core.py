@@ -145,6 +145,13 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
     
+    def get_conversation(self, acc_id, status_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.get_conversation(status_id))
+        except Exception, exc:
+            return self.__handle_exception(exc)
+    
     def update_status(self, acc_id, text, in_reply_id=None):
         try:
             account = self.accman.get(acc_id)

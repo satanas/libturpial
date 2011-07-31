@@ -275,7 +275,7 @@ class Main(Protocol):
         return self.json_to_status(rtn)
         
     def get_conversation(self, status_id):
-        self.log.debug('Getting conversation')
+        self.log.debug('Getting conversation for status %s' % status_id)
         conversation = []
         
         while 1:
