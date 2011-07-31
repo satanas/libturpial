@@ -14,6 +14,7 @@ import traceback
 from libturpial.common import ProtocolType, ColumnType, STATUSPP
 from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
+from libturpial.api.services.shorturl.servicelist import URL_SERVICES
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -252,5 +253,7 @@ class Core:
             return self.__handle_exception(exc)
     
     ''' Services '''
-    #def short_url(self, url, service):
+    def short_url(self, url, service):
+        urlshorter = URL_SERVICES[service].do_service(url)
+        return urlshorter.response
         
