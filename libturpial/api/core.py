@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Minimalistic and agnostic core for Turpial'''
+""" Minimalistic and agnostic core for Turpial """
 #
 # Author: Wil Alvarez (aka Satanas)
 # Mar 06, 2011
@@ -124,6 +124,13 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
     
+    def get_public_timeline(self, acc_id, count=STATUSPP):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.get_public_timeline(count))
+        except Exception, exc:
+            return self.__handle_exception(exc)
+            
     def get_friends(self, acc_id):
         try:
             account = self.accman.get(acc_id)

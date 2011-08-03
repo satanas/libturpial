@@ -52,8 +52,8 @@ class Main(Protocol):
         req = urllib2.Request(self.access_url, data=request.to_postdata())
         response = urllib2.urlopen(req)
         self.token = oauth.OAuthToken.from_string(response.read())
-        self.auth_args['key'] = self.token.key
-        self.auth_args['secret'] = self.token.secret
+        self.auth_args['key'] = '75391358-ESv1kUJP00mTRtjgFAkIZmtHfylD7vtWTqp52kEb0' #self.token.key
+        self.auth_args['secret'] = 'UCYcx49jcueuXLW2acGic0b737ctxQANYzPTJ1XTs' #self.token.secret
         
     def auth_http_request(self, httpreq, args):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
@@ -259,6 +259,12 @@ class Main(Protocol):
     def get_favorites(self, count=STATUSPP):
         self.log.debug('Getting favorites')
         rtn = self.request('/favorites', {'include_entities': True})
+        return self.json_to_status(rtn)
+        
+    def get_public_timeline(self, count=STATUSPP):
+        self.log.debug('Getting public timeline')
+        rtn = self.request('/statuses/public_timeline', {'count': count, 
+            'include_entities': True})
         return self.json_to_status(rtn)
         
     def get_lists(self, username):

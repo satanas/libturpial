@@ -184,6 +184,12 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
         
+    def get_public_timeline(self, count):
+        ''' 
+        Fetch the public timeline from the server 
+        '''
+        raise NotImplementedError
+        
     def get_lists(self, username):
         ''' 
         Fetch all user lists for service

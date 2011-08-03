@@ -160,6 +160,12 @@ class Main(Protocol):
         rtn = self.request('/favorites')
         return self.json_to_status(rtn)
         
+    def get_public_timeline(self, count=STATUSPP):
+        self.log.debug('Getting public timeline')
+        rtn = self.request('/statuses/public_timeline', {'count': count, 
+            'include_entities': True})
+        return self.json_to_status(rtn)
+        
     def get_lists(self, username):
         return []
         
