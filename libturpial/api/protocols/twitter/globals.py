@@ -30,6 +30,5 @@ POST_ACTIONS = [
 ]
 
 CK = 'W2wNN0zVTOTCZuvCx87fpg'
-#CS = 'KrgZxe6LmSbYF0TdSxRvGGloR7WJyig8r6ay9mnOhY'
 CS = 'S3JnWnhlNkxtU2JZRjBUZFN4UnZHR2xvUjdXSnlpZz'
 SALT = 'hyNmF5OW1uT2hZ'
