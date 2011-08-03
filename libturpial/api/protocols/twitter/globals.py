@@ -29,6 +29,7 @@ POST_ACTIONS = [
 
 ]
 
-# key and secret granted by the service provider for this consumer application
-CONSUMER_KEY = 'W2wNN0zVTOTCZuvCx87fpg'
-CONSUMER_SECRET = 'KrgZxe6LmSbYF0TdSxRvGGloR7WJyig8r6ay9mnOhY'
+CK = 'W2wNN0zVTOTCZuvCx87fpg'
+#CS = 'KrgZxe6LmSbYF0TdSxRvGGloR7WJyig8r6ay9mnOhY'
+CS = 'S3JnWnhlNkxtU2JZRjBUZFN4UnZHR2xvUjdXSnlpZz'
+SALT = 'hyNmF5OW1uT2hZ'

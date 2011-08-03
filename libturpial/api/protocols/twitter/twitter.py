@@ -5,6 +5,7 @@
 # Author: Wil Alvarez (aka Satanas)
 # May 25, 2010
 
+import base64
 import urllib2
 import traceback
 
@@ -16,7 +17,7 @@ from libturpial.api.models.ratelimit import RateLimit
 from libturpial.api.protocols.twitter import oauth
 from libturpial.api.interfaces.protocol import Protocol
 from libturpial.api.models.trend import Trend, TrendsResults
-from libturpial.api.protocols.twitter.globals import CONSUMER_KEY, CONSUMER_SECRET
+from libturpial.api.protocols.twitter.globals import CK, CS, SALT
 
 class Main(Protocol):
     def __init__(self, username, account_id):
@@ -34,7 +35,8 @@ class Main(Protocol):
         self.auth_args = {}
         self.access_url = 'https://api.twitter.com/oauth/access_token'
         
-        self.consumer = oauth.OAuthConsumer(CONSUMER_KEY, CONSUMER_SECRET)
+        CST = base64.b64decode(CS + SALT)
+        self.consumer = oauth.OAuthConsumer(CK, CST)
         self.sign_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
         
     def __fetch_xauth_access_token(self, username, password):
@@ -52,8 +54,8 @@ class Main(Protocol):
         req = urllib2.Request(self.access_url, data=request.to_postdata())
         response = urllib2.urlopen(req)
         self.token = oauth.OAuthToken.from_string(response.read())
-        self.auth_args['key'] = '75391358-ESv1kUJP00mTRtjgFAkIZmtHfylD7vtWTqp52kEb0' #self.token.key
-        self.auth_args['secret'] = 'UCYcx49jcueuXLW2acGic0b737ctxQANYzPTJ1XTs' #self.token.secret
+        self.auth_args['key'] = self.token.key
+        self.auth_args['secret'] = self.token.secret
         
     def auth_http_request(self, httpreq, args):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
