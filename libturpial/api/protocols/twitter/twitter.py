@@ -57,7 +57,7 @@ class Main(Protocol):
         self.auth_args['key'] = self.token.key
         self.auth_args['secret'] = self.token.secret
         
-    def auth_http_request(self, httpreq, args):
+    def auth_http_request(self, httpreq, args=None):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
             token=self.token, http_method=httpreq.method, http_url=httpreq.uri,
             parameters=httpreq.params)
