@@ -10,7 +10,7 @@ from libturpial.api.models.profile import Profile
 from libturpial.api.protocols.twitter import twitter
 from libturpial.api.protocols.identica import identica
 
-class Account:    
+class Account:
     def __init__(self, username, password, id_, protocol_id):
         self.id_ = id_
         if protocol_id == ProtocolType.TWITTER:

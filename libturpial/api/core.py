@@ -11,10 +11,11 @@ import urllib2
 import logging
 import traceback
 
-from libturpial.common import ProtocolType, ColumnType, STATUSPP, ERROR_CODES
 from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 from libturpial.api.services.shorturl.servicelist import URL_SERVICES
+from libturpial.common import ProtocolType, ColumnType, STATUSPP, ERROR_CODES
+from libturpial.config import AppConfig
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -27,6 +28,7 @@ class Core:
         self.log = logging.getLogger('Core')
         self.log.debug('Started')
         self.accman = AccountManager()
+        self.config = AppConfig()
     
     def __print_traceback(self):
         if self.log.getEffectiveLevel() == logging.DEBUG:
