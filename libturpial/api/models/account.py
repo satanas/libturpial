@@ -5,14 +5,15 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 13, 2011
 
-from libturpial.common import ProtocolType, ColumnType
+from libturpial.config import AccountConfig
 from libturpial.api.models.profile import Profile
 from libturpial.api.protocols.twitter import twitter
 from libturpial.api.protocols.identica import identica
+from libturpial.common import ProtocolType, ColumnType
 
 class Account:
-    def __init__(self, username, password, id_, protocol_id):
-        self.id_ = id_
+    def __init__(self, username, password, account_id, protocol_id):
+        self.id_ = account_id
         if protocol_id == ProtocolType.TWITTER:
             self.protocol = twitter.Main(username, self.id_)
         elif protocol_id == ProtocolType.IDENTICA:
@@ -24,6 +25,8 @@ class Account:
         self.columns = []
         self.lists = None
         self.logged_in = False
+        self.config = AccountConfig(account_id)
+        self.config.initialize()
     
     def auth(self):
         self.profile = self.protocol.auth(self.profile.username, self.profile.password)
@@ -54,6 +57,10 @@ class Account:
     def set_profile(self, profile):
         self.profile = profile
     
+    def remove(self, delete_all):
+        if delete_all:
+            self.config.dismiss()
+        
     def __getattr__(self, name):
         try:
             return getattr(self.protocol, name)

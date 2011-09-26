@@ -79,10 +79,13 @@ class Core:
         self.log.debug('Registering account %s' % username)
         return self.accman.register(username, password, protocol_id)
     
-    def unregister_account(self, account_id):
+    def unregister_account(self, account_id, delete_all=False):
         self.log.debug('Unregistering account %s' % account_id)
-        return self.accman.unregister(account_id)
+        return self.accman.unregister(account_id, delete_all)
     
+    def get_registered_accounts(self):
+        pass
+        
     def list_accounts(self):
         return self.accman.list()
     
@@ -132,7 +135,7 @@ class Core:
             return Response(account.get_public_timeline(count))
         except Exception, exc:
             return self.__handle_exception(exc)
-            
+    
     def get_friends(self, acc_id):
         try:
             account = self.accman.get(acc_id)
@@ -181,7 +184,7 @@ class Core:
             return Response(account.repeat(status_id))
         except Exception, exc:
             return self.__handle_exception(exc)
-            
+    
     def update_profile(self, acc_id, args):
         try:
             account = self.accman.get(acc_id)
@@ -274,9 +277,11 @@ class Core:
             return Response(account.is_friend(user))
         except Exception, exc:
             return self.__handle_exception(exc)
-        
+    
     ''' Services '''
     def short_url(self, url, service):
         urlshorter = URL_SERVICES[service].do_service(url)
         return urlshorter.response
         
+    ''' Configuration '''
+    

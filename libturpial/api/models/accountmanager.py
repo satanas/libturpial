@@ -32,8 +32,9 @@ class AccountManager:
             self.log.debug('Account %s was registered successfully' % account_id)
         return account_id
         
-    def unregister(self, account_id):
+    def unregister(self, account_id, delete_all):
         if self.__accounts.has_key(account_id):
+            self.__accounts[account_id].remove(delete_all)
             del self.__accounts[account_id]
         else:
             self.log.debug('Account %s is not registered' % account_id)

@@ -6,6 +6,7 @@
 # Sep 26, 2011
 
 import os
+import shutil
 import logging
 import ConfigParser
 
@@ -79,7 +80,7 @@ ACCOUNT_CFG = {
 
 
 class ConfigBase:
-    """App base configuration"""
+    """Base configuration"""
     def __init__(self, default=None):
         self.__config = {}
         if default is None:
@@ -114,7 +115,7 @@ class ConfigBase:
                     self.__config[section][option] = self.cfg.get(section, option)
                 else:
                     self.write(section, option, value)
-                
+        
     def load_failsafe(self):
         self.log.debug('Loading failsafe configuration')
         self.__config = self.default
@@ -209,80 +210,55 @@ class AppConfig(ConfigBase):
         for user in lst:
             _fd.write(user + '\n')
         _fd.close()
-            
-class ConfigProtocol(ConfigBase):
     
-    def __init__(self, protocol):
-        ConfigBase.__init__(self, default=PROTOCOL_CFG)
-        
-        self.dir = os.path.join(os.path.expanduser('~'), '.config', 
-            'turpial', protocol)
-        self.configpath = os.path.join(self.dir, 'config')
-        
-        if not os.path.isdir(self.dir): 
-            os.makedirs(self.dir)
-        if not os.path.isfile(self.configpath): 
-            self.create()
-        
-        self.load()
-        
-'''
-class AppConfig(ConfigBase):
-    """ Handle app configuration """
-    def __init__(self, account): #user, protocol):
-        ConfigBase.__init__(self)
+    def get_accounts(self):
+        pass
+    
+    def save_account(self, account):
+        pass
+
+class AccountConfig(ConfigBase):
+    
+    def __init__(self, account_id):
+        ConfigBase.__init__(self, default=ACCOUNT_CFG)
         
         userdir = os.path.expanduser('~')
-        self.basedir = os.path.join(userdir, '.config', 'turpial', account)
+        self.basedir = os.path.join(userdir, '.config', 'turpial', 'accounts', account_id)
         
         if XDG_CACHE:
             cachedir = BaseDirectory.xdg_cache_home
-            self.imgdir = os.path.join(cachedir, 'turpial', account, 'images')
+            self.imgdir = os.path.join(cachedir, 'turpial', account_id, 'images')
         else:
             self.imgdir = os.path.join(self.basedir, 'images')
         
         self.configpath = os.path.join(self.basedir, 'config')
-        self.filterpath = os.path.join(self.basedir, 'filtered')
-    
-    def initialize_failsafe(self):
-        if not os.path.isdir(self.basedir): 
-            self.load_failsafe()
-        else:
-            self.initialize()
-            
+        
     def initialize(self):
-        self.log.debug('CACHE_DIR: %s' % self.imgdir)
-        self.log.debug('CONFIG_FILE: %s' % self.configpath)
-        self.log.debug('MUTED_FILE: %s' % self.filterpath)
+        self.log.debug('CACHEDIR: %s' % self.imgdir)
+        self.log.debug('CONFIGFILE: %s' % self.configpath)
         
-        if not os.path.isdir(self.basedir): 
+        if not os.path.isdir(self.basedir):
             os.makedirs(self.basedir)
-        if not os.path.isdir(self.imgdir): 
+        if not os.path.isdir(self.imgdir):
             os.makedirs(self.imgdir)
-        if not os.path.isfile(self.configpath): 
+        if not os.path.isfile(self.configpath):
             self.create()
-        if not os.path.isfile(self.filterpath): 
-            self.create_filter_list()
+            
+        try:
+            self.load()
+            self.log.debug('Loaded user configuration')
+        except Except, exc:
+            self.load_failsafe()
+            self.log.debug('Loaded failsafe configuration')
+    
+    def dismiss(self):
+        if os.path.isdir(self.imgdir):
+            shutil.rmtree(self.imgdir)
+            self.log.debug('Removed cache directory')
+        if os.path.isfile(self.configpath):
+            os.remove(self.configpath)
+            self.log.debug('Removed configuration file')
+        if os.path.isdir(self.basedir):
+            shutil.rmtree(self.basedir)
+            self.log.debug('Removed base directory')
         
-        self.load()
-        
-    def create_filter_list(self):
-        _fd = open(self.filterpath, 'w')
-        _fd.close()
-        
-    def load_filter_list(self):
-        muted = []
-        _fd = open(self.filterpath, 'r')
-        for line in _fd:
-            if line == '\n':
-                continue
-            muted.append(line.strip('\n'))
-        _fd.close()
-        return muted
-        
-    def save_filter_list(self, lst):
-        _fd = open(self.filterpath, 'w')
-        for user in lst:
-            _fd.write(user + '\n')
-        _fd.close()
-'''
