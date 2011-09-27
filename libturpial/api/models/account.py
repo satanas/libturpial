@@ -12,7 +12,7 @@ from libturpial.api.protocols.identica import identica
 from libturpial.common import ProtocolType, ColumnType
 
 class Account:
-    def __init__(self, username, password, account_id, protocol_id):
+    def __init__(self, username, account_id, protocol_id, password):
         self.id_ = account_id
         if protocol_id == ProtocolType.TWITTER:
             self.protocol = twitter.Main(username, self.id_)
@@ -25,8 +25,7 @@ class Account:
         self.columns = []
         self.lists = None
         self.logged_in = False
-        self.config = AccountConfig(account_id)
-        self.config.initialize()
+        self.config = AccountConfig(account_id, password)
     
     def auth(self):
         self.profile = self.protocol.auth(self.profile.username, self.profile.password)

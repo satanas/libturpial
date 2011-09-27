@@ -6,6 +6,7 @@
 # Sep 26, 2011
 
 import os
+import base64
 import shutil
 import logging
 import ConfigParser
@@ -75,9 +76,12 @@ ACCOUNT_CFG = {
     'Login':{
         'username': '',
         'password': '',
+        'protocol': '',
     }
 }
 
+USERDIR = os.path.expanduser('~')
+BASEDIR = os.path.join(USERDIR, '.config', 'turpial')
 
 class ConfigBase:
     """Base configuration"""
@@ -100,7 +104,7 @@ class ConfigBase:
                 self.cfg.set(section, option, value)
         self.cfg.write(_fd)
         _fd.close()
-        
+    
     def load(self):
         self.log.debug('Loading configuration')
         self.cfg.read(self.configpath)
@@ -173,8 +177,7 @@ class AppConfig(ConfigBase):
     def __init__(self):
         ConfigBase.__init__(self)
         
-        userdir = os.path.expanduser('~')
-        self.basedir = os.path.join(userdir, '.config', 'turpial')
+        self.basedir = BASEDIR
         
         self.configpath = os.path.join(self.basedir, 'config')
         self.filterpath = os.path.join(self.basedir, 'filtered')
@@ -211,19 +214,26 @@ class AppConfig(ConfigBase):
             _fd.write(user + '\n')
         _fd.close()
     
-    def get_accounts(self):
-        pass
+    def get_stored_accounts(self):
+        accounts = []
+        acc_dir = os.path.join(BASEDIR, 'accounts')
+        for root, dirs, files in os.walk(acc_dir):
+            for acc_dir in dirs:
+                filepath = os.path.join(root, acc_dir, 'config')
+                print filepath
+                if os.path.isfile(filepath):
+                    accounts.append(acc_dir)
+        return accounts
     
     def save_account(self, account):
         pass
 
 class AccountConfig(ConfigBase):
     
-    def __init__(self, account_id):
+    def __init__(self, account_id, pw=None):
         ConfigBase.__init__(self, default=ACCOUNT_CFG)
         
-        userdir = os.path.expanduser('~')
-        self.basedir = os.path.join(userdir, '.config', 'turpial', 'accounts', account_id)
+        self.basedir = os.path.join(BASEDIR, 'accounts', account_id)
         
         if XDG_CACHE:
             cachedir = BaseDirectory.xdg_cache_home
@@ -233,24 +243,47 @@ class AccountConfig(ConfigBase):
         
         self.configpath = os.path.join(self.basedir, 'config')
         
-    def initialize(self):
         self.log.debug('CACHEDIR: %s' % self.imgdir)
         self.log.debug('CONFIGFILE: %s' % self.configpath)
         
+        exist = True
         if not os.path.isdir(self.basedir):
             os.makedirs(self.basedir)
         if not os.path.isdir(self.imgdir):
             os.makedirs(self.imgdir)
         if not os.path.isfile(self.configpath):
             self.create()
+            exist = False
             
         try:
             self.load()
-            self.log.debug('Loaded user configuration')
         except Except, exc:
             self.load_failsafe()
-            self.log.debug('Loaded failsafe configuration')
+        
+        if not exist:
+            us = account_id.split('-')[0]
+            pt = account_id.split('-')[1]
+            self.write('Login', 'username', us)
+            self.write('Login', 'protocol', pt)
+            if pw:
+                self.write('Login', 'password', self.transform(pw, us))
     
+    def transform(self, pw, us):
+        a = base64.b16encode(pw)
+        b = us[0] + a + ('%s' % us[-1])
+        c = base64.b32encode(b)
+        d = ('%s' % us[-1]) + c + us[0]
+        e = base64.b64encode(d)
+        return e[0:len(us)]+ e[len(us):]
+        
+    def revert(self, pw, us):
+        a = base64.b64decode(pw)
+        b = a[1:-1]
+        c = base64.b32decode(b)
+        d = c[1:-1]
+        e = base64.b16decode(d)
+        pwd = e[0:len(us)]+ e[len(us):]
+        
     def dismiss(self):
         if os.path.isdir(self.imgdir):
             shutil.rmtree(self.imgdir)
@@ -261,4 +294,3 @@ class AccountConfig(ConfigBase):
         if os.path.isdir(self.basedir):
             shutil.rmtree(self.basedir)
             self.log.debug('Removed base directory')
-        

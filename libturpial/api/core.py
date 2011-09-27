@@ -15,7 +15,7 @@ from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 from libturpial.api.services.shorturl.servicelist import URL_SERVICES
 from libturpial.common import ProtocolType, ColumnType, STATUSPP, ERROR_CODES
-from libturpial.config import AppConfig
+from libturpial.config import AppConfig, AccountConfig
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -29,7 +29,9 @@ class Core:
         self.log.debug('Started')
         self.accman = AccountManager()
         self.config = AppConfig()
-    
+        
+        self.load_registered_accounts()
+        
     def __print_traceback(self):
         if self.log.getEffectiveLevel() == logging.DEBUG:
             print traceback.print_exc()
@@ -75,16 +77,22 @@ class Core:
         return response
     
     ''' Microblogging '''
-    def register_account(self, username, password, protocol_id):
+    def register_account(self, username, protocol_id, password=None):
         self.log.debug('Registering account %s' % username)
-        return self.accman.register(username, password, protocol_id)
+        return self.accman.register(username, protocol_id, password)
     
     def unregister_account(self, account_id, delete_all=False):
         self.log.debug('Unregistering account %s' % account_id)
         return self.accman.unregister(account_id, delete_all)
-    
-    def get_registered_accounts(self):
-        pass
+        
+    def load_registered_accounts(self):
+        accounts = self.config.get_stored_accounts()
+        for acc in accounts:
+            cfg = AccountConfig(acc)
+            username = cfg.read('Login', 'username')
+            protocol = cfg.read('Login', 'protocol')
+            password = cfg.revert(cfg.read('Login', 'password'), username)
+            self.register_account(username, protocol, password)
         
     def list_accounts(self):
         return self.accman.list()

@@ -21,13 +21,13 @@ class AccountManager:
     def __iter__(self):
         return self.__accounts.iteritems()
         
-    def register(self, username, password, protocol_id):
+    def register(self, username, protocol_id, password):
         account_id = "%s-%s" % (username, protocol_id)
         if self.__accounts.has_key(account_id):
             self.log.debug('Account %s is already registered' % account_id)
             self.__accounts[account_id].update(password)
         else:
-            account = Account(username, password, account_id, protocol_id)
+            account = Account(username, account_id, protocol_id, password)
             self.__accounts[account_id] = account
             self.log.debug('Account %s was registered successfully' % account_id)
         return account_id
