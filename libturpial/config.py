@@ -220,7 +220,6 @@ class AppConfig(ConfigBase):
         for root, dirs, files in os.walk(acc_dir):
             for acc_dir in dirs:
                 filepath = os.path.join(root, acc_dir, 'config')
-                print filepath
                 if os.path.isfile(filepath):
                     accounts.append(acc_dir)
         return accounts
@@ -230,7 +229,7 @@ class AppConfig(ConfigBase):
 
 class AccountConfig(ConfigBase):
     
-    def __init__(self, account_id, pw=None):
+    def __init__(self, account_id, pw=None, remember=False):
         ConfigBase.__init__(self, default=ACCOUNT_CFG)
         
         self.basedir = os.path.join(BASEDIR, 'accounts', account_id)
@@ -265,9 +264,17 @@ class AccountConfig(ConfigBase):
             pt = account_id.split('-')[1]
             self.write('Login', 'username', us)
             self.write('Login', 'protocol', pt)
-            if pw:
-                self.write('Login', 'password', self.transform(pw, us))
+            if pw and remember:
+                self.remember(pw, us)
+            else:
+                self.forget()
     
+    def remember(self, pw, us):
+        self.write('Login', 'password', self.transform(pw, us))
+    
+    def forget(self):
+        self.write('Login', 'password', '')
+        
     def transform(self, pw, us):
         a = base64.b16encode(pw)
         b = us[0] + a + ('%s' % us[-1])

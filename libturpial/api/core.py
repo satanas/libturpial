@@ -77,9 +77,9 @@ class Core:
         return response
     
     ''' Microblogging '''
-    def register_account(self, username, protocol_id, password=None):
+    def register_account(self, username, protocol_id, password=None, remember=False):
         self.log.debug('Registering account %s' % username)
-        return self.accman.register(username, protocol_id, password)
+        return self.accman.register(username, protocol_id, password, remember)
     
     def unregister_account(self, account_id, delete_all=False):
         self.log.debug('Unregistering account %s' % account_id)
