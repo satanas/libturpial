@@ -292,4 +292,14 @@ class Core:
         return urlshorter.response
         
     ''' Configuration '''
-    
+    def has_stored_passwd(self, acc_id):
+        account = self.accman.get(acc_id)
+        if account.profile.password is None:
+            return False
+        if account.profile.password == '':
+            return False
+        return True
+        
+    def is_account_logged_in(self, acc_id):
+        account = self.accman.get(acc_id)
+        return account.logged_in
