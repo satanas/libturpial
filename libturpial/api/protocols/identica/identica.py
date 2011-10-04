@@ -50,7 +50,7 @@ class Main(Protocol):
             if response.has_key('status'):
                 profile.last_update = response['status']['text']
                 profile.last_update_id = response['status']['id']
-            profile.link_color = ('#' + response['profile_link_color']) or Profile.DEFAULT_LINK_COLOR
+            profile.link_color = Profile.DEFAULT_LINK_COLOR
             return profile
     
     def json_to_status(self, response, _type=UpdateType.STD):
