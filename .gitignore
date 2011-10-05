@@ -1,5 +1,5 @@
 dist/
-turpial.egg-info/
+*.egg-info/
 *.pyc
 *.pyo
 *.mo
