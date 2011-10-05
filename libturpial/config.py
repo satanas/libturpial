@@ -289,7 +289,7 @@ class AccountConfig(ConfigBase):
         c = base64.b32decode(b)
         d = c[1:-1]
         e = base64.b16decode(d)
-        pwd = e[0:len(us)]+ e[len(us):]
+        return e[0:len(us)]+ e[len(us):]
         
     def dismiss(self):
         if os.path.isdir(self.imgdir):
