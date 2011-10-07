@@ -175,7 +175,7 @@ class Main(Protocol):
     def auth(self, username, password):
         self.log.debug('Starting OAuth')
         
-        rtn = self.request('/account/verify_credentials')
+        rtn = self.request('/account/verify_credentials', secure=True)
         profile = self.json_to_profile(rtn)
         self.uname = profile.username
         return profile

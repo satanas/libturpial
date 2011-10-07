@@ -121,7 +121,7 @@ class Main(Protocol):
         ''' Start Auth '''
         self.log.debug('Starting Basic Auth')
         self.auth_args = {'username': username, 'password': password}
-        rtn = self.request('/account/verify_credentials')
+        rtn = self.request('/account/verify_credentials', secure=True)
         profile = self.json_to_profile(rtn)
         self.uname = profile.username
         return profile
