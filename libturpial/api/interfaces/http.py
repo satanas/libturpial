@@ -174,7 +174,7 @@ class TurpialHTTP:
             opener = urllib2.build_opener(ConnectHTTPSHandler(proxy=proxy_url))
         urllib2.install_opener(opener)
         
-    def build_http_request(self, uri, args, format):
+    def build_http_request(self, uri, args, fmt):
         '''Construir la petición HTTP'''
         argStr = ''
         headers = {}
@@ -192,7 +192,7 @@ class TurpialHTTP:
             uri = "%s/%s" % (uri, args['id'])
             del args['id']
         
-        uri = "%s.%s" % (uri, format)
+        uri = "%s.%s" % (uri, fmt)
         self.log.debug('Request to: %s' % uri)
         
         if len(args) > 0:
@@ -222,22 +222,24 @@ class TurpialHTTP:
             signed_httpreq = self.__basic_sign_http_request(httpreq, args)
         return signed_httpreq
         
-    def fetch_http_resource(self, httpreq, format):
+    def fetch_http_resource(self, httpreq, fmt):
         req = urllib2.Request(httpreq.strReq, httpreq.argData, httpreq.headers)
         handle = urllib2.urlopen(req)
         response = handle.read()
-        if format == 'json':
+        if fmt == 'json':
             return json.loads(response)
         else:
             return response
     
-    def request(self, url, args={}, format=DEFAULT_FORMAT, base_url=None):
+    def request(self, url, args={}, fmt=DEFAULT_FORMAT, base_url=None, secure=False):
         if not base_url:
             base_url = self.urls['api']
+        if secure:
+            base_url = base_url.replace('http://', 'https://')
         request_url = "%s%s" % (base_url, url)
-        httpreq = self.build_http_request(request_url, args, format)
+        httpreq = self.build_http_request(request_url, args, fmt)
         authreq = self.auth_http_request(httpreq, self.auth_args)
-        return self.fetch_http_resource(authreq, format)
+        return self.fetch_http_resource(authreq, fmt)
     
 class TurpialHTTPRequest:
     def __init__(self, argStr='', headers={}, argData=None, encoded_args='', 
