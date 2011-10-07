@@ -77,9 +77,9 @@ class Core:
         return response
     
     ''' Microblogging '''
-    def register_account(self, username, protocol_id, password=None, remember=False):
+    def register_account(self, username, protocol_id, password=None, remember=False, auth=None):
         self.log.debug('Registering account %s' % username)
-        return self.accman.register(username, protocol_id, password, remember)
+        return self.accman.register(username, protocol_id, password, remember, auth)
     
     def unregister_account(self, account_id, delete_all=False):
         self.log.debug('Unregistering account %s' % account_id)
@@ -89,10 +89,14 @@ class Core:
         accounts = self.config.get_stored_accounts()
         for acc in accounts:
             cfg = AccountConfig(acc)
+            auth = cfg.read_section('OAuth')
             username = cfg.read('Login', 'username')
             protocol = cfg.read('Login', 'protocol')
             password = cfg.revert(cfg.read('Login', 'password'), username)
-            self.register_account(username, protocol, password)
+            rem = False
+            if password:
+                rem = True
+            self.register_account(username, protocol, password, rem, auth)
         
     def list_accounts(self):
         return self.accman.list()
@@ -105,7 +109,29 @@ class Core:
         return account.get_columns()
     
     def login(self, acc_id):
-        self.log.debug('Authenticating with %s' % acc_id)
+        self.log.debug('Starting login sequence with %s' % acc_id)
+        try:
+            account = self.accman.get(acc_id)
+            if account.logged_in:
+                return Response(code=808)
+            else:
+                return Response(account.start_oauth())
+        except Exception, exc:
+            return self.__handle_exception(exc)
+    
+    def authorize_oauth_token(self, acc_id, pin):
+        self.log.debug('Authorizating OAuth token for %s' % acc_id)
+        try:
+            account = self.accman.get(acc_id)
+            if account.logged_in:
+                return Response(code=808)
+            else:
+                return Response(account.authorize_oauth_token(pin))
+        except Exception, exc:
+            return self.__handle_exception(exc)
+            
+    def auth(self, acc_id):
+        self.log.debug('Authenticating sequence with %s' % acc_id)
         try:
             account = self.accman.get(acc_id)
             if account.logged_in:

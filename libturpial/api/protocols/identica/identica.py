@@ -15,7 +15,7 @@ from libturpial.api.interfaces.protocol import Protocol
 class Main(Protocol):
     GROUP_PATTERN = re.compile('(?<![\w])![\wáéíóúÁÉÍÓÚñÑçÇ]+')
     
-    def __init__(self, username, account_id):
+    def __init__(self, username, account_id, auth):
         p_name = 'Identi.ca(%s)' % username
         Protocol.__init__(self, account_id, p_name, 
             'http://identi.ca/api', 
@@ -26,6 +26,8 @@ class Main(Protocol):
         
         self.uname = None
         self.account_id = account_id
+        if auth:
+            self.set_auth_info(auth)
     
     def json_to_profile(self, response):
         if isinstance(response, list):

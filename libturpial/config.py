@@ -68,7 +68,7 @@ APP_CFG = {
 }
 
 ACCOUNT_CFG = {
-    'oAuth':{
+    'OAuth':{
         'verifier': '',
         'key': '',
         'secret': '',
@@ -284,6 +284,8 @@ class AccountConfig(ConfigBase):
         return e[0:len(us)]+ e[len(us):]
         
     def revert(self, pw, us):
+        if pw == '':
+            return None
         a = base64.b64decode(pw)
         b = a[1:-1]
         c = base64.b32decode(b)

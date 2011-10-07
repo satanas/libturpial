@@ -14,13 +14,12 @@ from libturpial.api.models.list import List
 from libturpial.api.models.status import Status
 from libturpial.api.models.profile import Profile
 from libturpial.api.models.ratelimit import RateLimit
-from libturpial.api.protocols.twitter import oauth
 from libturpial.api.interfaces.protocol import Protocol
 from libturpial.api.models.trend import Trend, TrendsResults
 from libturpial.api.protocols.twitter.globals import CK, CS, SALT
 
 class Main(Protocol):
-    def __init__(self, username, account_id):
+    def __init__(self, username, account_id, auth):
         p_name = 'Twitter(%s)' % username
         Protocol.__init__(self, account_id, p_name, 
             'http://api.twitter.com/1', 
@@ -29,43 +28,16 @@ class Main(Protocol):
             None, 
             'http://www.twitter.com')
         
+        self.REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
+        self.ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
+        self.AUTHORIZATION_URL = 'https://api.twitter.com/oauth/authorize'
+        
         self.uname = None
-        self.token = None
         self.account_id = account_id
-        self.auth_args = {}
-        self.access_url = 'https://api.twitter.com/oauth/access_token'
-        
-        CST = base64.b64decode(CS + SALT)
-        self.consumer = oauth.OAuthConsumer(CK, CST)
-        self.sign_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
-        
-    def __fetch_xauth_access_token(self, username, password):
-        request = oauth.OAuthRequest.from_consumer_and_token(
-            oauth_consumer=self.consumer,
-            http_method='POST', http_url=self.access_url,
-            parameters = {
-                'x_auth_mode': 'client_auth',
-                'x_auth_username': username,
-                'x_auth_password': password
-            }
-        )
-        request.sign_request(self.sign_method_hmac_sha1, self.consumer, None)
-
-        req = urllib2.Request(self.access_url, data=request.to_postdata())
-        response = urllib2.urlopen(req)
-        self.token = oauth.OAuthToken.from_string(response.read())
-        self.auth_args['key'] = self.token.key
-        self.auth_args['secret'] = self.token.secret
-        
-    def auth_http_request(self, httpreq, args):
-        request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
-            token=self.token, http_method=httpreq.method, http_url=httpreq.uri,
-            parameters=httpreq.params)
-        request.sign_request(self.sign_method_hmac_sha1,
-            self.consumer, self.token)
-        httpreq.headers.update(request.to_header())
-        return httpreq
-        
+        self.set_consumer(CK, base64.b64decode(CS + SALT))
+        if auth:
+            self.set_auth_info(auth)
+    
     def json_to_profile(self, response):
         if isinstance(response, list):
             profiles = []
@@ -203,7 +175,6 @@ class Main(Protocol):
     def auth(self, username, password):
         self.log.debug('Starting OAuth')
         
-        self.__fetch_xauth_access_token(username, password)
         rtn = self.request('/account/verify_credentials')
         profile = self.json_to_profile(rtn)
         self.uname = profile.username

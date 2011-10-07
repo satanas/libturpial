@@ -12,12 +12,13 @@ from libturpial.api.protocols.identica import identica
 from libturpial.common import ProtocolType, ColumnType
 
 class Account:
-    def __init__(self, username, account_id, protocol_id, password, remember):
+    def __init__(self, username, account_id, protocol_id, password, remember, auth):
         self.id_ = account_id
         if protocol_id == ProtocolType.TWITTER:
-            self.protocol = twitter.Main(username, self.id_)
+            self.protocol = twitter.Main(username, self.id_, auth)
         elif protocol_id == ProtocolType.IDENTICA:
-            self.protocol = identica.Main(username, self.id_)
+            self.protocol = identica.Main(username, self.id_, auth)
+            
         self.profile = Profile()
         self.profile.username = username
         self.profile.password = password
@@ -63,6 +64,12 @@ class Account:
     def remove(self, delete_all):
         if delete_all:
             self.config.dismiss()
+    
+    def authorize_oauth_token(self, pin):
+        token = self.authorize_token(pin)
+        self.config.write('OAuth', 'key', token.key)
+        self.config.write('OAuth', 'secret', token.secret)
+        self.config.write('OAuth', 'verifier', token.verifier)
         
     def __getattr__(self, name):
         try:

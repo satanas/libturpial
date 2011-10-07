@@ -15,6 +15,10 @@ import logging
 from base64 import b64encode
 from urllib import urlencode
 
+# FIXME: Change for python-oauth
+from libturpial.api.protocols.twitter import oauth
+from libturpial.api.models.auth_object import AuthObject
+
 def _py26_or_greater():
     import sys
     return sys.hexversion > 0x20600f0
@@ -27,15 +31,134 @@ else:
 class TurpialHTTP:
     DEFAULT_FORMAT = 'json'
     
-    def __init__(self, post_actions):
+    def __init__(self, post_actions, oauth_support=True):
         self.urls = {}
-        self.auth_args = {}
+        self.auth_args = {'key':'', 'secret':'', 'verifier':''}
         self.post_actions = post_actions
         self.log = logging.getLogger('TurpialHTTP')
         # timeout in seconds
         timeout = 20
         socket.setdefaulttimeout(timeout)
+        self.oauth_support = oauth_support
+        self.token = None
+        self.consumer = None
+        self.sign_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
         
+    def __oauth_sign_http_request(self, httpreq, args):
+        request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
+            token=self.token, http_method=httpreq.method, http_url=httpreq.uri,
+            parameters=httpreq.params)
+        request.sign_request(self.sign_method_hmac_sha1,
+            self.consumer, self.token)
+        httpreq.headers.update(request.to_header())
+        return httpreq
+    
+    def __basic_sign_http_request(self, httpreq, args):
+        username = args['username']
+        password = args['password']
+        if username:
+            auth_info = b64encode("%s:%s" % (username, password))
+            httpreq.headers["Authorization"] = "Basic " + auth_info
+        return httpreq
+    
+    # ------------------------------------------------------------
+    # OAuth Methods
+    # ------------------------------------------------------------
+    
+    def set_auth_info(self, auth):
+        self.auth_args = auth
+        
+    def set_consumer(self, key, sec):
+        self.consumer = oauth.OAuthConsumer(key, sec)
+        
+    def start_oauth(self):
+        if self.auth_args['key'] != '' and self.auth_args['secret'] != '' and \
+        self.auth_args['verifier'] != '':
+            token = self.build_token(self.auth_args)
+            return AuthObject('done', token=token)
+        else:
+            url = self.request_token()
+            return AuthObject('auth', url=url)
+    
+    def build_token(self, auth):
+        self.token = oauth.OAuthToken(auth['key'], auth['secret'])
+        self.token.set_verifier(auth['verifier'])
+        return self.token
+        
+    def request_token(self):
+        self.log.debug('Obtain a request token')
+        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
+            http_url=self.REQUEST_TOKEN_URL)
+        
+        oauth_request.sign_request(self.sign_method_hmac_sha1,
+            self.consumer, None)
+        
+        self.log.debug('REQUEST (via headers)')
+        self.log.debug('parameters: %s' % str(oauth_request.parameters))
+        
+        req = urllib2.Request(self.REQUEST_TOKEN_URL, headers=oauth_request.to_header())
+        response = urllib2.urlopen(req)
+        self.token = oauth.OAuthToken.from_string(response.read())
+        
+        self.log.debug('GOT')
+        self.log.debug('key: %s' % str(self.token.key))
+        self.log.debug('secret: %s' % str(self.token.secret))
+        self.log.debug('callback confirmed? %s' % str(self.token.callback_confirmed))
+        
+        self.log.debug('Authorize the request token')
+        oauth_request = oauth.OAuthRequest.from_token_and_callback(token=self.token,
+            http_url=self.AUTHORIZATION_URL)
+        
+        self.log.debug('REQUEST (via url query string)')
+        self.log.debug('parameters: %s' % str(oauth_request.parameters))
+        return oauth_request.to_url()
+        
+    def authorize_token(self, pin):
+        self.log.debug('Obtain an access token')
+        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
+            token=self.token, verifier=pin,
+            http_url=self.ACCESS_TOKEN_URL)
+        
+        oauth_request.sign_request(self.sign_method_hmac_sha1,
+            self.consumer, self.token)
+        
+        self.log.debug('REQUEST (via headers)')
+        self.log.debug('parameters: %s' % str(oauth_request.parameters))
+        
+        req = urllib2.Request(self.ACCESS_TOKEN_URL, headers=oauth_request.to_header())
+        response = urllib2.urlopen(req)
+        self.token = oauth.OAuthToken.from_string(response.read())
+        
+        self.log.debug('GOT')
+        self.log.debug('key: %s' % str(self.token.key))
+        self.log.debug('secret: %s' % str(self.token.secret))
+        self.token.verifier = pin
+        return self.token
+    
+    '''
+    def __fetch_xauth_access_token(self, username, password):
+        request = oauth.OAuthRequest.from_consumer_and_token(
+            oauth_consumer=self.consumer,
+            http_method='POST', http_url=self.access_url,
+            parameters = {
+                'x_auth_mode': 'client_auth',
+                'x_auth_username': username,
+                'x_auth_password': password
+            }
+        )
+        request.sign_request(self.sign_method_hmac_sha1, self.consumer, None)
+
+        req = urllib2.Request(self.access_url, data=request.to_postdata())
+        response = urllib2.urlopen(req)
+        self.token = oauth.OAuthToken.from_string(response.read())
+        self.auth_args['key'] = self.token.key
+        self.auth_args['secret'] = self.token.secret
+    '''
+    
+    # ------------------------------------------------------------
+    # Common Methods
+    # ------------------------------------------------------------
+    
     def set_proxy(self, proxy):
         self.log.debug('Proxies detected: %s' % proxies)
         proxy_url = {}
@@ -93,12 +216,11 @@ class TurpialHTTP:
         return req
     
     def auth_http_request(self, httpreq, args):
-        username = args['username']
-        password = args['password']
-        if username:
-            auth_info = b64encode("%s:%s" % (username, password))
-            httpreq.headers["Authorization"] = "Basic " + auth_info
-        return httpreq
+        if self.oauth_support:
+            signed_httpreq = self.__oauth_sign_http_request(httpreq, args)
+        else:
+            signed_httpreq = self.__basic_sign_http_request(httpreq, args)
+        return signed_httpreq
         
     def fetch_http_resource(self, httpreq, format):
         req = urllib2.Request(httpreq.strReq, httpreq.argData, httpreq.headers)
