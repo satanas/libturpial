@@ -11,12 +11,6 @@ class AuthObject:
         self.token = token
         self.url = url
     
-    def is_done(self):
-        ''' Test if the token is already authenticated '''
-        if self.type_ == 'done':
-            return True
-        return False
-    
     def must_auth(self):
         ''' Test if token must be authenticated '''
         if self.type_ == 'auth':

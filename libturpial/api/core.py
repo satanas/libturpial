@@ -115,7 +115,7 @@ class Core:
             if account.logged_in:
                 return Response(code=808)
             else:
-                return Response(account.start_oauth())
+                return Response(account.start_login())
         except Exception, exc:
             return self.__handle_exception(exc)
     

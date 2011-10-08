@@ -31,6 +31,7 @@ class Main(Protocol):
         self.ACCESS_TOKEN_URL = 'https://identi.ca/api/oauth/access_token'
         self.AUTHORIZATION_URL = 'https://identi.ca/api/oauth/authorize'
         
+        self.oauth_support = False
         self.uname = None
         self.account_id = account_id
         self.set_consumer(CK, base64.b64decode(CS + SALT))
@@ -126,8 +127,9 @@ class Main(Protocol):
             return status
     
     def auth(self, username, password):
-        self.log.debug('Starting OAuth')
-        
+        self.log.debug('Starting auth')
+        if not self.oauth_support:
+            self.set_auth_info({'username': username, 'password': password})
         rtn = self.request('/account/verify_credentials', secure=True)
         profile = self.json_to_profile(rtn)
         self.uname = profile.username
@@ -216,12 +218,7 @@ class Main(Protocol):
             for user in rtn:
                 friends.append(self.json_to_profile(user))
                 count += 1
-            #break
-            
-            if rtn['next_cursor'] > 0:
-                cursor = rtn['next_cursor']
-            else:
-                break
+            break
             
         self.log.debug('--Downloaded %i friends' % count)
         return friends

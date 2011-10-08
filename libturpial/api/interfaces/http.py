@@ -69,7 +69,6 @@ class TurpialHTTP:
         self.auth_args = auth
         
     def set_consumer(self, key, sec):
-        print "KEY, SECRET: ", key, sec
         self.consumer = oauth.OAuthConsumer(key, sec)
         
     def start_oauth(self):
@@ -160,6 +159,12 @@ class TurpialHTTP:
     # Common Methods
     # ------------------------------------------------------------
     
+    def start_login(self):
+        if self.oauth_support:
+            self.start_oauth()
+        else:
+            return AuthObject('basic', token=None)
+            
     def set_proxy(self, proxy):
         self.log.debug('Proxies detected: %s' % proxies)
         proxy_url = {}
