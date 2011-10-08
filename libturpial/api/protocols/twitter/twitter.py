@@ -6,8 +6,6 @@
 # May 25, 2010
 
 import base64
-import urllib2
-import traceback
 
 from libturpial.common import UpdateType, STATUSPP
 from libturpial.api.models.list import List
@@ -16,7 +14,7 @@ from libturpial.api.models.profile import Profile
 from libturpial.api.models.ratelimit import RateLimit
 from libturpial.api.interfaces.protocol import Protocol
 from libturpial.api.models.trend import Trend, TrendsResults
-from libturpial.api.protocols.twitter.globals import CK, CS, SALT
+from libturpial.api.protocols.twitter.params import CK, CS, SALT, POST_ACTIONS
 
 class Main(Protocol):
     def __init__(self, username, account_id, auth):
@@ -26,7 +24,8 @@ class Main(Protocol):
             'http://search.twitter.com', 
             'http://twitter.com/search?q=%23', 
             None, 
-            'http://www.twitter.com')
+            'http://www.twitter.com',
+            POST_ACTIONS)
         
         self.REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
         self.ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
@@ -81,50 +80,50 @@ class Main(Protocol):
             reposted_by = None
             if response.has_key('retweeted_status'):
                 reposted_by = response['user']['screen_name']
-                tweet = response['retweeted_status']
+                post = response['retweeted_status']
             else:
-                tweet = response
+                post = response
             
-            if tweet.has_key('user'):
-                username = tweet['user']['screen_name']
-                avatar = tweet['user']['profile_image_url']
-            elif tweet.has_key('sender'):
-                username = tweet['sender']['screen_name']
-                avatar = tweet['sender']['profile_image_url']
-            elif tweet.has_key('from_user'):
-                username = tweet['from_user']
-                avatar = tweet['profile_image_url']
+            if post.has_key('user'):
+                username = post['user']['screen_name']
+                avatar = post['user']['profile_image_url']
+            elif post.has_key('sender'):
+                username = post['sender']['screen_name']
+                avatar = post['sender']['profile_image_url']
+            elif post.has_key('from_user'):
+                username = post['from_user']
+                avatar = post['profile_image_url']
             
             in_reply_to_id = None
             in_reply_to_user = None
-            if tweet.has_key('in_reply_to_status_id') and \
-               tweet['in_reply_to_status_id']:
-                in_reply_to_id = tweet['in_reply_to_status_id']
-                in_reply_to_user = tweet['in_reply_to_screen_name']
+            if post.has_key('in_reply_to_status_id') and \
+               post['in_reply_to_status_id']:
+                in_reply_to_id = post['in_reply_to_status_id']
+                in_reply_to_user = post['in_reply_to_screen_name']
                 
             fav = False
-            if tweet.has_key('favorited'):
-                fav = tweet['favorited']
+            if post.has_key('favorited'):
+                fav = post['favorited']
             
             source = None
-            if tweet.has_key('source'):
-                source = tweet['source']
+            if post.has_key('source'):
+                source = post['source']
             
             own = True if (username.lower() == self.uname.lower()) else False
             
             status = Status()
-            status.id_ = str(tweet['id'])
+            status.id_ = str(post['id'])
             status.username = username
             status.avatar = avatar
             status.source = self.get_source(source)
-            status.text = tweet['text']
+            status.text = post['text']
             status.in_reply_to_id = in_reply_to_id
             status.in_reply_to_user = in_reply_to_user
             status.is_favorite = fav
             status.reposted_by = reposted_by
-            status.datetime = self.get_str_time(tweet['created_at'])
-            status.timestamp = self.get_int_time(tweet['created_at'])
-            status.entities = self.get_entities(tweet)
+            status.datetime = self.get_str_time(post['created_at'])
+            status.timestamp = self.get_int_time(post['created_at'])
+            status.entities = self.get_entities(post)
             status._type = _type
             status.account_id = self.account_id
             status.is_own = own

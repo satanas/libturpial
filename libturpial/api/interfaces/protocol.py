@@ -12,7 +12,6 @@ import datetime
 import xml.sax.saxutils as saxutils
 
 from libturpial.api.interfaces.http import TurpialHTTP
-from libturpial.api.protocols.twitter.globals import POST_ACTIONS
 
 class Protocol(TurpialHTTP):
     ''' Base class to define basic functions that must have any protocol
@@ -25,8 +24,8 @@ class Protocol(TurpialHTTP):
     URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$&\'()*+,;=]*)')
     
     def __init__(self, account_id, name, api_url, search_url, tags_url=None, 
-        groups_url=None, profiles_url=None):
-        TurpialHTTP.__init__(self, POST_ACTIONS)
+        groups_url=None, profiles_url=None, post_actions=[]):
+        TurpialHTTP.__init__(self, post_actions)
         
         self.urls['api'] = api_url
         self.urls['search'] = search_url

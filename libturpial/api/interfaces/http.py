@@ -16,7 +16,7 @@ from base64 import b64encode
 from urllib import urlencode
 
 # FIXME: Change for python-oauth
-from libturpial.api.protocols.twitter import oauth
+from libturpial.api.protocols import oauth
 from libturpial.api.models.auth_object import AuthObject
 
 def _py26_or_greater():
@@ -69,6 +69,7 @@ class TurpialHTTP:
         self.auth_args = auth
         
     def set_consumer(self, key, sec):
+        print "KEY, SECRET: ", key, sec
         self.consumer = oauth.OAuthConsumer(key, sec)
         
     def start_oauth(self):
