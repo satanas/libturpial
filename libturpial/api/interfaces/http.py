@@ -161,7 +161,7 @@ class TurpialHTTP:
     
     def start_login(self):
         if self.oauth_support:
-            self.start_oauth()
+            return self.start_oauth()
         else:
             return AuthObject('basic', token=None)
             
