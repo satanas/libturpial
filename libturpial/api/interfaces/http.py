@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Módulo genérico para manejar las solicitudes HTTP de Turpial"""
+"""Generic module to handle HTTP request in Turpial"""
 #
 # Author: Wil Alvarez (aka Satanas)
 # May 20, 2010
@@ -71,14 +71,14 @@ class TurpialHTTP:
     def set_consumer(self, key, sec):
         self.consumer = oauth.OAuthConsumer(key, sec)
         
-    def start_oauth(self):
+    def start_oauth(self, account_id):
         if self.auth_args['key'] != '' and self.auth_args['secret'] != '' and \
         self.auth_args['verifier'] != '':
             token = self.build_token(self.auth_args)
-            return AuthObject('done', token=token)
+            return AuthObject('done', account_id, token=token)
         else:
             url = self.request_token()
-            return AuthObject('auth', url=url)
+            return AuthObject('auth', account_id, url=url)
     
     def build_token(self, auth):
         self.token = oauth.OAuthToken(auth['key'], auth['secret'])
@@ -159,11 +159,11 @@ class TurpialHTTP:
     # Common Methods
     # ------------------------------------------------------------
     
-    def start_login(self):
+    def start_login(self, account_id):
         if self.oauth_support:
-            return self.start_oauth()
+            return self.start_oauth(account_id)
         else:
-            return AuthObject('basic', token=None)
+            return AuthObject('basic', account_id, token=None)
             
     def set_proxy(self, proxy):
         self.log.debug('Proxies detected: %s' % proxies)

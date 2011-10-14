@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Módulo genérico para implementar protocolos de microblogging en Turpial"""
+"""Generic module to implement microblogging protocols in Turpial"""
 #
 # Author: Wil Alvarez (aka Satanas)
 # May 20, 2010
