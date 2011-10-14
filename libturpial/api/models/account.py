@@ -26,7 +26,13 @@ class Account:
         self.columns = []
         self.lists = None
         self.logged_in = False
+        self.remembered = remember
         self.config = AccountConfig(account_id, password, remember)
+        
+        if self.config.read('Login', 'active') == 'on':
+            self.active = True
+        else:
+            self.active = False
     
     def auth(self):
         self.profile = self.protocol.auth(self.profile.username, self.profile.password)
@@ -38,6 +44,7 @@ class Account:
         for li in self.lists:
             self.columns.append(li.name)
         self.logged_in = True
+        return self.id_
         
     def get_friends_list(self):
         return self.friends
@@ -51,8 +58,15 @@ class Account:
                 return li.id_
         return None
         
+    def is_remembered(self):
+        return self.remembered
+    
+    def is_active(self):
+        return self.active
+        
     def update(self, pw, remember):
         self.profile.password = pw
+        self.remembered = remember
         if remember:
             self.config.remember(pw, self.profile.username)
         else:
@@ -70,6 +84,12 @@ class Account:
         self.config.write('OAuth', 'key', token.key)
         self.config.write('OAuth', 'secret', token.secret)
         self.config.write('OAuth', 'verifier', token.verifier)
+        
+    def activate(self, value):
+        if value:
+            self.config.write('Login', 'active', 'on')
+        else:
+            self.config.write('Login', 'active', 'off')
         
     def __getattr__(self, name):
         try:

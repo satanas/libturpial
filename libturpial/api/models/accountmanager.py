@@ -22,6 +22,9 @@ class AccountManager:
         return self.__accounts.iteritems()
         
     def register(self, username, protocol_id, passwd, remember, auth):
+        if username == '' or protocol_id == '':
+            return None
+        
         account_id = "%s-%s" % (username, protocol_id)
         if self.__accounts.has_key(account_id):
             self.log.debug('Account %s is already registered' % account_id)
@@ -43,5 +46,13 @@ class AccountManager:
         return self.__accounts[account_id]
         
     def list(self):
-        return self.__accounts.keys()
+        temp = self.__accounts.keys()
+        temp.sort()
+        return temp
+        
+    def get_all(self):
+        accounts = []
+        for acc in self.list():
+            accounts.append(self.get(acc))
+        return accounts
         

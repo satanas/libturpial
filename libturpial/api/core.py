@@ -12,10 +12,10 @@ import logging
 import traceback
 
 from libturpial.api.models.response import Response
+from libturpial.config import AppConfig, AccountConfig
 from libturpial.api.models.accountmanager import AccountManager
 from libturpial.api.services.shorturl.servicelist import URL_SERVICES
 from libturpial.common import ProtocolType, ColumnType, STATUSPP, ERROR_CODES
-from libturpial.config import AppConfig, AccountConfig
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -79,7 +79,9 @@ class Core:
     ''' Microblogging '''
     def register_account(self, username, protocol_id, password=None, remember=False, auth=None):
         self.log.debug('Registering account %s' % username)
-        return self.accman.register(username, protocol_id, password, remember, auth)
+        acc = self.accman.register(username, protocol_id, password, remember, auth)
+        if not acc:
+            self.log.debug('Invalid account %s in %s' % (username, protocol_id))
     
     def unregister_account(self, account_id, delete_all=False):
         self.log.debug('Unregistering account %s' % account_id)
@@ -108,6 +110,9 @@ class Core:
         account = self.accman.get(acc_id)
         return account.get_columns()
     
+    def all_accounts(self):
+        return self.accman.get_all()
+        
     def login(self, acc_id):
         self.log.debug('Starting login sequence with %s' % acc_id)
         try:
@@ -115,7 +120,7 @@ class Core:
             if account.logged_in:
                 return Response(code=808)
             else:
-                return Response(account.start_login())
+                return Response(account.start_login(acc_id))
         except Exception, exc:
             return self.__handle_exception(exc)
     
