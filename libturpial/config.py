@@ -22,9 +22,9 @@ APP_CFG = {
         'libturpial': '0.6.1-a1',
     },
     'General':{
-        'home-update-interval': '3',
-        'replies-update-interval': '10',
-        'directs-update-interval': '15',
+        'column1-update-interval': '5',
+        'column2-update-interval': '5',
+        'column3-update-interval': '5',
         'workspace': 'single',
         'profile-color': 'on',
         'remember-login-info': 'off',
@@ -40,16 +40,16 @@ APP_CFG = {
         'window-visibility': 'show',
     },
     'Columns':{
-        'column1': 'timeline',
-        'column2': 'replies',
-        'column3': 'directs',
+        'column1': '',
+        'column2': '',
+        'column3': '',
     },
     'Notifications':{
         'sound': 'on',
         'login': 'on',
-        'home': 'on',
-        'replies': 'on',
-        'directs': 'on',
+        'column1': 'on',
+        'column2': 'on',
+        'column3': 'on',
     },
     'Services':{
         'shorten-url': 'is.gd',
@@ -77,6 +77,7 @@ ACCOUNT_CFG = {
         'username': '',
         'password': '',
         'protocol': '',
+        'active': 'on',
     }
 }
 
@@ -303,3 +304,10 @@ class AccountConfig(ConfigBase):
         if os.path.isdir(self.basedir):
             shutil.rmtree(self.basedir)
             self.log.debug('Removed base directory')
+    
+    def is_remembered(self):
+        pwd = self.read('Login', 'password')
+        if pwd:
+            return True
+        else:
+            return False
