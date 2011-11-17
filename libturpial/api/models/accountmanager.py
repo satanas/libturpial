@@ -51,8 +51,5 @@ class AccountManager:
         return temp
         
     def get_all(self):
-        accounts = []
-        for acc in self.list():
-            accounts.append(self.get(acc))
-        return accounts
+        return self.__accounts.values()
         
