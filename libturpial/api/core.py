@@ -82,6 +82,7 @@ class Core:
         acc = self.accman.register(username, protocol_id, password, remember, auth)
         if not acc:
             self.log.debug('Invalid account %s in %s' % (username, protocol_id))
+        return acc
     
     def unregister_account(self, account_id, delete_all=False):
         self.log.debug('Unregistering account %s' % account_id)
