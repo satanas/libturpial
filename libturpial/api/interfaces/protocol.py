@@ -85,7 +85,12 @@ class Protocol(TurpialHTTP):
         return time.mktime(t)
     
     def get_entities(self, status):
-        entities = {}
+        entities = {
+            'urls': [],
+            'hashtags': [],
+            'mentions': [],
+            'groups': [],
+        }
         text = status['text']
         
         urls = []

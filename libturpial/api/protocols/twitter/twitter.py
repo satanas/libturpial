@@ -189,7 +189,12 @@ class Main(Protocol):
         
     def get_entities(self, tweet):
         if tweet.has_key('entities'):
-            entities = {}
+            entities = {
+                'urls': [],
+                'hashtags': [],
+                'mentions': [],
+                'groups': [],
+            }
             mentions = []
             for mention in tweet['entities']['user_mentions']:
                 mentions.append('@'+mention['screen_name'])
