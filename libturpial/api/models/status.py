@@ -16,6 +16,8 @@ class Status:
         self.in_reply_to_id = None
         self.in_reply_to_user = None
         self.is_favorite = False
+        self.is_protected = False
+        self.is_verified = False
         self.reposted_by = None
         self.datetime = None    # Store the date/time showed for the view
         self._type = None

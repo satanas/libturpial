@@ -84,12 +84,18 @@ class Main(Protocol):
             else:
                 post = response
             
+            protected = False
+            verified = False
             if post.has_key('user'):
                 username = post['user']['screen_name']
                 avatar = post['user']['profile_image_url']
+                protected = post['user']['protected']
+                verified = post['user']['verified']
             elif post.has_key('sender'):
                 username = post['sender']['screen_name']
                 avatar = post['sender']['profile_image_url']
+                protected = post['sender']['protected']
+                verified = post['sender']['verified']
             elif post.has_key('from_user'):
                 username = post['from_user']
                 avatar = post['profile_image_url']
@@ -120,6 +126,8 @@ class Main(Protocol):
             status.in_reply_to_id = in_reply_to_id
             status.in_reply_to_user = in_reply_to_user
             status.is_favorite = fav
+            status.is_protected = protected
+            status.is_verified = verified
             status.reposted_by = reposted_by
             status.datetime = self.get_str_time(post['created_at'])
             status.timestamp = self.get_int_time(post['created_at'])
