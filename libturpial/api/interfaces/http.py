@@ -15,7 +15,6 @@ import logging
 from base64 import b64encode
 from urllib import urlencode
 
-# FIXME: Change for python-oauth
 from libturpial.api.protocols import oauth
 from libturpial.api.models.auth_object import AuthObject
 
@@ -261,11 +260,11 @@ class TurpialHTTPRequest:
         self.uri = uri
         
     def __str__(self):
-        '''
-        return "method: %s\nencoded_args: %s\nargStr: %s\nargData: %s\n" + 
-            "headers: %s\nstrReq: %s-" % (self.method, self.encoded_args, 
+        
+        return "method: %s\nencoded_args: %s\nargStr: %s\nargData: %s\n \
+headers: %s\nstrReq: %s-" % (self.method, self.encoded_args, 
             self.argStr, self.argData, self.headers, self.strReq)
-        '''
+        
         pass
     
 class ProxyHTTPConnection(httplib.HTTPConnection):

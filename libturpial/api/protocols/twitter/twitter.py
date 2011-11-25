@@ -185,6 +185,7 @@ class Main(Protocol):
         rtn = self.request('/account/verify_credentials', secure=True)
         profile = self.json_to_profile(rtn)
         self.uname = profile.username
+        self.log.debug('Authenticated')
         return profile
         
     def get_entities(self, tweet):

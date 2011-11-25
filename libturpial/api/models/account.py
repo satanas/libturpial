@@ -36,13 +36,13 @@ class Account:
     
     def auth(self):
         self.profile = self.protocol.auth(self.profile.username, self.profile.password)
-        self.lists = self.protocol.get_lists(self.profile.username)
+        #self.lists = self.protocol.get_lists(self.profile.username)
         #self.friends = self.protocol.get_friends()
         
-        self.columns = [ColumnType.TIMELINE, ColumnType.REPLIES, 
-            ColumnType.DIRECTS, ColumnType.SENT, ColumnType.FAVORITES]
-        for li in self.lists:
-            self.columns.append(li.name)
+        #self.columns = [ColumnType.TIMELINE, ColumnType.REPLIES, 
+        #    ColumnType.DIRECTS, ColumnType.SENT, ColumnType.FAVORITES]
+        #for li in self.lists:
+        #    self.columns.append(li.name)
         self.logged_in = True
         return self.id_
         
