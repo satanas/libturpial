@@ -119,10 +119,21 @@ class Core:
         account = self.accman.get(acc_id)
         return account.get_columns()
     
+    def list_stored_columns(self):
+        return self.config.get_stored_columns()
+    
+    def update_stored_columns(self, columns):
+        to_store = {}
+        for col in columns:
+            key = "column%s" % col.id_
+            detail = "%s-%s-%s" % (col.account_id, col.protocol_id, col.column_id)
+            to_store[key] = detail
+        self.config.write_section('Columns', to_store)
+        
     ''' all_* methods returns arrays of objects '''
     def all_accounts(self):
         return self.accman.get_all()
-        
+    
     def login(self, acc_id):
         self.log.debug('Starting login sequence with %s' % acc_id)
         try:

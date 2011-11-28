@@ -146,7 +146,10 @@ class ConfigBase:
         self.__config[section][option] = value
         
     def write_section(self, section, items):
+        self.log.debug('Writing section %s' % section)
         _fd = open(self.configpath, 'w')
+        if self.cfg.has_section(section):
+            self.cfg.remove_section(section)
         self.cfg.add_section(section)
         for option, value in items.iteritems():
             self.cfg.set(section, option, value)
@@ -245,7 +248,6 @@ class AppConfig(ConfigBase):
                 columns.append(Column(id_, acc_id, pt_id, col_id))
             else:
                 columns.append(None)
-        print "stored:", stored_cols, indexes, columns
         return columns
     
     def save_account(self, account):
