@@ -100,17 +100,26 @@ class Core:
             if password:
                 rem = True
             self.register_account(username, protocol, password, rem, auth)
-        
+    
+    ''' list_* methods returns arrays of string '''
     def list_accounts(self):
         return self.accman.list()
     
     def list_protocols(self):
         return [ProtocolType.TWITTER, ProtocolType.IDENTICA]
     
-    def list_columns(self, acc_id):
+    def list_columns(self):
+        columns = {}
+        for account in self.all_accounts():
+            if not account.logged_in: continue
+            columns[account.id_] = account.get_columns()
+        return columns
+        
+    def list_columns_per_account(self, acc_id):
         account = self.accman.get(acc_id)
         return account.get_columns()
     
+    ''' all_* methods returns arrays of objects '''
     def all_accounts(self):
         return self.accman.get_all()
         

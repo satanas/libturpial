@@ -11,6 +11,8 @@ import shutil
 import logging
 import ConfigParser
 
+from libturpial.api.models.column import Column
+
 try:
     from xdg import BaseDirectory
     XDG_CACHE = True
@@ -40,9 +42,6 @@ APP_CFG = {
         'window-visibility': 'show',
     },
     'Columns':{
-        'column1': '',
-        'column2': '',
-        'column3': '',
     },
     'Notifications':{
         'sound': 'on',
@@ -115,6 +114,10 @@ class ConfigBase:
                 self.__config[section] = {}
             if not self.cfg.has_section(section): 
                 self.write_section(section, self.default[section])
+            if section == 'Columns':
+                for item in self.cfg.items(section):
+                    self.__config[section][item[0]] = item[1]
+                continue
             for option, value in self.default[section].iteritems():
                 if self.cfg.has_option(section, option):
                     self.__config[section][option] = self.cfg.get(section, option)
@@ -224,6 +227,26 @@ class AppConfig(ConfigBase):
                 if os.path.isfile(filepath):
                     accounts.append(acc_dir)
         return accounts
+    
+    def get_stored_columns(self):
+        stored_cols = self.read_section('Columns')
+        indexes = stored_cols.keys()
+        indexes.sort()
+        columns = []
+        
+        for i in indexes:
+            value = stored_cols[i]
+            if value != '':
+                temp = value.rfind('-')
+                id_ = i[-1:]
+                acc_id = value[:temp]
+                pt_id = acc_id.split('-')[1]
+                col_id = value[temp + 1:]
+                columns.append(Column(id_, acc_id, pt_id, col_id))
+            else:
+                columns.append(None)
+        print "stored:", stored_cols, indexes, columns
+        return columns
     
     def save_account(self, account):
         pass
