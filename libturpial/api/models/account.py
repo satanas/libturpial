@@ -13,7 +13,10 @@ from libturpial.common import ProtocolType, ColumnType
 
 class Account:
     def __init__(self, username, account_id, protocol_id, password, remember, auth):
-        self.id_ = account_id
+        self.id_ = account_id # username-protocol_id
+        self.username = username
+        self.protocol_id = protocol_id
+        
         if protocol_id == ProtocolType.TWITTER:
             self.protocol = twitter.Main(username, self.id_, auth)
         elif protocol_id == ProtocolType.IDENTICA:
@@ -57,7 +60,7 @@ class Account:
             if li.name == list_name:
                 return li.id_
         return None
-        
+    
     def is_remembered(self):
         return self.remembered
     

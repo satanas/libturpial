@@ -19,6 +19,7 @@ class Status:
         self.is_protected = False
         self.is_verified = False
         self.reposted_by = None
+        self.reposted_count = None
         self.datetime = None    # Store the date/time showed for the view
         self._type = None
         self.account_id = None

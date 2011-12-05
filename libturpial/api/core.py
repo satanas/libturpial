@@ -11,6 +11,7 @@ import urllib2
 import logging
 import traceback
 
+from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
 from libturpial.config import AppConfig, AccountConfig
 from libturpial.api.models.accountmanager import AccountManager
@@ -31,6 +32,7 @@ class Core:
         self.config = AppConfig()
         
         self.load_registered_accounts()
+        self.load_registered_columns()
         
     def __print_traceback(self):
         if self.log.getEffectiveLevel() == logging.DEBUG:
@@ -101,13 +103,16 @@ class Core:
                 rem = True
             self.register_account(username, protocol, password, rem, auth)
     
+    def load_registered_columns(self):
+        self.reg_columns = self.config.get_stored_columns()
+    
     ''' list_* methods returns arrays of string '''
     def list_accounts(self):
         return self.accman.list()
     
     def list_protocols(self):
         return [ProtocolType.TWITTER, ProtocolType.IDENTICA]
-    
+    '''
     def list_columns(self):
         columns = {}
         for account in self.all_accounts():
@@ -129,16 +134,35 @@ class Core:
             detail = "%s-%s-%s" % (col.account_id, col.protocol_id, col.column_id)
             to_store[key] = detail
         self.config.write_section('Columns', to_store)
-        
+    '''
+    
     ''' all_* methods returns arrays of objects '''
     def all_accounts(self):
         return self.accman.get_all()
+    
+    def all_columns(self):
+        columns = {}
+        for account in self.all_accounts():
+            columns[account.id_] = {}
+            if not account.logged_in: continue
+            for col in account.get_columns():
+                for reg in self.reg_columns:
+                    id_ = ""
+                    if account.id_ == reg.account_id and reg.column_name == col:
+                        id_ = reg.id_
+                    item = Column(id_, account.id_, account.protocol_id, col)
+                    columns[account.id_][col] = item
+        return columns
+    
+    def all_registered_columns(self):
+        return self.reg_columns
     
     def login(self, acc_id):
         self.log.debug('Starting login sequence with %s' % acc_id)
         try:
             account = self.accman.get(acc_id)
             if account.logged_in:
+                #add columns
                 return Response(code=808)
             else:
                 return Response(account.start_login(acc_id))
@@ -157,7 +181,6 @@ class Core:
             return self.__handle_exception(exc)
             
     def auth(self, acc_id):
-        self.log.debug('Authenticating sequence with %s' % acc_id)
         try:
             account = self.accman.get(acc_id)
             if account.logged_in:

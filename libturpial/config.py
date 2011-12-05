@@ -241,13 +241,12 @@ class AppConfig(ConfigBase):
             value = stored_cols[i]
             if value != '':
                 temp = value.rfind('-')
-                id_ = i[-1:]
+                #id_ = i[-1:]
                 acc_id = value[:temp]
                 pt_id = acc_id.split('-')[1]
                 col_id = value[temp + 1:]
+                id_ = "%s-%s" % (acc_id, col_id)
                 columns.append(Column(id_, acc_id, pt_id, col_id))
-            else:
-                columns.append(None)
         return columns
     
     def save_account(self, account):

@@ -72,8 +72,10 @@ class Main(Protocol):
                     continue
                 status = self.json_to_status(resp, _type)
                 if status.reposted_by:
-                    users = self.get_retweet_users(status.id_)
-                    status.reposted_by = users
+                    #users = self.get_retweet_users(status.id_)
+                    #status.reposted_by = users
+                    count = self.get_retweet_count(status.id_)
+                    status.reposted_count = count
                 statuses.append(status)
             return statuses
         else:
@@ -344,7 +346,13 @@ class Main(Protocol):
             profile = self.json_to_profile(item)
             users.append(profile.username)
         return users
-        
+    
+    def get_retweet_count(self, status_id):
+        self.log.debug('Getting ids of a retweet')
+        users = []
+        rtn = self.request('/statuses/%s/retweeted_by/ids' % status_id)
+        return len(rtn)
+    
     def update_profile(self, p_args):
         self.log.debug('Updating profile')
         
