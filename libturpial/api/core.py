@@ -103,6 +103,12 @@ class Core:
                 rem = True
             self.register_account(username, protocol, password, rem, auth)
     
+    def register_column(self, column_id):
+        count = len(self.reg_columns) + 1
+        key = "column%s" % count
+        self.config.write('Columns', key, column_id)
+        self.load_registered_columns()
+        
     def load_registered_columns(self):
         self.reg_columns = self.config.get_stored_columns()
     
@@ -128,12 +134,7 @@ class Core:
         return self.config.get_stored_columns()
     
     def update_stored_columns(self, columns):
-        to_store = {}
-        for col in columns:
-            key = "column%s" % col.id_
-            detail = "%s-%s-%s" % (col.account_id, col.protocol_id, col.column_id)
-            to_store[key] = detail
-        self.config.write_section('Columns', to_store)
+        
     '''
     
     ''' all_* methods returns arrays of objects '''
@@ -146,12 +147,13 @@ class Core:
             columns[account.id_] = {}
             if not account.logged_in: continue
             for col in account.get_columns():
+                id_ = ""
                 for reg in self.reg_columns:
-                    id_ = ""
                     if account.id_ == reg.account_id and reg.column_name == col:
                         id_ = reg.id_
-                    item = Column(id_, account.id_, account.protocol_id, col)
-                    columns[account.id_][col] = item
+                        break
+                item = Column(id_, account.id_, account.protocol_id, col)
+                columns[account.id_][col] = item
         return columns
     
     def all_registered_columns(self):

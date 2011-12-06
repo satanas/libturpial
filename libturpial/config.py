@@ -241,7 +241,6 @@ class AppConfig(ConfigBase):
             value = stored_cols[i]
             if value != '':
                 temp = value.rfind('-')
-                #id_ = i[-1:]
                 acc_id = value[:temp]
                 pt_id = acc_id.split('-')[1]
                 col_id = value[temp + 1:]
