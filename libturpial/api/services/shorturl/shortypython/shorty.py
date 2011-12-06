@@ -48,7 +48,7 @@ import re
 
 try:
     import json
-except:
+except ImportError:
     import simplejson as json
 
 
