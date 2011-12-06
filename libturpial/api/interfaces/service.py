@@ -8,7 +8,10 @@
 import urllib2
 import logging
 
-import simplejson as json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 class GenericService:
     def __init__(self):
