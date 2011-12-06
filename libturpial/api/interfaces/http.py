@@ -5,7 +5,6 @@
 # Author: Wil Alvarez (aka Satanas)
 # May 20, 2010
 
-import os
 import socket
 import urllib2
 import urllib

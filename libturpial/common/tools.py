@@ -20,7 +20,6 @@ def clean_bytecodes(root_path, logger=None):
         logger.debug("Cleaning da house...")
     
     path = os.path.join(os.path.dirname(root_path))
-    i = 0
     for root, dirs, files in os.walk(path):
         for f in files:
             path = os.path.join(root, f)

@@ -5,8 +5,6 @@
 # Author: Wil Alvarez (aka Satanas)
 # 2010-04-18
 
-import os
-import httplib
 import urllib2
 import logging
 
