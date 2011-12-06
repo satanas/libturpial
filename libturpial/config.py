@@ -131,7 +131,10 @@ class ConfigBase:
     def save(self, config):
         self.log.debug('Saving configuration')
         _fd = open(self.configpath, 'w')
+        self.__config = {}
         for section, _v in config.iteritems():
+            if not self.__config.has_key(section):
+                self.__config[section] = {}
             for option, value in config[section].iteritems():
                 self.cfg.set(section, option, value)
                 self.__config[section][option] = value
@@ -150,11 +153,11 @@ class ConfigBase:
         _fd = open(self.configpath, 'w')
         if self.cfg.has_section(section):
             self.cfg.remove_section(section)
+            self.__config[section] = {}
         self.cfg.add_section(section)
         for option, value in items.iteritems():
             self.cfg.set(section, option, value)
             self.__config[section][option] = value
-        
         self.cfg.write(_fd)
         _fd.close()
         

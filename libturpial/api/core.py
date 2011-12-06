@@ -104,11 +104,29 @@ class Core:
             self.register_account(username, protocol, password, rem, auth)
     
     def register_column(self, column_id):
+        temp = None
+        for col in self.reg_columns:
+            print col
+            if col.id_ == column_id:
+                temp = col
+                break
         count = len(self.reg_columns) + 1
         key = "column%s" % count
         self.config.write('Columns', key, column_id)
         self.load_registered_columns()
+        return temp
         
+    def unregister_column(self, column_id):
+        index = 0
+        to_store = {}
+        for col in self.reg_columns:
+            if col.id_ != column_id:
+                index += 1
+                key = "column%s" % index
+                to_store[key] = col.id_
+        self.config.write_section('Columns', to_store)
+        self.load_registered_columns()
+    
     def load_registered_columns(self):
         self.reg_columns = self.config.get_stored_columns()
     
