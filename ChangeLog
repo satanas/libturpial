@@ -1,1 +1,14 @@
-
+v1.0 (In development - current v0.8.2)
+    * Feature #446: OAuth support for Twitter
+    * Feature #447: Handle accounts and columns
+    * Feature #449: Fetch public timeline
+    * Feature #450: Fetch friends
+    * Feature #451: Fetch conversations
+    * Feature #452: Update, destroy, repeat statuses
+    * Feature #453: Handle direct messages
+    * Feature #454: Mark/unmark favorites
+    * Feature #455: Handle relationship (follow, unfollow, block, unblock, report as spam)
+    * Feature #456: Perform searchs
+    * Feature #458: Fetch trends
+    * Feature #463: Handle highlighted reources as entities
+    * Feature #464: Handle configuration stuffs
