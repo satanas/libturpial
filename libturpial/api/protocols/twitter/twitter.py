@@ -7,10 +7,11 @@
 
 import base64
 
-from libturpial.common import UpdateType, STATUSPP
 from libturpial.api.models.list import List
 from libturpial.api.models.status import Status
+from libturpial.api.models.entity import Entity
 from libturpial.api.models.profile import Profile
+from libturpial.common import UpdateType, STATUSPP
 from libturpial.api.models.ratelimit import RateLimit
 from libturpial.api.interfaces.protocol import Protocol
 from libturpial.api.models.trend import Trend, TrendsResults
@@ -72,6 +73,7 @@ class Main(Protocol):
                     continue
                 status = self.json_to_status(resp, _type)
                 if status.reposted_by:
+                    # TODO: Handle this
                     #users = self.get_retweet_users(status.id_)
                     #status.reposted_by = users
                     count = self.get_retweet_count(status.id_)
@@ -198,20 +200,29 @@ class Main(Protocol):
                 'mentions': [],
                 'groups': [],
             }
-            mentions = []
             for mention in tweet['entities']['user_mentions']:
-                mentions.append('@'+mention['screen_name'])
-            entities['mentions'] = mentions
+                text = '@' + mention['screen_name']
+                #url = "%s/%s" % (self.urls['profiles'], mention['screen_name'])
+                entities['mentions'].append(Entity(text[1:], text, text))
             
-            urls = []
             for url in tweet['entities']['urls']:
-                urls.append(url['url'])
-            entities['url'] = urls
+                try:
+                    expanded_url = url['expanded_url']
+                except KeyError:
+                    expanded_url = url['url']
+                
+                try:
+                    display_url = 'http://' + url['display_url']
+                except KeyError:
+                    display_url = url['url']
+                
+                entities['urls'].append(Entity(expanded_url, display_url, 
+                    url['url']))
             
-            hashtags = []
             for ht in tweet['entities']['hashtags']:
-                hashtags.append('#'+ht['text'])
-            entities['hashtags'] = hashtags
+                text = '#' + ht['text']
+                url = "%s%s" % (self.urls['hashtags'], ht['text'])
+                entities['hashtags'].append(Entity(url, text, text))
         else:
             entities = Protocol.get_entities(self, tweet)
         return entities

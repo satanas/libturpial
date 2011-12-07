@@ -11,6 +11,7 @@ import logging
 import datetime
 import xml.sax.saxutils as saxutils
 
+from libturpial.api.models.entity import Entity
 from libturpial.api.interfaces.http import TurpialHTTP
 
 class Protocol(TurpialHTTP):
@@ -30,7 +31,7 @@ class Protocol(TurpialHTTP):
         self.urls['api'] = api_url
         self.urls['search'] = search_url
         if tags_url:
-            self.urls['tags'] = tags_url
+            self.urls['hashtags'] = tags_url
         if tags_url:
             self.urls['groups'] = groups_url
         if tags_url:
@@ -93,24 +94,21 @@ class Protocol(TurpialHTTP):
         }
         text = status['text']
         
-        urls = []
         for item in self.URL_PATTERN.findall(text):
             url = item[0]
             # Removes the last parenthesis
             if url[-1] == ')':
                 url = url[:-1]
-            urls.append(url)
-        entities['urls'] = urls
+            entities['urls'].append(Entity(url, url, url))
         
-        hashtags = []
         for item in self.HASHTAG_PATTERN.findall(text):
-            hashtags.append(item)
-        entities['hashtags'] = hashtags
+            url = "%s/%s" % (self.urls['hashtags'], item[1:])
+            entities['hashtags'].append(Entity(url, item, item))
         
-        mentions = []
         for item in self.MENTION_PATTERN.findall(text):
-            mentions.append(item)
-        entities['mentions'] = mentions
+            #url = "%s/%s" % (self.urls['profiles'], item[1:])
+            #entities['mentions'].append(Entity(url, item, item))
+            entities['mentions'].append(Entity(item[1:], item, item))
         return entities
     
     def get_source(self, source):

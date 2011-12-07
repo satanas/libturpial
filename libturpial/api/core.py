@@ -89,7 +89,7 @@ class Core:
     def unregister_account(self, account_id, delete_all=False):
         self.log.debug('Unregistering account %s' % account_id)
         return self.accman.unregister(account_id, delete_all)
-        
+    
     def load_registered_accounts(self):
         accounts = self.config.get_stored_accounts()
         for acc in accounts:
@@ -104,18 +104,17 @@ class Core:
             self.register_account(username, protocol, password, rem, auth)
     
     def register_column(self, column_id):
-        temp = None
-        for col in self.reg_columns:
-            print col
-            if col.id_ == column_id:
-                temp = col
-                break
         count = len(self.reg_columns) + 1
         key = "column%s" % count
         self.config.write('Columns', key, column_id)
         self.load_registered_columns()
+        temp = None
+        for col in self.reg_columns:
+            if col.id_ == column_id:
+                temp = col
+                break
         return temp
-        
+    
     def unregister_column(self, column_id):
         index = 0
         to_store = {}
@@ -199,7 +198,7 @@ class Core:
                 return Response(account.authorize_oauth_token(pin))
         except Exception, exc:
             return self.__handle_exception(exc)
-            
+    
     def auth(self, acc_id):
         try:
             account = self.accman.get(acc_id)
@@ -385,7 +384,7 @@ class Core:
     def short_url(self, url, service):
         urlshorter = URL_SERVICES[service].do_service(url)
         return urlshorter.response
-        
+    
     ''' Configuration '''
     def has_stored_passwd(self, acc_id):
         account = self.accman.get(acc_id)
@@ -394,7 +393,7 @@ class Core:
         if account.profile.password == '':
             return False
         return True
-        
+    
     def is_account_logged_in(self, acc_id):
         account = self.accman.get(acc_id)
         return account.logged_in

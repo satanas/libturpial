@@ -8,9 +8,10 @@
 import re
 import base64
 
-from libturpial.common import UpdateType, STATUSPP
+from libturpial.api.models.entity import Entity
 from libturpial.api.models.status import Status
 from libturpial.api.models.profile import Profile
+from libturpial.common import UpdateType, STATUSPP
 from libturpial.api.interfaces.protocol import Protocol
 from libturpial.api.protocols.identica.params import CK, CS, SALT, POST_ACTIONS
 
@@ -22,7 +23,7 @@ class Main(Protocol):
         Protocol.__init__(self, account_id, p_name, 
             'http://identi.ca/api', 
             'http://identi.ca/api', 
-            'http://identi.ca/tag/', 
+            'http://identi.ca/tag', 
             'http://identi.ca/group',
             'http://identi.ca',
             POST_ACTIONS)
@@ -82,17 +83,14 @@ class Main(Protocol):
                 post = response
             
             protected = False
-            verified = False
             if post.has_key('user'):
                 username = post['user']['screen_name']
                 avatar = post['user']['profile_image_url']
                 protected = post['user']['protected']
-                verified = post['user']['verified']
             elif post.has_key('sender'):
                 username = post['sender']['screen_name']
                 avatar = post['sender']['profile_image_url']
                 protected = post['sender']['protected']
-                verified = post['sender']['verified']
             elif post.has_key('from_user'):
                 username = post['from_user']
                 avatar = post['profile_image_url']
@@ -124,7 +122,7 @@ class Main(Protocol):
             status.in_reply_to_user = in_reply_to_user
             status.is_favorite = fav
             status.is_protected = protected
-            status.is_verified = verified
+            status.is_verified = False
             status.reposted_by = reposted_by
             status.datetime = self.get_str_time(post['created_at'])
             status.timestamp = self.get_int_time(post['created_at'])
@@ -145,10 +143,9 @@ class Main(Protocol):
         
     def get_entities(self, status):
         entities = Protocol.get_entities(self, status)
-        groups = []
         for item in self.GROUP_PATTERN.findall(status['text']):
-            groups.append(item)
-        entities['groups'] = groups
+            url = "%s/%s" % (self.urls['groups'], item[1:])
+            entities['groups'].append(Entity(url, item, item))
         return entities
         
     def get_timeline(self, count=STATUSPP):
