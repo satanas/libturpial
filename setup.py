@@ -9,12 +9,12 @@ except ImportError:
     from setuptools import setup, find_packages
 
 from distutils.command.build import build
-from libturpial.common import VERSION
+from libturpial import VERSION
 
 LONG_DESCRIPTION = """
-libturpial is a library that allow programs to handle multiple microblogging 
-accounts in services like Twitter and Identi.ca. Is light, fully featured and
-easy to use.
+libturpial is a library that handles multiple microblogging protocols. It 
+implements a lot of features and aims to support all the features for each 
+protocol. This library is the backend used for Turpial.
 """
 
 data_files=[
@@ -23,23 +23,23 @@ data_files=[
 
 setup(name="libturpial",
     version=VERSION,
-    description="Turpial library",
+    description="Microblogging library",
     long_description=LONG_DESCRIPTION,
     author="Wil Alvarez",
     author_email="wil.alejandro@gmail.com",
     maintainer="Wil Alvarez",
     maintainer_email="wil.alejandro@gmail.com",
-    url="http://turpial.org.ve",
+    url="http://dev.turpial.org.ve/projects/libturpial",
     download_url="http://turpial.org.ve/downloads",
     license="GPLv3",
-    keywords='twitter identi.ca microblogging turpial',
+    keywords='twitter identi.ca microblogging api libturpial',
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Environment :: X11 Applications :: GTK",
+        "Development Status :: 4 - Beta",
+        "Environment :: Console",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License (GPL)",
         "Operating System :: OS Independent",
-        "Programming Language :: Python",
+        "Programming Language :: Python :: 2.5",
         "Topic :: Communications",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Software Development :: Libraries :: Python Modules"

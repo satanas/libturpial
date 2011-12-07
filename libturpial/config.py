@@ -20,9 +20,6 @@ except:
     XDG_CACHE = False
 
 APP_CFG = {
-    'Version':{
-        'libturpial': '0.6.1-a1',
-    },
     'General':{
         'column1-update-interval': '5',
         'column2-update-interval': '5',
