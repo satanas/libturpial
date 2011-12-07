@@ -5,7 +5,6 @@
 # Author: Wil Alvarez (aka Satanas)
 # May 20, 2010
 
-import os
 import socket
 import urllib2
 import urllib
@@ -22,9 +21,9 @@ def _py26_or_greater():
     import sys
     return sys.hexversion > 0x20600f0
 
-if _py26_or_greater():
+try:
     import json
-else:
+except ImportError:
     import simplejson as json
 
 class TurpialHTTP:

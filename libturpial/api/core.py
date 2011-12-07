@@ -5,7 +5,6 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 06, 2011
 
-import os
 import Queue
 import urllib2
 import logging
