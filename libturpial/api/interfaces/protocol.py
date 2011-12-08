@@ -11,6 +11,7 @@ import logging
 import datetime
 import xml.sax.saxutils as saxutils
 
+from libturpial.common import ARG_SEP
 from libturpial.api.models.entity import Entity
 from libturpial.api.interfaces.http import TurpialHTTP
 
@@ -106,9 +107,8 @@ class Protocol(TurpialHTTP):
             entities['hashtags'].append(Entity(url, item, item))
         
         for item in self.MENTION_PATTERN.findall(text):
-            #url = "%s/%s" % (self.urls['profiles'], item[1:])
-            #entities['mentions'].append(Entity(url, item, item))
-            entities['mentions'].append(Entity(item[1:], item, item))
+            url = "%s%s%s" % (item[1:], ARG_SEP, self.account_id)
+            entities['mentions'].append(Entity(url, item, item))
         return entities
     
     def get_source(self, source):

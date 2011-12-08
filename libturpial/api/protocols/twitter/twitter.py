@@ -11,9 +11,9 @@ from libturpial.api.models.list import List
 from libturpial.api.models.status import Status
 from libturpial.api.models.entity import Entity
 from libturpial.api.models.profile import Profile
-from libturpial.common import UpdateType, STATUSPP
 from libturpial.api.models.ratelimit import RateLimit
 from libturpial.api.interfaces.protocol import Protocol
+from libturpial.common import UpdateType, STATUSPP, ARG_SEP
 from libturpial.api.models.trend import Trend, TrendsResults
 from libturpial.api.protocols.twitter.params import CK, CS, SALT, POST_ACTIONS
 
@@ -202,8 +202,8 @@ class Main(Protocol):
             }
             for mention in tweet['entities']['user_mentions']:
                 text = '@' + mention['screen_name']
-                #url = "%s/%s" % (self.urls['profiles'], mention['screen_name'])
-                entities['mentions'].append(Entity(text[1:], text, text))
+                url = "%s%s%s" % (mention['screen_name'], ARG_SEP, self.account_id)
+                entities['mentions'].append(Entity(url, text, text))
             
             for url in tweet['entities']['urls']:
                 try:

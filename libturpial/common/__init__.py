@@ -5,8 +5,8 @@
 # Author: Wil Alvarez (aka Satanas)
 # Oct 07, 2011
 
-VERSION = '0.6.8-a1'
 STATUSPP = 20
+ARG_SEP = '-%&%-'
 
 class ProtocolType:
     TWITTER = 'twitter'
