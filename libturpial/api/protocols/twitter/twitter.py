@@ -76,8 +76,9 @@ class Main(Protocol):
                     # TODO: Handle this
                     #users = self.get_retweet_users(status.id_)
                     #status.reposted_by = users
-                    count = self.get_retweet_count(status.id_)
-                    status.reposted_count = count
+                    #count = self.get_retweet_count(status.id_)
+                    #status.reposted_count = count
+                    pass
                 statuses.append(status)
             return statuses
         else:
