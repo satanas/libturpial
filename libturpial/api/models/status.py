@@ -25,3 +25,14 @@ class Status:
         self.account_id = None
         self.is_own = False
         self.entities = {}
+    
+    def get_reply_mentions(self):
+        account = '@' + self.account_id.split('-')[0]
+        count = [self.username]
+        if self.entities.has_key('mentions'):
+            for user in self.entities['mentions']:
+                if user.display_text != account:
+                    count.append(user.display_text[1:])
+            return count
+        else:
+            return []
