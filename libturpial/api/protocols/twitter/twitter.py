@@ -220,11 +220,12 @@ class Main(Protocol):
                 entities['urls'].append(Entity(expanded_url, display_url, 
                     url['url']))
             
-            for url in tweet['entities']['media']:
-                display_url = 'http://' + url['display_url']
-                entities['urls'].append(Entity(url['media_url'], display_url, 
-                    url['url']))
-                
+            if tweet['entities'].has_key('media'):
+                for url in tweet['entities']['media']:
+                    display_url = 'http://' + url['display_url']
+                    entities['urls'].append(Entity(url['media_url'], display_url, 
+                        url['url']))
+            
             for ht in tweet['entities']['hashtags']:
                 text = '#' + ht['text']
                 url = "%s%s" % (self.urls['hashtags'], ht['text'])
