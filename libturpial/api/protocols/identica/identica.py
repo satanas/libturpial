@@ -21,7 +21,7 @@ class Main(Protocol):
     def __init__(self, username, account_id, auth):
         p_name = 'Identi.ca(%s)' % username
         Protocol.__init__(self, account_id, p_name, 
-            'http://identi.ca/api', 
+            'https://identi.ca/api', 
             'http://identi.ca/api', 
             'http://identi.ca/tag', 
             'http://identi.ca/group',
