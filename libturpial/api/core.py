@@ -102,7 +102,7 @@ class Core:
             rem = False
             if password:
                 rem = True
-            self.register_account(username, protocol, password, rem, auth)
+            self.register_account(username, protocol, password, True, auth)
     
     def register_column(self, column_id):
         count = len(self.reg_columns) + 1
@@ -242,7 +242,21 @@ class Core:
     def get_friends(self, acc_id):
         try:
             account = self.accman.get(acc_id)
-            return Response(account.get_friends_list())
+            return Response(account.get_friends())
+        except Exception, exc:
+            return self.__handle_exception(exc)
+    
+    def get_followers(self, acc_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.get_followers())
+        except Exception, exc:
+            return self.__handle_exception(exc)
+    
+    def get_following(self, acc_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.get_following())
         except Exception, exc:
             return self.__handle_exception(exc)
     
@@ -311,10 +325,10 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
     
-    def follow(self, acc_id, username):
+    def follow(self, acc_id, username, by_id=False):
         try:
             account = self.accman.get(acc_id)
-            return Response(account.follow(username))
+            return Response(account.follow(username, by_id))
         except Exception, exc:
             return self.__handle_exception(exc)
     

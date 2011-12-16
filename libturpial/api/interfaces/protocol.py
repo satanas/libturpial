@@ -215,6 +215,18 @@ class Protocol(TurpialHTTP):
         Fetch the whole friends list
         '''
         raise NotImplementedError
+    
+    def get_followers(self):
+        ''' 
+        Fetch the whole list of followers IDs
+        '''
+        raise NotImplementedError
+    
+    def get_following(self):
+        ''' 
+        Fetch the whole list of following IDs
+        '''
+        raise NotImplementedError
         
     def get_profile(self, user):
         ''' 
@@ -270,7 +282,7 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
         
-    def follow(self, user):
+    def follow(self, user, by_id):
         ''' 
         Follow somebody
         '''

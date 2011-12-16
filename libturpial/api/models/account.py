@@ -40,7 +40,6 @@ class Account:
     def auth(self):
         self.profile = self.protocol.auth(self.profile.username, self.profile.password)
         self.lists = self.protocol.get_lists(self.profile.username)
-        #self.friends = self.protocol.get_friends()
         
         self.columns = [ColumnType.TIMELINE, ColumnType.REPLIES, 
             ColumnType.DIRECTS, ColumnType.SENT, ColumnType.FAVORITES]
@@ -49,7 +48,8 @@ class Account:
         self.logged_in = True
         return self.id_
         
-    def get_friends_list(self):
+    def get_friends(self):
+        self.friends = self.protocol.get_friends()
         return self.friends
         
     def get_columns(self):

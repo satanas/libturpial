@@ -340,6 +340,50 @@ class Main(Protocol):
         
         self.log.debug('--Downloaded %i friends' % count)
         return friends
+    
+    def get_followers(self):
+        self.log.debug('Getting followers list')
+        count = 0
+        cursor = -1
+        
+        followers = []
+        while 1:
+            # Fetch user_ids (up to 5000 for each request)
+            rtn = self.request('/followers/ids', {'cursor': cursor})
+            total = len(rtn['ids'])
+            count += total
+            if total == 0:
+                break
+            followers += rtn['ids']
+            if rtn['next_cursor'] > 0:
+                cursor = rtn['next_cursor']
+            else:
+                break
+        
+        self.log.debug('--Downloaded %i followers' % count)
+        return followers
+    
+    def get_following(self):
+        self.log.debug('Getting following list')
+        count = 0
+        cursor = -1
+        
+        following = []
+        while 1:
+            # Fetch user_ids (up to 5000 for each request)
+            rtn = self.request('/friends/ids', {'cursor': cursor})
+            total = len(rtn['ids'])
+            count += total
+            if total == 0:
+                break
+            following += rtn['ids']
+            if rtn['next_cursor'] > 0:
+                cursor = rtn['next_cursor']
+            else:
+                break
+        
+        self.log.debug('--Downloaded %i following' % count)
+        return following
         
     def get_profile(self, user):
         self.log.debug('Getting profile of user %s' % user)
@@ -436,9 +480,13 @@ class Main(Protocol):
             'include_entities': True})
         return self.json_to_status(rtn)
         
-    def follow(self, screen_name):
+    def follow(self, screen_name, by_id=False):
         self.log.debug('Follow to %s' % screen_name)
-        rtn = self.request('/friendships/create', {'screen_name': screen_name})
+        if by_id:
+            arg = {'user_id': screen_name}
+        else:
+            arg = {'screen_name': screen_name}
+        rtn = self.request('/friendships/create', arg)
         return self.json_to_profile(rtn)
         
     def unfollow(self, screen_name):
