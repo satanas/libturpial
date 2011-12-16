@@ -43,7 +43,8 @@ ERROR_CODES = {
     805: "Invalid account",
     806: "That column doesn't exist",
     807: "Server is not responding",
-    808: "Accounr already logged in",
+    808: "Account already logged in",
+    809: "Account not logged in",
     
     900: "Feature not implemented yet",
     999: "Unknown error",

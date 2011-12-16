@@ -50,6 +50,8 @@ class Core:
             response = Response(code=807)
         elif _type == NotImplementedError:
             response = Response(code=900)
+        elif _type == ZeroDivisionError:
+            response = Response(code=809)
         elif _type == urllib2.HTTPError:
             if exc.code in ERROR_CODES:
                 response = Response(code=exc.code)
@@ -178,7 +180,7 @@ class Core:
     def login(self, acc_id):
         self.log.debug('Starting login sequence with %s' % acc_id)
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(acc_id, False)
             if account.logged_in:
                 #add columns
                 return Response(code=808)
@@ -190,7 +192,7 @@ class Core:
     def authorize_oauth_token(self, acc_id, pin):
         self.log.debug('Authorizating OAuth token for %s' % acc_id)
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(acc_id, False)
             if account.logged_in:
                 return Response(code=808)
             else:
@@ -200,7 +202,7 @@ class Core:
     
     def auth(self, acc_id):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(acc_id, False)
             if account.logged_in:
                 return Response(code=808)
             else:
@@ -232,7 +234,7 @@ class Core:
     
     def get_public_timeline(self, acc_id, count=STATUSPP):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(acc_id, False)
             return Response(account.get_public_timeline(count))
         except Exception, exc:
             return self.__handle_exception(exc)
@@ -271,6 +273,20 @@ class Core:
             return Response(account.update_status(text, in_reply_id))
         except Exception, exc:
             return self.__handle_exception(exc)
+    
+    def broadcast_status(self, acc_array, text):
+        responses = []
+        for acc_id in acc_array:
+            try:
+                account = self.accman.get(acc_id)
+                resp = Response(account.update_status(text), account_id=acc_id)
+                responses.append(resp)
+            except Exception, exc:
+                resp = self.__handle_exception(exc)
+                resp.account_id = acc_id
+                responses.append(resp)
+        
+        return Response(responses)
     
     def destroy_status(self, acc_id, status_id):
         try:
@@ -339,14 +355,14 @@ class Core:
     
     def search(self, acc_id, query):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(acc_id, False)
             return Response(account.search(query))
         except Exception, exc:
             return self.__handle_exception(exc)
     
     def trends(self, acc_id):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(acc_id, False)
             return Response(account.trends())
         except Exception, exc:
             return self.__handle_exception(exc)

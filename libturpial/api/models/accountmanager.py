@@ -42,8 +42,12 @@ class AccountManager:
         else:
             self.log.debug('Account %s is not registered' % account_id)
             
-    def get(self, account_id):
-        return self.__accounts[account_id]
+    def get(self, account_id, validate_login=True):
+        account = self.__accounts[account_id]
+        if (validate_login and account.logged_in) or (not validate_login):
+            return account
+        else:
+            raise ZeroDivisionError
         
     def list(self):
         temp = self.__accounts.keys()
