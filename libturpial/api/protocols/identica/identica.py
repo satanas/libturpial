@@ -203,73 +203,36 @@ class Main(Protocol):
                 break
         return conversation
         
-    def get_friends(self):
-        self.log.debug('Getting friends list')
-        tries = 0
-        count = 0
-        cursor = -1
-        friends = []
-        
-        while 1:
-            try:
-                rtn = self.request('/statuses/friends', {'cursor': cursor})
-            except Exception, exc:
-                tries += 1
-                if tries < 3:
-                    continue
-                else:
-                    raise Exception
-                
-            for user in rtn:
-                friends.append(self.json_to_profile(user))
-                count += 1
-            break
-            
-        self.log.debug('--Downloaded %i friends' % count)
-        return friends
-    
-    def get_followers(self):
+    def get_followers(self, only_id=False):
         self.log.debug('Getting followers list')
-        count = 0
-        cursor = -1
-        
         followers = []
-        while 1:
-            # Fetch user_ids (up to 5000 for each request)
-            rtn = self.request('/followers/ids', {'cursor': cursor})
-            total = len(rtn['ids'])
-            count += total
-            if total == 0:
-                break
-            followers += rtn['ids']
-            if rtn['next_cursor'] > 0:
-                cursor = rtn['next_cursor']
-            else:
-                break
         
-        self.log.debug('--Downloaded %i followers' % count)
+        if only_id:
+            rtn = self.request('/followers/ids')
+            for id_ in rtn:
+                followers.append(str(id_))
+        else:
+            rtn = self.request('/statuses/followers', {'screen_name': self.account_id.split('-')[0]})
+            for user in rtn:
+                followers.append(self.json_to_profile(user))
+        
+        self.log.debug('--Downloaded %i followers' % len(followers))
         return followers
     
-    def get_following(self):
+    def get_following(self, only_id=False):
         self.log.debug('Getting following list')
-        count = 0
-        cursor = -1
-        
         following = []
-        while 1:
-            # Fetch user_ids (up to 5000 for each request)
-            rtn = self.request('/friends/ids', {'cursor': cursor})
-            total = len(rtn['ids'])
-            count += total
-            if total == 0:
-                break
-            following += rtn['ids']
-            if rtn['next_cursor'] > 0:
-                cursor = rtn['next_cursor']
-            else:
-                break
         
-        self.log.debug('--Downloaded %i following' % count)
+        if only_id:
+            rtn = self.request('/friends/ids')
+            for id_ in rtn:
+                following.append(str(id_))
+        else:
+            rtn = self.request('/statuses/friends', {'screen_name': self.account_id.split('-')[0]})
+            for user in rtn:
+                following.append(self.json_to_profile(user))
+        
+        self.log.debug('--Downloaded %i following' % len(following))
         return following
     
     def get_profile(self, user):

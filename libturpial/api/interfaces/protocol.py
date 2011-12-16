@@ -210,21 +210,16 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
         
-    def get_friends(self):
+    
+    def get_followers(self, only_id=False):
         ''' 
-        Fetch the whole friends list
+        Fetch the list of followers
         '''
         raise NotImplementedError
     
-    def get_followers(self):
+    def get_following(self, only_id=False):
         ''' 
-        Fetch the whole list of followers IDs
-        '''
-        raise NotImplementedError
-    
-    def get_following(self):
-        ''' 
-        Fetch the whole list of following IDs
+        Fetch the list of following
         '''
         raise NotImplementedError
         

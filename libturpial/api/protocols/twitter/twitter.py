@@ -301,88 +301,89 @@ class Main(Protocol):
             else:
                 break
         return conversation
-        
-    def get_friends(self):
-        self.log.debug('Getting friends list')
-        count = 0
+    
+    def get_followers(self, only_id=False):
+        self.log.debug('Getting followers list')
         cursor = -1
         current = 0
         max_friends_req = 100
+        followers = []
         
-        friends = []
         while 1:
             # Fetch user_ids (up to 5000 for each request)
-            rtn = self.request('/friends/ids', {'cursor': cursor})
+            rtn = self.request('/followers/ids', {'cursor': cursor})
             total = len(rtn['ids'])
             if total == 0:
-                return friends
-            while 1:
-                if current + max_friends_req <= total:
-                    batch = rtn['ids'][current:current + max_friends_req]
-                    current += max_friends_req
-                else:
-                    batch = rtn['ids'][current:total]
-                    current = total
-                
-                # Fetch user details (up to 100 for each request)
-                user_ids = ','.join([str(x) for x in batch])
-                rtn2 = self.request('/users/lookup', {'user_id': user_ids})
-                for user in rtn2:
-                    friends.append(self.json_to_profile(user))
-                    count += 1
-                if current == total:
-                    break
+                break
+            
+            if only_id:
+                for id_ in rtn['ids']:
+                    followers.append(str(id_))
+            else:
+                while 1:
+                    if current + max_friends_req <= total:
+                        batch = rtn['ids'][current:current + max_friends_req]
+                        current += max_friends_req
+                    else:
+                        batch = rtn['ids'][current:total]
+                        current = total
+                    
+                    # Fetch user details (up to 100 for each request)
+                    user_ids = ','.join([str(x) for x in batch])
+                    rtn2 = self.request('/users/lookup', {'user_id': user_ids})
+                    for user in rtn2:
+                        followers.append(self.json_to_profile(user))
+                    if current == total:
+                        break
             
             if rtn['next_cursor'] > 0:
                 cursor = rtn['next_cursor']
             else:
                 break
         
-        self.log.debug('--Downloaded %i friends' % count)
-        return friends
-    
-    def get_followers(self):
-        self.log.debug('Getting followers list')
-        count = 0
-        cursor = -1
-        
-        followers = []
-        while 1:
-            # Fetch user_ids (up to 5000 for each request)
-            rtn = self.request('/followers/ids', {'cursor': cursor})
-            total = len(rtn['ids'])
-            count += total
-            if total == 0:
-                break
-            followers += rtn['ids']
-            if rtn['next_cursor'] > 0:
-                cursor = rtn['next_cursor']
-            else:
-                break
-        
-        self.log.debug('--Downloaded %i followers' % count)
+        self.log.debug('--Downloaded %i followers' % len(followers))
         return followers
     
-    def get_following(self):
+    def get_following(self, only_id=False):
         self.log.debug('Getting following list')
-        count = 0
         cursor = -1
-        
+        current = 0
+        max_friends_req = 100
         following = []
+        
         while 1:
             # Fetch user_ids (up to 5000 for each request)
             rtn = self.request('/friends/ids', {'cursor': cursor})
             total = len(rtn['ids'])
-            count += total
             if total == 0:
                 break
-            following += rtn['ids']
+            
+            if only_id:
+                for id_ in rtn['ids']:
+                    following.append(str(id_))
+            else:
+                while 1:
+                    if current + max_friends_req <= total:
+                        batch = rtn['ids'][current:current + max_friends_req]
+                        current += max_friends_req
+                    else:
+                        batch = rtn['ids'][current:total]
+                        current = total
+                    
+                    # Fetch user details (up to 100 for each request)
+                    user_ids = ','.join([str(x) for x in batch])
+                    rtn2 = self.request('/users/lookup', {'user_id': user_ids})
+                    for user in rtn2:
+                        following.append(self.json_to_profile(user))
+                    if current == total:
+                        break
+            
             if rtn['next_cursor'] > 0:
                 cursor = rtn['next_cursor']
             else:
                 break
         
-        self.log.debug('--Downloaded %i following' % count)
+        self.log.debug('--Downloaded %i following' % len(following))
         return following
         
     def get_profile(self, user):

@@ -239,24 +239,17 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
     
-    def get_friends(self, acc_id):
+    def get_followers(self, acc_id, only_id=False):
         try:
             account = self.accman.get(acc_id)
-            return Response(account.get_friends())
+            return Response(account.get_followers(only_id))
         except Exception, exc:
             return self.__handle_exception(exc)
     
-    def get_followers(self, acc_id):
+    def get_following(self, acc_id, only_id=False):
         try:
             account = self.accman.get(acc_id)
-            return Response(account.get_followers())
-        except Exception, exc:
-            return self.__handle_exception(exc)
-    
-    def get_following(self, acc_id):
-        try:
-            account = self.accman.get(acc_id)
-            return Response(account.get_following())
+            return Response(account.get_following(only_id))
         except Exception, exc:
             return self.__handle_exception(exc)
     
