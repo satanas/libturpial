@@ -159,7 +159,6 @@ class ConfigBase:
         _fd.close()
         
     def read(self, section, option):
-        self.log.debug('Reading option %s:%s' % (section, option))
         try:
             return self.__config[section][option]
         except Exception:
