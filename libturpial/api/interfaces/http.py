@@ -202,7 +202,7 @@ class TurpialHTTP:
         if len(args) > 0:
             s_args = []
             for k, v in args.items():
-                if type(v) == 'str':
+                if (type(v) == str or type(v) == unicode):
                     s_args.append((k, v.encode('utf-8')))
                 else:
                     s_args.append((k, v))
