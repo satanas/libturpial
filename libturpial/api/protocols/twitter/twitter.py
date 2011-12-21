@@ -115,6 +115,10 @@ class Main(Protocol):
             fav = False
             if post.has_key('favorited'):
                 fav = post['favorited']
+
+            retweeted = False
+            if post.has_key('retweeted'):
+                retweeted = post['retweeted']
             
             source = None
             if post.has_key('source'):
@@ -140,6 +144,7 @@ class Main(Protocol):
             status._type = _type
             status.account_id = self.account_id
             status.is_own = own
+            status.retweeted = retweeted
             return status
             
     def json_to_ratelimit(self, response):
