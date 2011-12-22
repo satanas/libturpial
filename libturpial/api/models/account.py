@@ -5,11 +5,11 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 13, 2011
 
+from libturpial.common import *
 from libturpial.config import AccountConfig
 from libturpial.api.models.profile import Profile
 from libturpial.api.protocols.twitter import twitter
 from libturpial.api.protocols.identica import identica
-from libturpial.common import ProtocolType, ColumnType
 
 class Account:
     def __init__(self, username, account_id, protocol_id, password, remember, auth):
@@ -28,7 +28,7 @@ class Account:
         self.friends = None
         self.columns = []
         self.lists = None
-        self.logged_in = False
+        self.logged_in = LoginStatus.NONE
         self.remembered = remember
         self.config = AccountConfig(account_id, password, remember)
         
@@ -45,7 +45,7 @@ class Account:
             ColumnType.DIRECTS, ColumnType.SENT, ColumnType.FAVORITES]
         for li in self.lists:
             self.columns.append(li.name)
-        self.logged_in = True
+        self.logged_in = LoginStatus.DONE
         return self.id_
         
     def get_friends(self):

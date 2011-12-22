@@ -7,6 +7,7 @@
 
 import logging
 
+from libturpial.common import *
 from libturpial.api.models.account import Account
 
 class AccountManager:
@@ -41,10 +42,16 @@ class AccountManager:
             del self.__accounts[account_id]
         else:
             self.log.debug('Account %s is not registered' % account_id)
-            
+    
+    def login_status(self, account_id, status):
+        if self.__accounts.has_key(account_id):
+            self.__accounts[account_id].logged_in = status
+        else:
+            self.log.debug('Account %s is not registered' % account_id)
+    
     def get(self, account_id, validate_login=True):
         account = self.__accounts[account_id]
-        if (validate_login and account.logged_in) or (not validate_login):
+        if (validate_login and account.logged_in == LoginStatus.DONE) or (not validate_login):
             return account
         else:
             raise ZeroDivisionError

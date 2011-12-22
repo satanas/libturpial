@@ -10,12 +10,12 @@ import urllib2
 import logging
 import traceback
 
+from libturpial.common import *
 from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
 from libturpial.config import AppConfig, AccountConfig
 from libturpial.api.models.accountmanager import AccountManager
 from libturpial.api.services.shorturl.servicelist import URL_SERVICES
-from libturpial.common import ProtocolType, ColumnType, STATUSPP, ERROR_CODES
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -136,24 +136,6 @@ class Core:
     
     def list_protocols(self):
         return [ProtocolType.TWITTER, ProtocolType.IDENTICA]
-    '''
-    def list_columns(self):
-        columns = {}
-        for account in self.all_accounts():
-            if not account.logged_in: continue
-            columns[account.id_] = account.get_columns()
-        return columns
-        
-    def list_columns_per_account(self, acc_id):
-        account = self.accman.get(acc_id)
-        return account.get_columns()
-    
-    def list_stored_columns(self):
-        return self.config.get_stored_columns()
-    
-    def update_stored_columns(self, columns):
-        
-    '''
     
     ''' all_* methods returns arrays of objects '''
     def all_accounts(self):
@@ -163,7 +145,7 @@ class Core:
         columns = {}
         for account in self.all_accounts():
             columns[account.id_] = {}
-            if not account.logged_in: continue
+            if account.logged_in != LoginStatus.DONE: continue
             for col in account.get_columns():
                 id_ = ""
                 for reg in self.reg_columns:
@@ -177,11 +159,17 @@ class Core:
     def all_registered_columns(self):
         return self.reg_columns
     
+    def change_login_status(self, acc_id, status):
+        try:
+            account = self.accman.login_status(acc_id, status)
+        except Exception, exc:
+            return self.__handle_exception(exc)
+        
     def login(self, acc_id):
         self.log.debug('Starting login sequence with %s' % acc_id)
         try:
             account = self.accman.get(acc_id, False)
-            if account.logged_in:
+            if account.logged_in == LoginStatus.DONE:
                 #add columns
                 return Response(code=808)
             else:
@@ -193,7 +181,7 @@ class Core:
         self.log.debug('Authorizating OAuth token for %s' % acc_id)
         try:
             account = self.accman.get(acc_id, False)
-            if account.logged_in:
+            if account.logged_in == LoginStatus.DONE:
                 return Response(code=808)
             else:
                 return Response(account.authorize_oauth_token(pin))
@@ -203,7 +191,7 @@ class Core:
     def auth(self, acc_id):
         try:
             account = self.accman.get(acc_id, False)
-            if account.logged_in:
+            if account.logged_in == LoginStatus.DONE:
                 return Response(code=808)
             else:
                 return Response(account.auth())
