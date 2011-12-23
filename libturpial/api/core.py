@@ -247,7 +247,7 @@ class Core:
     def get_own_profile(self, acc_id):
         try:
             account = self.accman.get(acc_id)
-            return Response([account.profile])
+            return Response(account.profile)
         except Exception, exc:
             return self.__handle_exception(exc)
     
