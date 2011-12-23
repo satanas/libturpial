@@ -173,6 +173,7 @@ class Core:
                 #add columns
                 return Response(code=808)
             else:
+                self.accman.login_status(acc_id, LoginStatus.IN_PROGRESS)
                 return Response(account.start_login(acc_id))
         except Exception, exc:
             return self.__handle_exception(exc)
@@ -194,8 +195,10 @@ class Core:
             if account.logged_in == LoginStatus.DONE:
                 return Response(code=808)
             else:
+                self.accman.login_status(acc_id, LoginStatus.DONE)
                 return Response(account.auth())
         except Exception, exc:
+            self.accman.login_status(acc_id, LoginStatus.NONE)
             return self.__handle_exception(exc)
     
     def get_column_statuses(self, acc_id, col_id, count=STATUSPP):
