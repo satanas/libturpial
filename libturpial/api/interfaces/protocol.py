@@ -113,15 +113,16 @@ class Protocol(TurpialHTTP):
     
     def get_source(self, source):
         if not source:
-            return None
+            return (None, None)
         text = saxutils.unescape(source)
         text = text.replace('&quot;', '"')
         if text == 'web':
-            return text
+            return (text, "http://twitter.com")
         rtn = self.CLIENT_PATTERN.search(text)
         if rtn:
-            return rtn.groups()[1]
-        return source
+            print rtn.groups()
+            return (rtn.groups()[1], rtn.groups()[0])
+        return (source, None)
     
     # ------------------------------------------------------------
     # Methods to be overwritten
