@@ -22,8 +22,10 @@ class Profile:
         self.password = None
         self.link_color = None
         self.statuses_count = None
+        self.favorites_count = 0
         self.last_update = None
         self.last_update_id = None
         self.recent_updates = []
         self.tmp_avatar_path = None
-        self.protected = None
+        self.protected = False
+        self.verified = False

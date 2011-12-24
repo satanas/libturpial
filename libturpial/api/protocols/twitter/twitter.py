@@ -58,7 +58,9 @@ class Main(Protocol):
             profile.followers_count = response['followers_count']
             profile.friends_count = response['friends_count']
             profile.statuses_count = response['statuses_count']
+            profile.favorites_count = response['favourites_count']
             profile.protected = response['protected']
+            profile.verified = response['verified']
             if response.has_key('status'):
                 profile.last_update = response['status']['text']
                 profile.last_update_id = response['status']['id']
