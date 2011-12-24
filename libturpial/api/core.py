@@ -299,6 +299,9 @@ class Core:
             return Response(account.repeat(status_id))
         except Exception, exc:
             return self.__handle_exception(exc)
+
+    def unrepeat_status(self, acc_id, status_id):
+        pass
     
     def update_profile(self, acc_id, args):
         try:
