@@ -120,7 +120,6 @@ class Protocol(TurpialHTTP):
             return (text, "http://twitter.com")
         rtn = self.CLIENT_PATTERN.search(text)
         if rtn:
-            print rtn.groups()
             return (rtn.groups()[1], rtn.groups()[0])
         return (source, None)
     
