@@ -12,6 +12,7 @@ import datetime
 import xml.sax.saxutils as saxutils
 
 from libturpial.common import ARG_SEP
+from libturpial.api.models.client import Client
 from libturpial.api.models.entity import Entity
 from libturpial.api.interfaces.http import TurpialHTTP
 
@@ -113,15 +114,18 @@ class Protocol(TurpialHTTP):
     
     def get_source(self, source):
         if not source:
-            return (None, None)
+            return Client()
+        
         text = saxutils.unescape(source)
         text = text.replace('&quot;', '"')
         if text == 'web':
-            return (text, "http://twitter.com")
+            return Client(text, "http://twitter.com")
+        
         rtn = self.CLIENT_PATTERN.search(text)
         if rtn:
-            return (rtn.groups()[1], rtn.groups()[0])
-        return (source, None)
+            return Client(rtn.groups()[1], rtn.groups()[0])
+        
+        return Client(source, None)
     
     # ------------------------------------------------------------
     # Methods to be overwritten

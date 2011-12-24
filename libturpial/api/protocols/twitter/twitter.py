@@ -132,7 +132,7 @@ class Main(Protocol):
             status.id_ = str(post['id'])
             status.username = username
             status.avatar = avatar
-            (status.source, status.source_link) = self.get_source(source)
+            status.source = self.get_source(source)
             status.text = post['text']
             status.in_reply_to_id = in_reply_to_id
             status.in_reply_to_user = in_reply_to_user

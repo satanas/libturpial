@@ -12,7 +12,6 @@ class Status:
         self.username = None
         self.avatar = None
         self.source = None
-        self.source_link = None
         self.timestamp = None   # Store the timestamp in Unix time
         self.in_reply_to_id = None
         self.in_reply_to_user = None
