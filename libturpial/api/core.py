@@ -254,7 +254,7 @@ class Core:
     def get_user_profile(self, acc_id, user):
         try:
             account = self.accman.get(acc_id)
-            return Response([account.get_profile(user)])
+            return Response(account.get_profile(user))
         except Exception, exc:
             return self.__handle_exception(exc)
     
