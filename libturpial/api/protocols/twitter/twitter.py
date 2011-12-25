@@ -482,12 +482,9 @@ class Main(Protocol):
     def unrepeat(self, status_id):
         self.log.debug('Undoing retweet for status %s' % status_id)
         my_statuses = self.get_sent(count=200)
-        req = self.request('/statuses/show', {'id': status_id,
-            'include_entities': True})
-        target_status = self.json_to_status(req)
         id_target = None
         for s in my_statuses:
-            if s.text == target_status.text:
+            if s.id_ == status_id:
                 id_target = s.retweeted_id
                 break
         return self.destroy_status(id_target)
