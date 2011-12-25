@@ -389,6 +389,9 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
     
+    def verify_friendship(self, acc_id, user):
+        pass
+    
     def is_friend(self, acc_id, user):
         try:
             account = self.accman.get(acc_id)

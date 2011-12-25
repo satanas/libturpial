@@ -17,6 +17,7 @@ class Profile:
         self.url = ''
         self.bio = ''
         self.following = None
+        self.follow_request = False
         self.followers_count = None
         self.friends_count = None
         self.password = None
