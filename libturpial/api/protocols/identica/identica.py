@@ -34,7 +34,6 @@ class Main(Protocol):
         
         self.oauth_support = False
         self.uname = None
-        self.account_id = account_id
         self.set_consumer(CK, base64.b64decode(CS + SALT))
         if auth:
             self.set_auth_info(auth)
@@ -49,6 +48,7 @@ class Main(Protocol):
         else:
             profile = Profile()
             profile.id_ = response['id']
+            profile.account_id = self.account_id
             profile.fullname = response['name']
             profile.username = response['screen_name']
             profile.avatar = response['profile_image_url']
@@ -332,9 +332,6 @@ class Main(Protocol):
         rtn = self.request('/blocks/destroy', {'screen_name': screen_name})
         return self.json_to_profile(rtn)
     
-    def report_spam(self, user):
-        return None
-        
     def search(self, query, count=STATUSPP):
         self.log.debug('Searching: %s' % query)
         rtn = self.request('/search',{'q': query, 'rpp': count}, 

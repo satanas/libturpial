@@ -10,6 +10,7 @@ class Profile:
     
     def __init__(self):
         self.id_ = None
+        self.account_id = None
         self.fullname = None
         self.username = None
         self.avatar = None

@@ -33,7 +33,6 @@ class Main(Protocol):
         self.AUTHORIZATION_URL = 'https://api.twitter.com/oauth/authorize'
         
         self.uname = None
-        self.account_id = account_id
         self.set_consumer(CK, base64.b64decode(CS + SALT))
         if auth:
             self.set_auth_info(auth)
@@ -48,6 +47,7 @@ class Main(Protocol):
         else:
             profile = Profile()
             profile.id_ = response['id']
+            profile.account_id = self.account_id
             profile.fullname = response['name']
             profile.username = response['screen_name']
             profile.avatar = response['profile_image_url']

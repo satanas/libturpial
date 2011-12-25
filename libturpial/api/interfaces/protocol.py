@@ -30,6 +30,8 @@ class Protocol(TurpialHTTP):
         groups_url=None, profiles_url=None, post_actions=[]):
         TurpialHTTP.__init__(self, post_actions)
         
+        self.account_id = account_id
+        
         self.urls['api'] = api_url
         self.urls['search'] = search_url
         if tags_url:
