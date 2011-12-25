@@ -46,7 +46,7 @@ class Main(Protocol):
             return profiles
         else:
             profile = Profile()
-            profile.id_ = response['id']
+            profile.id_ = str(response['id'])
             profile.account_id = self.account_id
             profile.fullname = response['name']
             profile.username = response['screen_name']
