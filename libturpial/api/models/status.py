@@ -26,6 +26,7 @@ class Status:
         self.is_own = False
         self.entities = {}
         self.retweeted = False
+        self.retweeted_id = None
     
     def get_reply_mentions(self):
         account = '@' + self.account_id.split('-')[0]

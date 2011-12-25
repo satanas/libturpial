@@ -301,7 +301,11 @@ class Core:
             return self.__handle_exception(exc)
 
     def unrepeat_status(self, acc_id, status_id):
-        pass
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.unrepeat(status_id))
+        except Exception, exc:
+            return self.__handle_exception(exc)
     
     def update_profile(self, acc_id, args):
         try:

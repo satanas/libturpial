@@ -85,8 +85,10 @@ class Main(Protocol):
             return statuses
         else:
             reposted_by = None
+            retweeted_id = None
             if response.has_key('retweeted_status'):
                 reposted_by = response['user']['screen_name']
+                retweeted_id = response['id']
                 post = response['retweeted_status']
             else:
                 post = response
@@ -130,6 +132,7 @@ class Main(Protocol):
             
             status = Status()
             status.id_ = str(post['id'])
+            status.retweeted_id = retweeted_id
             status.username = username
             status.avatar = avatar
             status.source = self.get_source(source)
@@ -259,14 +262,14 @@ class Main(Protocol):
             'include_entities': True})
         directs = self.json_to_status(rtn, _type=UpdateType.DM)
         rtn2 = self.request('/direct_messages/sent', {'count': count / 2,
-        'include_entities': True})
+            'include_entities': True})
         directs += self.json_to_status(rtn2, _type=UpdateType.DM)
         return directs
             
     def get_sent(self, count=STATUSPP):
         self.log.debug('Getting my statuses')
         rtn = self.request('/statuses/user_timeline', {'count': count,
-            'include_entities': True})
+            'include_entities': True, 'include_rts': True})
         return self.json_to_status(rtn)
         
     def get_favorites(self, count=STATUSPP):
@@ -475,6 +478,19 @@ class Main(Protocol):
         status = self.json_to_status(rtn)
         status.reposted_by = self.get_retweet_users(status_id)
         return status
+
+    def unrepeat(self, status_id):
+        self.log.debug('Undoing retweet for status %s' % status_id)
+        my_statuses = self.get_sent(count=200)
+        req = self.request('/statuses/show', {'id': status_id,
+            'include_entities': True})
+        target_status = self.json_to_status(req)
+        id_target = None
+        for s in my_statuses:
+            if s.text == target_status.text:
+                id_target = s.retweeted_id
+                break
+        return self.destroy_status(id_target)
     
     def mark_favorite(self, status_id):
         self.log.debug('Marking status %s as favorite' % status_id)
