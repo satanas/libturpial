@@ -212,12 +212,31 @@ class AppConfig(ConfigBase):
             muted.append(line.strip('\n'))
         _fd.close()
         return muted
-        
+    
     def save_filter_list(self, lst):
         _fd = open(self.filterpath, 'w')
-        for user in lst:
-            _fd.write(user + '\n')
+        for expression in lst:
+            _fd.write(expression + '\n')
         _fd.close()
+    
+    def append_filter(self, expression):
+        self.log.debug('Filtering expression: %s' % expression)
+        for term in self.load_filter_list():
+            if term == expression:
+                self.log.debug('Expression already filtered')
+                return
+        _fd = open(self.filterpath, 'a')
+        _fd.write(expression + '\n')
+        _fd.close()
+        
+    def remove_filter(self, expression):
+        self.log.debug('Unfiltering expression: %s' % expression)
+        new_list = []
+        for term in self.load_filter_list():
+            if term == expression:
+                continue
+            new_list.append(term)
+        self.save_filter_list(new_list)
     
     def get_stored_accounts(self):
         accounts = []

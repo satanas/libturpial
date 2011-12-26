@@ -82,12 +82,17 @@ class Core:
     def __apply_filters(self, statuses):
         filtered_statuses = []
         filtered_terms = self.config.load_filter_list()
+        if len(filtered_terms) == 0:
+            return statuses
+        
         for status in statuses:
             for term in filtered_terms:
-                if term.startswith('@') and status.username == term[1:]:
-                    continue
-                if status.text.lower().find(term.lower()) >= 0:
-                    continue
+                if term.startswith('@'):
+                    if status.username == term[1:]:
+                        continue
+                else:
+                    if status.text.lower().find(term.lower()) >= 0:
+                        continue
                 filtered_statuses.append(status)
         return filtered_statuses
     
@@ -259,7 +264,9 @@ class Core:
     def get_user_profile(self, acc_id, user):
         try:
             account = self.accman.get(acc_id)
-            return Response(account.get_profile(user))
+            profile = account.get_profile(user)
+            profile.muted = self.is_muted(profile.username)
+            return Response(profile)
         except Exception, exc:
             return self.__handle_exception(exc)
     
@@ -408,6 +415,20 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
     
+    def mute(self, user):
+        try:
+            self.config.append_filter('@%s' % user)
+            return Response(user)
+        except Exception, exc:
+            return self.__handle_exception(exc)
+    
+    def unmute(self, user):
+        try:
+            self.config.remove_filter('@%s' % user)
+            return Response(user)
+        except Exception, exc:
+            return self.__handle_exception(exc)
+    
     ''' Services '''
     def short_url(self, url, service):
         urlshorter = URL_SERVICES[service].do_service(url)
@@ -425,3 +446,13 @@ class Core:
     def is_account_logged_in(self, acc_id):
         account = self.accman.get(acc_id)
         return account.logged_in
+    
+    def is_muted(self, username):
+        filtered_terms = self.config.load_filter_list()
+        for term in filtered_terms:
+            if not term.startswith('@'):
+                continue
+            
+            if username == term[1:]:
+                return True
+        return False
