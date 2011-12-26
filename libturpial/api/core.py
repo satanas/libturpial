@@ -11,9 +11,9 @@ import logging
 import traceback
 
 from libturpial.common import *
+from libturpial.config import AppConfig
 from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
-from libturpial.config import AppConfig, AccountConfig
 from libturpial.api.models.accountmanager import AccountManager
 from libturpial.api.services.shorturl.servicelist import URL_SERVICES
 
@@ -21,8 +21,8 @@ from libturpial.api.services.shorturl.servicelist import URL_SERVICES
 
 class Core:
     '''Turpial core'''
-    def __init__(self):
-        logging.basicConfig(level=logging.DEBUG)
+    def __init__(self, log_level=logging.DEBUG):
+        logging.basicConfig(level=log_level)
         
         self.queue = Queue.Queue()
         self.log = logging.getLogger('Core')
@@ -79,10 +79,22 @@ class Core:
         self.log.debug(response.errmsg)
         return response
     
+    def __apply_filters(self, statuses):
+        filtered_statuses = []
+        filtered_terms = self.config.load_filter_list()
+        for status in statuses:
+            for term in filtered_terms:
+                if term.startswith('@') and status.username == term[1:]:
+                    continue
+                if status.text.lower().find(term.lower()) >= 0:
+                    continue
+                filtered_statuses.append(status)
+        return filtered_statuses
+    
     ''' Microblogging '''
-    def register_account(self, username, protocol_id, password=None, remember=False, auth=None):
+    def register_account(self, username, protocol_id, password=None, auth=None):
         self.log.debug('Registering account %s' % username)
-        acc = self.accman.register(username, protocol_id, password, remember, auth)
+        acc = self.accman.register(username, protocol_id, password, auth)
         if not acc:
             self.log.debug('Invalid account %s in %s' % (username, protocol_id))
         return acc
@@ -94,15 +106,8 @@ class Core:
     def load_registered_accounts(self):
         accounts = self.config.get_stored_accounts()
         for acc in accounts:
-            cfg = AccountConfig(acc)
-            auth = cfg.read_section('OAuth')
-            username = cfg.read('Login', 'username')
-            protocol = cfg.read('Login', 'protocol')
-            password = cfg.revert(cfg.read('Login', 'password'), username)
-            rem = False
-            if password:
-                rem = True
-            self.register_account(username, protocol, password, True, auth)
+            self.log.debug('Registering account: %s' % acc)
+            self.accman.load(acc)
     
     def register_column(self, column_id):
         count = len(self.reg_columns) + 1
@@ -205,7 +210,7 @@ class Core:
         try:
             account = self.accman.get(acc_id)
             if col_id == ColumnType.TIMELINE:
-                rtn = account.get_timeline(count)
+                rtn = self.__apply_filters(account.get_timeline(count))
             elif col_id == ColumnType.REPLIES:
                 rtn = account.get_replies(count)
             elif col_id == ColumnType.DIRECTS:

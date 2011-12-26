@@ -8,6 +8,7 @@
 import logging
 
 from libturpial.common import *
+from libturpial.config import AccountConfig
 from libturpial.api.models.account import Account
 
 class AccountManager:
@@ -21,19 +22,34 @@ class AccountManager:
         
     def __iter__(self):
         return self.__accounts.iteritems()
+    
+    def load(self, account_id):
+        cfg = AccountConfig(account_id)
+        auth = cfg.read_section('OAuth')
+        username = cfg.read('Login', 'username')
+        protocol = cfg.read('Login', 'protocol')
+        passwd = cfg.revert(cfg.read('Login', 'password'), username)
         
-    def register(self, username, protocol_id, passwd, remember, auth):
+        if self.__accounts.has_key(account_id):
+            self.log.debug('Account %s is already registered' % account_id)
+        else:
+            account = Account(username, account_id, protocol, passwd, auth, cfg)
+            self.__accounts[account_id] = account
+            self.log.debug('Account %s loaded successfully' % account_id)
+        return account_id
+        
+    def register(self, username, protocol_id, passwd, auth):
         if username == '' or protocol_id == '':
             return None
         
         account_id = "%s-%s" % (username, protocol_id)
         if self.__accounts.has_key(account_id):
             self.log.debug('Account %s is already registered' % account_id)
-            self.__accounts[account_id].update(passwd, remember)
+            self.__accounts[account_id].update(passwd)
         else:
-            account = Account(username, account_id, protocol_id, passwd, remember, auth)
+            account = Account(username, account_id, protocol_id, passwd, auth)
             self.__accounts[account_id] = account
-            self.log.debug('Account %s was registered successfully' % account_id)
+            self.log.debug('Account %s registered successfully' % account_id)
         return account_id
         
     def unregister(self, account_id, delete_all):

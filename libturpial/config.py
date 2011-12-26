@@ -73,7 +73,6 @@ ACCOUNT_CFG = {
         'username': '',
         'password': '',
         'protocol': '',
-        'active': 'on',
     }
 }
 
@@ -90,7 +89,6 @@ class ConfigBase:
             self.default = default
         self.cfg = ConfigParser.ConfigParser()
         self.filepath = ''
-        self.log = logging.getLogger('Config')
     
     def create(self):
         self.log.debug('Creating configuration file')
@@ -103,7 +101,6 @@ class ConfigBase:
         _fd.close()
     
     def load(self):
-        self.log.debug('Loading configuration')
         self.cfg.read(self.configpath)
         
         for section, _v in self.default.iteritems():
@@ -120,11 +117,12 @@ class ConfigBase:
                     self.__config[section][option] = self.cfg.get(section, option)
                 else:
                     self.write(section, option, value)
-        
+        self.log.debug('Loaded configuration')
+    
     def load_failsafe(self):
-        self.log.debug('Loading failsafe configuration')
         self.__config = self.default
-        
+        self.log.debug('Loaded failsafe configuration')
+    
     def save(self, config):
         self.log.debug('Saving configuration')
         _fd = open(self.configpath, 'w')
@@ -137,16 +135,16 @@ class ConfigBase:
                 self.__config[section][option] = value
         self.cfg.write(_fd)
         _fd.close()
-        
+    
     def write(self, section, option, value):
         _fd = open(self.configpath, 'w')
         self.cfg.set(section, option, value)
         self.cfg.write(_fd)
         _fd.close()
         self.__config[section][option] = value
-        
+    
     def write_section(self, section, items):
-        self.log.debug('Writing section %s' % section)
+        #self.log.debug('Writing section %s' % section)
         _fd = open(self.configpath, 'w')
         if self.cfg.has_section(section):
             self.cfg.remove_section(section)
@@ -157,20 +155,20 @@ class ConfigBase:
             self.__config[section][option] = value
         self.cfg.write(_fd)
         _fd.close()
-        
+    
     def read(self, section, option):
         try:
             return self.__config[section][option]
         except Exception:
             return None
-            
+    
     def read_section(self, section):
-        self.log.debug('Reading section %s' % section)
+        #self.log.debug('Reading section %s' % section)
         try:
             return self.__config[section]
         except Exception:
             return None
-            
+    
     def read_all(self):
         self.log.debug('Reading all')
         try:
@@ -182,7 +180,8 @@ class AppConfig(ConfigBase):
     """ Handle app configuration """
     def __init__(self):
         ConfigBase.__init__(self)
-        
+        self.log = logging.getLogger('AppConfig')
+        self.log.debug('Started')
         self.basedir = BASEDIR
         
         self.configpath = os.path.join(self.basedir, 'config')
@@ -252,9 +251,9 @@ class AppConfig(ConfigBase):
 
 class AccountConfig(ConfigBase):
     
-    def __init__(self, account_id, pw=None, remember=False):
+    def __init__(self, account_id, pw=None):
         ConfigBase.__init__(self, default=ACCOUNT_CFG)
-        
+        self.log = logging.getLogger('AccountConfig')
         self.basedir = os.path.join(BASEDIR, 'accounts', account_id)
         
         if XDG_CACHE:
@@ -287,10 +286,7 @@ class AccountConfig(ConfigBase):
             pt = account_id.split('-')[1]
             self.write('Login', 'username', us)
             self.write('Login', 'protocol', pt)
-            if pw and remember:
-                self.remember(pw, us)
-            else:
-                self.forget()
+            self.remember(pw, us)
     
     def remember(self, pw, us):
         self.write('Login', 'password', self.transform(pw, us))
@@ -326,10 +322,3 @@ class AccountConfig(ConfigBase):
         if os.path.isdir(self.basedir):
             shutil.rmtree(self.basedir)
             self.log.debug('Removed base directory')
-    
-    def is_remembered(self):
-        pwd = self.read('Login', 'password')
-        if pwd:
-            return True
-        else:
-            return False

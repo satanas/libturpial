@@ -12,7 +12,7 @@ from libturpial.api.protocols.twitter import twitter
 from libturpial.api.protocols.identica import identica
 
 class Account:
-    def __init__(self, username, account_id, protocol_id, password, remember, auth):
+    def __init__(self, username, account_id, protocol_id, password, auth, config=None):
         self.id_ = account_id # username-protocol_id
         self.username = username
         self.protocol_id = protocol_id
@@ -29,13 +29,10 @@ class Account:
         self.columns = []
         self.lists = None
         self.logged_in = LoginStatus.NONE
-        self.remembered = remember
-        self.config = AccountConfig(account_id, password, remember)
-        
-        if self.config.read('Login', 'active') == 'on':
-            self.active = True
+        if config:
+            self.config = config
         else:
-            self.active = False
+            self.config = AccountConfig(account_id, password)
     
     def auth(self):
         self.profile = self.protocol.auth(self.profile.username, self.profile.password)
@@ -59,20 +56,9 @@ class Account:
             if li.name == list_name:
                 return li.id_
         return None
-    
-    def is_remembered(self):
-        return self.remembered
-    
-    def is_active(self):
-        return self.active
         
-    def update(self, pw, remember):
-        self.profile.password = pw
-        self.remembered = remember
-        if remember:
-            self.config.remember(pw, self.profile.username)
-        else:
-            self.config.forget()
+    def update(self, passwd):
+        self.profile.password = passwd
         
     def set_profile(self, profile):
         self.profile = profile
@@ -86,12 +72,6 @@ class Account:
         self.config.write('OAuth', 'key', token.key)
         self.config.write('OAuth', 'secret', token.secret)
         self.config.write('OAuth', 'verifier', token.verifier)
-        
-    def activate(self, value):
-        if value:
-            self.config.write('Login', 'active', 'on')
-        else:
-            self.config.write('Login', 'active', 'off')
         
     def __getattr__(self, name):
         try:
