@@ -456,3 +456,6 @@ class Core:
             if username == term[1:]:
                 return True
         return False
+    
+    def get_default_browser(self):
+        return self.config.read('Browser', 'cmd')
