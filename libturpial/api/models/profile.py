@@ -31,3 +31,8 @@ class Profile:
         self.tmp_avatar_path = None
         self.protected = False
         self.verified = False
+    
+    def is_me(self):
+        if self.username == self.account_id.split('-')[0]:
+            return True
+        return False
