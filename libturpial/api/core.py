@@ -304,6 +304,13 @@ class Core:
             return Response(account.destroy_status(status_id))
         except Exception, exc:
             return self.__handle_exception(exc)
+
+    def get_single_status(self, acc_id, status_id):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.get_status(status_id))
+        except Exception, exc:
+            return self.__handle_exception(exc)
     
     def repeat_status(self, acc_id, status_id):
         try:

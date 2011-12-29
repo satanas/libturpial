@@ -312,6 +312,11 @@ class Main(Protocol):
             else:
                 break
         return conversation
+
+    def get_status(self, status_id):
+        rtn = self.request('/statuses/show', {'id': status_id,
+            'include_entities': True})
+        return self.json_to_status(rtn)
     
     def get_followers(self, only_id=False):
         self.log.debug('Getting followers list')
