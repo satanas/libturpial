@@ -5,6 +5,8 @@
 # Author: Wil Alvarez (aka Satanas)
 # May 20, 2010
 
+import os
+import ssl
 import socket
 import urllib2
 import urllib
@@ -41,7 +43,9 @@ class TurpialHTTP:
         self.token = None
         self.consumer = None
         self.sign_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
-        
+        self.ca_certs_file = os.path.realpath(os.path.join(os.path.dirname(__file__),
+            '..', '..', 'certs', 'cacert.pem'))
+        print self.ca_certs_file
     def __oauth_sign_http_request(self, httpreq, args):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
             token=self.token, http_method=httpreq.method, http_url=httpreq.uri,
@@ -59,6 +63,30 @@ class TurpialHTTP:
             httpreq.headers["Authorization"] = "Basic " + auth_info
         return httpreq
     
+    def __validate_ssl_cert(self, request):
+        req = request.split('://')[1]
+        host = req[:req.find('/')]
+        port = 443
+        
+        ip = socket.getaddrinfo(host, port)[0][4][0]
+        sock = socket.socket()
+        sock.connect((ip, port))
+        
+        sock = ssl.wrap_socket(sock, 
+            cert_reqs=ssl.CERT_REQUIRED, ca_certs=self.ca_certs_file)
+        
+        cert = sock.getpeercert()
+        
+        for field in cert['subject']:
+            if field[0][0] == 'commonName':
+                certhost = field[0][1]
+                if certhost != host:
+                    raise ssl.SSLError("Host name '%s' doesn't match certificate host '%s'"
+                                 % (host, certhost))
+        
+        self.log.debug('Validated SSL cert for host: %s' % host)
+
+        
     # ------------------------------------------------------------
     # OAuth Methods
     # ------------------------------------------------------------
@@ -240,6 +268,8 @@ class TurpialHTTP:
             base_url = self.urls['api']
         if secure:
             base_url = base_url.replace('http://', 'https://')
+            self.__validate_ssl_cert(base_url)
+        
         request_url = "%s%s" % (base_url, url)
         httpreq = self.build_http_request(request_url, args, fmt)
         authreq = self.auth_http_request(httpreq, self.auth_args)
@@ -346,4 +376,3 @@ class ConnectHTTPSHandler(urllib2.HTTPSHandler):
         if self.proxy is not None:
             req.set_proxy(self.proxy, 'https')
         return urllib2.HTTPSHandler.do_open(self, ProxyHTTPSConnection, req)
-       

@@ -5,6 +5,7 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 06, 2011
 
+import ssl
 import Queue
 import urllib2
 import logging
@@ -73,6 +74,8 @@ class Core:
                     response.errmsg = msg
         elif _type == ValueError:
             response = Response(code=404)
+        elif _type == ssl.SSLError:
+            response = Response(code=810)
         else:
             response = Response(code=999)
         
@@ -254,6 +257,17 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
     
+    def get_all_friends_list(self):
+        friends = []
+        try:
+            for account in self.accman:
+                for profile in account.get_following():
+                    if profile.username not in friends:
+                        friends.append(profile.username)
+            return Response(friends)
+        except Exception, exc:
+            return self.__handle_exception(exc)
+        
     def get_own_profile(self, acc_id):
         try:
             account = self.accman.get(acc_id)
