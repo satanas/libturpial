@@ -50,7 +50,7 @@ ERROR_CODES = {
     807: "Server is not responding",
     808: "Account already logged in",
     809: "Account not logged in",
-    810: "SSL certificate doesn't match"
+    810: "SSL certificate doesn't match",
     
     900: "Feature not implemented yet",
     999: "Unknown error",
