@@ -45,7 +45,7 @@ class TurpialHTTP:
         self.sign_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
         self.ca_certs_file = os.path.realpath(os.path.join(os.path.dirname(__file__),
             '..', '..', 'certs', 'cacert.pem'))
-        print self.ca_certs_file
+        
     def __oauth_sign_http_request(self, httpreq, args):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
             token=self.token, http_method=httpreq.method, http_url=httpreq.uri,
