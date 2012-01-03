@@ -216,6 +216,11 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
         
+    def get_status(self, status_id):
+        ''' 
+        Fetch only one status
+        '''
+        raise NotImplementedError
     
     def get_followers(self, only_id=False):
         ''' 

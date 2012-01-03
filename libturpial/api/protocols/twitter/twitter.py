@@ -312,7 +312,7 @@ class Main(Protocol):
             else:
                 break
         return conversation
-
+    
     def get_status(self, status_id):
         rtn = self.request('/statuses/show', {'id': status_id,
             'include_entities': True})
