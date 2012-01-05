@@ -260,10 +260,11 @@ class Core:
     def get_all_friends_list(self):
         friends = []
         try:
-            for account in self.accman:
+            for account in self.accman.get_all():
+                print account
                 for profile in account.get_following():
-                    if profile.username not in friends:
-                        friends.append(profile.username)
+                    if profile not in friends:
+                        friends.append(profile)
             return Response(friends)
         except Exception, exc:
             return self.__handle_exception(exc)
