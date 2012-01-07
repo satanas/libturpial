@@ -48,3 +48,11 @@ class ServiceResponse:
         self.response = response
         self.err = err
         self.err_msg = err_msg
+
+class URLShortenError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+class UploadImageError(Exception):
+    def __init__(self, message):
+        self.message = message

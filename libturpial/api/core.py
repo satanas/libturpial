@@ -13,10 +13,12 @@ import traceback
 
 from libturpial.common import *
 from libturpial.config import AppConfig
+from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 from libturpial.api.services.shorturl.servicelist import URL_SERVICES
+from libturpial.api.interfaces.service import URLShortenError, UploadImageError
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -76,6 +78,8 @@ class Core:
             response = Response(code=404)
         elif _type == ssl.SSLError:
             response = Response(code=810)
+        elif _type == URLShortenError:
+            response = Response(code=811)
         else:
             response = Response(code=999)
         
@@ -452,9 +456,26 @@ class Core:
             return self.__handle_exception(exc)
     
     ''' Services '''
-    def short_url(self, url, service):
-        urlshorter = URL_SERVICES[service].do_service(url)
-        return urlshorter.response
+    def list_short_url_services(self):
+        return URL_SERVICES.keys()
+    
+    def short_url(self, url):
+        service = self.config.read('Services', 'shorten-url')
+        try:
+            urlshorter = URL_SERVICES[service].do_service(url)
+            return Response(urlshorter.response)
+        except Exception, exc:
+            return self.__handle_exception(exc)
+    
+    def autoshort_url(self, message):
+        service = self.config.read('Services', 'shorten-url')
+        try:
+            for url in get_urls(message):
+                urlshorter = URL_SERVICES[service].do_service(url)
+                message = message.replace(url, urlshorter.response)
+            return Response(message)
+        except Exception, exc:
+            return self.__handle_exception(exc)
     
     ''' Configuration '''
     def has_stored_passwd(self, acc_id):

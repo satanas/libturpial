@@ -5,8 +5,9 @@
 # Author: Andrea Stagi (4ndreaSt4gi)
 # 2010-07-28
 
-from libturpial.api.interfaces.service import GenericService
-from libturpial.api.interfaces.service import ServiceResponse
+import traceback
+
+from libturpial.api.interfaces.service import *
 
 class ShortUrlAdapter(GenericService):
     def __init__(self, obj):
@@ -14,10 +15,10 @@ class ShortUrlAdapter(GenericService):
         self._obj = obj
         
     def do_service(self, longurl):
-        longurl = self._quote_url(longurl)
         try:
+            longurl = self._quote_url(longurl)
             resp = self._obj.shrink(longurl)
             return ServiceResponse(resp)
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
-            return ServiceResponse(err=True, err_msg=_('Problem shorting URL'))
+            raise URLShortenError(error)
