@@ -470,6 +470,7 @@ class Core:
     def autoshort_url(self, message):
         service = self.config.read('Services', 'shorten-url')
         try:
+            # TODO: Validate already shorten URLs
             for url in get_urls(message):
                 urlshorter = URL_SERVICES[service].do_service(url)
                 message = message.replace(url, urlshorter.response)

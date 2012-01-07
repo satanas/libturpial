@@ -92,7 +92,7 @@ class Protocol(TurpialHTTP):
         }
         text = status['text']
         
-        for item in get_urls(text):
+        for url in get_urls(text):
             entities['urls'].append(Entity(url, url, url))
         
         for item in HASHTAG_PATTERN.findall(text):
