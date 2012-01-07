@@ -66,6 +66,7 @@ ERROR_CODES = {
     809: "Account not logged in",
     810: "SSL certificate doesn't match",
     811: "Problem shorting URL",
+    812: "There are no URLs to short",
     
     900: "Feature not implemented yet",
     999: "Unknown error",

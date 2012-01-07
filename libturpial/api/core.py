@@ -13,12 +13,12 @@ import traceback
 
 from libturpial.common import *
 from libturpial.config import AppConfig
+from libturpial.common.exceptions import *
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 from libturpial.api.services.shorturl.servicelist import URL_SERVICES
-from libturpial.api.interfaces.service import URLShortenError, UploadImageError
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -80,6 +80,8 @@ class Core:
             response = Response(code=810)
         elif _type == URLShortenError:
             response = Response(code=811)
+        elif _type == NoURLException:
+            response = Response(code=812)
         else:
             response = Response(code=999)
         
@@ -470,8 +472,12 @@ class Core:
     def autoshort_url(self, message):
         service = self.config.read('Services', 'shorten-url')
         try:
+            all_urls = get_urls(message)
+            if len(all_urls) == 0:
+                raise NoURLException
+            
             # TODO: Validate already shorten URLs
-            for url in get_urls(message):
+            for url in all_urls:
                 urlshorter = URL_SERVICES[service].do_service(url)
                 message = message.replace(url, urlshorter.response)
             return Response(message)
