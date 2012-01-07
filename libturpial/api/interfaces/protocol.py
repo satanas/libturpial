@@ -5,13 +5,13 @@
 # Author: Wil Alvarez (aka Satanas)
 # May 20, 2010
 
-import re
 import time
 import logging
 import datetime
 import xml.sax.saxutils as saxutils
 
-from libturpial.common import ARG_SEP
+from libturpial.common import *
+from libturpial.common.tools import *
 from libturpial.api.models.client import Client
 from libturpial.api.models.entity import Entity
 from libturpial.api.interfaces.http import TurpialHTTP
@@ -19,12 +19,6 @@ from libturpial.api.interfaces.http import TurpialHTTP
 class Protocol(TurpialHTTP):
     ''' Base class to define basic functions that must have any protocol
     implementation '''
-    
-    HASHTAG_PATTERN = re.compile('(?<![\w])#[\wáéíóúÁÉÍÓÚñÑçÇ]+')
-    MENTION_PATTERN = re.compile('(?<![\w])@[\w]+')
-    CLIENT_PATTERN = re.compile('<a href="(.*?)">(.*?)</a>')
-    # According to RFC 3986 - http://www.ietf.org/rfc/rfc3986.txt
-    URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$&\'()*+,;=]*)')
     
     def __init__(self, account_id, name, api_url, search_url, tags_url=None, 
         groups_url=None, profiles_url=None, post_actions=[]):
@@ -98,18 +92,14 @@ class Protocol(TurpialHTTP):
         }
         text = status['text']
         
-        for item in self.URL_PATTERN.findall(text):
-            url = item[0]
-            # Removes the last parenthesis
-            if url[-1] == ')':
-                url = url[:-1]
+        for item in get_urls(text):
             entities['urls'].append(Entity(url, url, url))
         
-        for item in self.HASHTAG_PATTERN.findall(text):
+        for item in HASHTAG_PATTERN.findall(text):
             url = "%s/%s" % (self.urls['hashtags'], item[1:])
             entities['hashtags'].append(Entity(url, item, item))
         
-        for item in self.MENTION_PATTERN.findall(text):
+        for item in MENTION_PATTERN.findall(text):
             url = "%s%s%s" % (item[1:], ARG_SEP, self.account_id)
             entities['mentions'].append(Entity(url, item, item))
         return entities
@@ -123,7 +113,7 @@ class Protocol(TurpialHTTP):
         if text == 'web':
             return Client(text, "http://twitter.com")
         
-        rtn = self.CLIENT_PATTERN.search(text)
+        rtn = CLIENT_PATTERN.search(text)
         if rtn:
             return Client(rtn.groups()[1], rtn.groups()[0])
         

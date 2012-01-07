@@ -8,11 +8,7 @@
 import os
 import sys
 
-OS_LINUX = 'linux'
-OS_WINDOWS = 'windows'
-OS_MAC = 'darwin'
-OS_JAVA = 'java'
-OS_UNKNOWN = 'unknown'
+from libturpial.common import *
 
 def clean_bytecodes(root_path, logger=None):
     """Clean all .pyc y .pyo. This is intented to use by all UI interfaces"""
@@ -42,3 +38,15 @@ def detect_os():
         return OS_JAVA
     else:
         return OS_UNKNOWN
+
+def get_urls(text):
+    urls = []
+    forbidden = [')', '.']
+    for item in URL_PATTERN.findall(text):
+        url = item[0]
+        # Removes the last parenthesis
+        if url[-1] in forbidden:
+            url = url[:-1]
+        urls.append(url)
+    return urls
+        
