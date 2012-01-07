@@ -63,14 +63,25 @@ class Core:
                 response = Response(code=100)
                 response.errmsg = "Sorry, server is limiting your API calls"
             elif (exc.code == 403):
-                msg = exc.read()
-                self.log.debug("Error HTTP 403 detected: %s" % msg)
+                msg = ''
+                errmsg = exc.read()
+                self.log.debug("Error HTTP 403 detected: %s" % errmsg)
+                if type(errmsg) == str:
+                    msg = errmsg
+                elif type(errmsg) == dict:
+                    if errmsg.has_key('error'):
+                        msg = errmsg['error']
+                else:
+                    msg = errmsg
+                
                 if msg.find("Status is a duplicate.") > 0:
                     response = Response(code=802)
                 elif msg.find("is already on your list.") > 0:
                     response = Response(code=802)
                 elif msg.find("already requested to follow") > 0:
                     response = Response(code=802)
+                elif msg.find("cannot send messages to users who are not following you") > 0:
+                    response = Response(code=813)
                 else:
                     response = Response(code=100)
                     response.errmsg = msg

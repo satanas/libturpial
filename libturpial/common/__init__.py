@@ -67,6 +67,7 @@ ERROR_CODES = {
     810: "SSL certificate doesn't match",
     811: "Problem shorting URL",
     812: "There are no URLs to short",
+    813: "That user is not following you. You cannot send messages",
     
     900: "Feature not implemented yet",
     999: "Unknown error",
