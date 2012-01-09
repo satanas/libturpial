@@ -18,7 +18,7 @@ protocol. This library is the backend used for Turpial.
 """
 
 data_files=[
-    ('share/doc/libturpial', ['ChangeLog', 'AUTHORS', 'COPYING']),
+    ('./', ['ChangeLog', 'AUTHORS', 'COPYING']),
 ]
 
 setup(name="libturpial",
@@ -45,8 +45,8 @@ setup(name="libturpial",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     packages=find_packages(),
-    cmdclass={
-        'build': build,
+    package_data={
+        'libturpial': ['certs/*']
     },
     data_files=data_files,
 )
