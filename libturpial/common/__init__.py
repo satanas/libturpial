@@ -37,6 +37,7 @@ class ColumnType:
     DIRECTS = 'directs'
     SENT = 'sent'
     FAVORITES = 'favorites'
+    PUBLIC = 'public'
 
 class LoginStatus:
     NONE = 0

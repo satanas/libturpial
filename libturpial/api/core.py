@@ -244,6 +244,8 @@ class Core:
                 rtn = account.get_sent(count)
             elif col_id == ColumnType.FAVORITES:
                 rtn = account.get_favorites(count)
+            elif col_id == ColumnType.PUBLIC:
+                rtn = account.get_public_timeline(count)
             else:
                 list_id = account.get_list_id(col_id)
                 if list_id is None:
