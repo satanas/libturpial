@@ -8,6 +8,8 @@
 import traceback
 
 from libturpial.api.interfaces.service import *
+from libturpial.common.exceptions import URLShortenError
+
 
 class ShortUrlAdapter(GenericService):
     def __init__(self, obj):
@@ -16,7 +18,6 @@ class ShortUrlAdapter(GenericService):
         
     def do_service(self, longurl):
         try:
-            longurl = self._quote_url(longurl)
             resp = self._obj.shrink(longurl)
             return ServiceResponse(resp)
         except Exception, error:
