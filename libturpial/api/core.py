@@ -44,6 +44,7 @@ class Core:
         self.__print_traceback()
         
         _type = type(exc)
+        print "Exception type: %s" % (str(_type))
         response = None
         if _type == urllib2.URLError:
             response = Response(code=801)
@@ -522,3 +523,22 @@ class Core:
     
     def get_default_browser(self):
         return self.config.read('Browser', 'cmd')
+    
+    def show_notifications_in_login(self):
+        temp = self.config.read('Notifications', 'login')
+        if temp == 'on':
+            return True
+        return False
+    
+    def show_notifications_in_updates(self):
+        temp = self.config.read('Notifications', 'updates')
+        if temp == 'on':
+            return True
+        return False
+    
+    def play_sounds_in_notification(self):
+        temp = self.config.read('Notifications', 'sounds')
+        if temp == 'on':
+            return True
+        return False
+        

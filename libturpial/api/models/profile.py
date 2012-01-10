@@ -37,3 +37,9 @@ class Profile:
         if self.username == self.account_id.split('-')[0]:
             return True
         return False
+    
+    def get_protocol_id(self):
+        if self.account_id:
+            return self.account_id.split('-')[1]
+        else:
+            return None

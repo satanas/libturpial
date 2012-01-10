@@ -21,31 +21,23 @@ except:
 
 APP_CFG = {
     'General':{
-        'column1-update-interval': '5',
-        'column2-update-interval': '5',
-        'column3-update-interval': '5',
-        'workspace': 'single',
+        'update-interval': '5',
         'profile-color': 'on',
-        'remember-login-info': 'off',
         'minimize-on-close': 'on',
         'num-tweets': '60',
     },
     'Window': {
-        'single-win-size': '320,480',
-        'wide-win-size': '960,480',
-        'window-single-position': '-1,-1',
-        'window-wide-position': '-1,-1',
-        'window-state': 'windowed',
-        'window-visibility': 'show',
+        'size': '320,480',
+        'position': '-1,-1',
+        'state': 'windowed',
+        'visibility': 'show',
     },
     'Columns':{
     },
     'Notifications':{
-        'sound': 'on',
+        'sounds': 'on',
         'login': 'on',
-        'column1': 'on',
-        'column2': 'on',
-        'column3': 'on',
+        'updates': 'on',
     },
     'Services':{
         'shorten-url': 'is.gd',
