@@ -471,6 +471,13 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
     
+    def get_profile_image(self, acc_id, user):
+        try:
+            account = self.accman.get(acc_id)
+            return Response(account.get_profile_image(user))
+        except Exception, exc:
+            return self.__handle_exception(exc)
+            
     ''' Services '''
     def list_short_url_services(self):
         return URL_SERVICES.keys()

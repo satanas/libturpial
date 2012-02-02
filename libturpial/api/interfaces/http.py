@@ -224,7 +224,10 @@ class TurpialHTTP:
             uri = "%s/%s" % (uri, args['id'])
             del args['id']
         
-        uri = "%s.%s" % (uri, fmt)
+        if fmt is None:
+            uri = "%s" % (uri)
+        else:
+            uri = "%s.%s" % (uri, fmt)
         self.log.debug('Request to: %s' % uri)
         
         if len(args) > 0:

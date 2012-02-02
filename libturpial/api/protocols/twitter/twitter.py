@@ -571,3 +571,11 @@ class Main(Protocol):
         result = self.request('/friendships/show', 
             {'source_screen_name': self.uname, 'target_screen_name': user})
         return result['relationship']['target']['following']
+    
+    def get_profile_image(self, user):
+        self.log.debug('Getting profile image for %s' % (user))
+        result = self.request('/users/profile_image', 
+            {'screen_name': user, 'size': 'original'}, fmt=None)
+        # TODO: Guardar la imagen en la carpeta de cache
+        return result
+    

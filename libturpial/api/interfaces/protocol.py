@@ -175,25 +175,25 @@ class Protocol(TurpialHTTP):
         Fetch the sent messages from the server 
         '''
         raise NotImplementedError
-        
+    
     def get_favorites(self, count):
         ''' 
         Fetch the favorites from the server 
         '''
         raise NotImplementedError
-        
+    
     def get_public_timeline(self, count):
         ''' 
         Fetch the public timeline from the server 
         '''
         raise NotImplementedError
-        
+    
     def get_lists(self, username):
         ''' 
         Fetch all user lists for service
         '''
         raise NotImplementedError
-        
+    
     def get_list_statuses(self, list_id):
         ''' 
         Fetch all statuses for a specific list
@@ -205,7 +205,7 @@ class Protocol(TurpialHTTP):
         Fetch the whole conversation related to a single status
         '''
         raise NotImplementedError
-        
+    
     def get_status(self, status_id):
         ''' 
         Fetch only one status
@@ -223,31 +223,31 @@ class Protocol(TurpialHTTP):
         Fetch the list of following
         '''
         raise NotImplementedError
-        
+    
     def get_profile(self, user):
         ''' 
         Fetch an especific user profile
         '''
         raise NotImplementedError
-        
+    
     def get_blocked(self):
         ''' 
         Fetch the list of blocked users
         '''
         raise NotImplementedError
-        
+    
     def get_rate_limits(self):
         ''' 
         Fetch the rate limits for the service
         '''
         raise NotImplementedError
-        
+    
     def update_profile(self, profile_args):
         ''' 
         Update the user profile
         '''
         raise NotImplementedError
-        
+    
     def update_status(self, text, in_reply_to_id=None):
         ''' 
         Post an update
@@ -259,48 +259,48 @@ class Protocol(TurpialHTTP):
         Destroy a posted update
         '''
         raise NotImplementedError
-        
+    
     def repeat(self, id_):
         ''' 
         Repeat to all your friends an update posted by somebody
         '''
         raise NotImplementedError
-        
+    
     def mark_favorite(self, id_):
         ''' 
         Mark an update as favorite
         '''
         raise NotImplementedError
-        
+    
     def unmark_favorite(self, id_):
         ''' 
         Unmark an update as favorite
         '''
         raise NotImplementedError
-        
+    
     def follow(self, user, by_id):
         ''' 
         Follow somebody
         '''
         raise NotImplementedError
-        
+    
     def unfollow(self, user):
         ''' 
         Unfollow somebody
         '''
         raise NotImplementedError
-        
+    
     def send_direct(self, user, text):
         # FIXME: Implementar
         #raise NotImplementedError
         pass
-        
+    
     def destroy_direct(self, id_):
         ''' 
         Destroy a direct message
         '''
         raise NotImplementedError
-        
+    
     def block(self, user):
         ''' 
         Blocks the specified user
@@ -318,7 +318,7 @@ class Protocol(TurpialHTTP):
         Blocks and report the specified user as spammer
         '''
         raise NotImplementedError
-        
+    
     def search(self, query, count):
         ''' 
         Execute a search query in server
@@ -337,3 +337,8 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
     
+    def get_profile_image(self, user):
+        ''' 
+        Returns the URL for the profile image of the given user
+        '''
+        raise NotImplementedError
