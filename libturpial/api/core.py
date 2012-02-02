@@ -5,6 +5,7 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 06, 2011
 
+import os
 import ssl
 import Queue
 import urllib2
@@ -474,7 +475,12 @@ class Core:
     def get_profile_image(self, acc_id, user):
         try:
             account = self.accman.get(acc_id)
-            return Response(account.get_profile_image(user))
+            img_content = account.get_profile_image(user)
+            img_path = os.path.join(account.config.imgdir, user)
+            fd = open(img_path, 'w')
+            fd.write(img_content)
+            fd.close()
+            return Response(img_path)
         except Exception, exc:
             return self.__handle_exception(exc)
             

@@ -228,7 +228,7 @@ class TurpialHTTP:
             uri = "%s" % (uri)
         else:
             uri = "%s.%s" % (uri, fmt)
-        self.log.debug('Request to: %s' % uri)
+        self.log.debug('%s Request to: %s' % (method, uri))
         
         if len(args) > 0:
             s_args = []
@@ -248,6 +248,7 @@ class TurpialHTTP:
         strReq = "%s%s" % (uri, argStr)
         req = TurpialHTTPRequest(argStr, headers, argData, encoded_args, 
             method, strReq, uri, args)
+        #print req
         return req
     
     def auth_http_request(self, httpreq, args):
@@ -293,8 +294,8 @@ class TurpialHTTPRequest:
         
     def __str__(self):
         
-        return "method: %s\nencoded_args: %s\nargStr: %s\nargData: %s\n \
-headers: %s\nstrReq: %s-" % (self.method, self.encoded_args, 
+        return " method: %s\n encoded_args: %s\n argStr: %s\n argData: %s\n \
+headers: %s\n strReq: %s\n***" % (self.method, self.encoded_args, 
             self.argStr, self.argData, self.headers, self.strReq)
         
         pass
