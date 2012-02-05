@@ -26,10 +26,21 @@ class ProtocolType:
     TWITTER = 'twitter'
     IDENTICA = 'identica'
 
-class UpdateType:
-    DM = 'dm'
-    STD = 'std'
+class StatusColumn:
+    TIMELINE = 'timeline'
+    REPLIES = 'replies'
+    DIRECTS = 'directs'
+    FAVORITES = 'favorites'
+    PUBLIC = 'public'
+    SENT = 'sent'
+    CONVERSATION = 'conversation'
     PROFILE = 'profile'
+    SINGLE = 'single'
+    
+
+class StatusType:
+    NORMAL = 0x1
+    DIRECT = 0x2
 
 class ColumnType:
     TIMELINE = 'timeline'

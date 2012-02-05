@@ -5,6 +5,8 @@
 # Author: Wil Alvarez (aka Satanas)
 # May 20, 2010
 
+from libturpial.common import StatusType
+
 class Status:
     def __init__(self):
         self.id_ = None
@@ -27,6 +29,7 @@ class Status:
         self.entities = {}
         self.retweeted = False
         self.retweeted_id = None
+        self.display_id = None
     
     def get_reply_mentions(self):
         account = '@' + self.account_id.split('-')[0]
@@ -38,3 +41,9 @@ class Status:
             return count
         else:
             return []
+    
+    def set_display_id(self, column_id):
+        self.display_id = "%s-%s-%s" % (self.account_id, self.id_, column_id)
+    
+    def is_direct(self):
+        return (self._type == StatusType.DIRECT)

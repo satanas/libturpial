@@ -7,13 +7,13 @@
 
 import base64
 
+from libturpial.common import *
 from libturpial.api.models.list import List
 from libturpial.api.models.status import Status
 from libturpial.api.models.entity import Entity
 from libturpial.api.models.profile import Profile
 from libturpial.api.models.ratelimit import RateLimit
 from libturpial.api.interfaces.protocol import Protocol
-from libturpial.common import UpdateType, STATUSPP, ARG_SEP
 from libturpial.api.models.trend import Trend, TrendsResults
 from libturpial.api.protocols.twitter.params import CK, CS, SALT, POST_ACTIONS
 
@@ -68,13 +68,13 @@ class Main(Protocol):
             profile.link_color = ('#' + response['profile_link_color']) or Profile.DEFAULT_LINK_COLOR
             return profile
     
-    def json_to_status(self, response, _type=UpdateType.STD):
+    def json_to_status(self, response, column_id='', _type=StatusType.NORMAL):
         if isinstance(response, list):
             statuses = []
             for resp in response:
                 if not resp:
                     continue
-                status = self.json_to_status(resp, _type)
+                status = self.json_to_status(resp, column_id, _type)
                 if status.reposted_by:
                     # TODO: Handle this
                     #users = self.get_retweet_users(status.id_)
@@ -129,8 +129,6 @@ class Main(Protocol):
             if post.has_key('source'):
                 source = post['source']
             
-            own = True if (username.lower() == self.uname.lower()) else False
-            
             status = Status()
             status.id_ = str(post['id'])
             status.retweeted_id = retweeted_id
@@ -149,8 +147,9 @@ class Main(Protocol):
             status.entities = self.get_entities(post)
             status._type = _type
             status.account_id = self.account_id
-            status.is_own = own
+            status.is_own = (username.lower() == self.uname.lower())
             status.retweeted = retweeted
+            status.set_display_id(column_id)
             return status
             
     def json_to_ratelimit(self, response):
@@ -249,40 +248,42 @@ class Main(Protocol):
         self.log.debug('Getting timeline')
         rtn = self.request('/statuses/home_timeline', {'count': count, 
             'include_entities': True})
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, StatusColumn.TIMELINE)
         
     def get_replies(self, count=STATUSPP):
         self.log.debug('Getting replies')
         rtn = self.request('/statuses/mentions', {'count': count,
             'include_entities': True})
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, StatusColumn.REPLIES)
         
     def get_directs(self, count=STATUSPP):
         self.log.debug('Getting directs')
         rtn = self.request('/direct_messages', {'count': count / 2, 
             'include_entities': True})
-        directs = self.json_to_status(rtn, _type=UpdateType.DM)
+        directs = self.json_to_status(rtn, StatusColumn.DIRECTS, 
+            _type=StatusType.DIRECT)
         rtn2 = self.request('/direct_messages/sent', {'count': count / 2,
             'include_entities': True})
-        directs += self.json_to_status(rtn2, _type=UpdateType.DM)
+        directs += self.json_to_status(rtn2, StatusColumn.DIRECTS,
+            _type=StatusType.DIRECT)
         return directs
             
     def get_sent(self, count=STATUSPP):
         self.log.debug('Getting my statuses')
         rtn = self.request('/statuses/user_timeline', {'count': count,
             'include_entities': True, 'include_rts': True})
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, StatusColumn.SENT)
         
     def get_favorites(self, count=STATUSPP):
         self.log.debug('Getting favorites')
         rtn = self.request('/favorites', {'include_entities': True})
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, StatusColumn.FAVORITES)
         
     def get_public_timeline(self, count=STATUSPP):
         self.log.debug('Getting public timeline')
         rtn = self.request('/statuses/public_timeline', {'count': count, 
             'include_entities': True})
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, StatusColumn.PUBLIC)
         
     def get_lists(self, username):
         self.log.debug('Getting user lists')
@@ -295,7 +296,7 @@ class Main(Protocol):
         self.log.debug('Getting statuses from list %s' % list_id)
         rtn = self.request('/lists/statuses', {'list_id': list_id, 
             'per_page': count, 'include_entities': True})
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, list_id)
         
     def get_conversation(self, status_id):
         self.log.debug('Getting conversation for status %s' % status_id)
@@ -305,7 +306,8 @@ class Main(Protocol):
             rtn = self.request('/statuses/show', {'id': status_id,
                 'include_entities': True})
             self.log.debug('--Fetched status: %s' % status_id)
-            conversation.append(self.json_to_status(rtn))
+            conversation.append(self.json_to_status(rtn, 
+                StatusColumn.CONVERSATION))
             
             if rtn['in_reply_to_status_id']:
                 status_id = str(rtn['in_reply_to_status_id'])

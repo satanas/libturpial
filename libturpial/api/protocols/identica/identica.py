@@ -8,10 +8,10 @@
 import re
 import base64
 
+from libturpial.common import *
 from libturpial.api.models.entity import Entity
 from libturpial.api.models.status import Status
 from libturpial.api.models.profile import Profile
-from libturpial.common import UpdateType, STATUSPP
 from libturpial.api.interfaces.protocol import Protocol
 from libturpial.api.protocols.identica.params import CK, CS, SALT, POST_ACTIONS
 
@@ -67,13 +67,13 @@ class Main(Protocol):
             profile.link_color = Profile.DEFAULT_LINK_COLOR
             return profile
     
-    def json_to_status(self, response, _type=UpdateType.STD):
+    def json_to_status(self, response, column_id='', _type=StatusType.NORMAL):
         if isinstance(response, list):
             statuses = []
             for resp in response:
                 if not resp:
                     continue
-                status = self.json_to_status(resp, _type)
+                status = self.json_to_status(resp, column_id, _type)
                 statuses.append(status)
             return statuses
         else:
@@ -112,8 +112,6 @@ class Main(Protocol):
             if post.has_key('source'):
                 source = post['source']
             
-            own = True if (username.lower() == self.uname.lower()) else False
-            
             status = Status()
             status.id_ = str(post['id'])
             status.username = username
@@ -131,7 +129,8 @@ class Main(Protocol):
             status.entities = self.get_entities(post)
             status._type = _type
             status.account_id = self.account_id
-            status.is_own = own
+            status.is_own = (username.lower() == self.uname.lower())
+            status.set_display_id(column_id)
             return status
     
     def auth(self, username, password):
@@ -153,36 +152,38 @@ class Main(Protocol):
     def get_timeline(self, count=STATUSPP):
         self.log.debug('Getting timeline')
         rtn = self.request('/statuses/home_timeline', {'count': count})
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, StatusColumn.TIMELINE)
         
     def get_replies(self, count=STATUSPP):
         self.log.debug('Getting replies')
         rtn = self.request('/statuses/mentions', {'count': count})
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, StatusColumn.REPLIES)
         
     def get_directs(self, count=STATUSPP):
         self.log.debug('Getting directs')
         rtn = self.request('/direct_messages', {'count': count / 2})
-        directs = self.json_to_status(rtn, _type=UpdateType.DM)
+        directs = self.json_to_status(rtn, StatusColumn.DIRECTS, 
+            _type=StatusType.DIRECT)
         rtn2 = self.request('/direct_messages/sent', {'count': count / 2})
-        directs += self.json_to_status(rtn2, _type=UpdateType.DM)
+        directs += self.json_to_status(rtn, StatusColumn.DIRECTS, 
+            _type=StatusType.DIRECT)
         return directs
             
     def get_sent(self, count=STATUSPP):
         self.log.debug('Getting my statuses')
         rtn = self.request('/statuses/user_timeline', {'count': count})
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, StatusColumn.SENT)
         
     def get_favorites(self, count=STATUSPP):
         self.log.debug('Getting favorites')
         rtn = self.request('/favorites')
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, StatusColumn.FAVORITES)
         
     def get_public_timeline(self, count=STATUSPP):
         self.log.debug('Getting public timeline')
         rtn = self.request('/statuses/public_timeline', {'count': count, 
             'include_entities': True})
-        return self.json_to_status(rtn)
+        return self.json_to_status(rtn, StatusColumn.PUBLIC)
         
     def get_lists(self, username):
         return []
@@ -197,7 +198,8 @@ class Main(Protocol):
         while 1:
             rtn = self.request('/statuses/show', {'id': status_id})
             self.log.debug('--Fetched status: %s' % status_id)
-            conversation.append(self.json_to_status(rtn))
+            conversation.append(self.json_to_status(rtn, 
+                StatusColumn.CONVERSATION))
             
             if rtn['in_reply_to_status_id']:
                 status_id = str(rtn['in_reply_to_status_id'])
