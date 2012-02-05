@@ -106,7 +106,7 @@ class Protocol(TurpialHTTP):
     
     def get_source(self, source):
         if not source:
-            return Client()
+            return None
         
         text = saxutils.unescape(source)
         text = text.replace('&quot;', '"')

@@ -151,7 +151,7 @@ class Main(Protocol):
             status.retweeted = retweeted
             status.set_display_id(column_id)
             return status
-            
+    
     def json_to_ratelimit(self, response):
         rate = RateLimit()
         rate.hourly_limit = response['hourly_limit']
@@ -159,7 +159,7 @@ class Main(Protocol):
         rate.reset_time = response['reset_time']
         rate.reset_time_in_seconds = response['reset_time_in_seconds']
         return rate
-        
+    
     def json_to_list(self, response):
         if isinstance(response, list):
             lists = []
@@ -202,7 +202,7 @@ class Main(Protocol):
         self.uname = profile.username
         self.log.debug('Authenticated')
         return profile
-        
+    
     def get_entities(self, tweet):
         if tweet.has_key('entities'):
             entities = {
@@ -243,13 +243,13 @@ class Main(Protocol):
         else:
             entities = Protocol.get_entities(self, tweet)
         return entities
-        
+    
     def get_timeline(self, count=STATUSPP):
         self.log.debug('Getting timeline')
         rtn = self.request('/statuses/home_timeline', {'count': count, 
             'include_entities': True})
         return self.json_to_status(rtn, StatusColumn.TIMELINE)
-        
+    
     def get_replies(self, count=STATUSPP):
         self.log.debug('Getting replies')
         rtn = self.request('/statuses/mentions', {'count': count,
