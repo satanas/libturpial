@@ -483,7 +483,7 @@ class Core:
             return Response(img_path)
         except Exception, exc:
             return self.__handle_exception(exc)
-            
+    
     ''' Services '''
     def list_short_url_services(self):
         return URL_SERVICES.keys()

@@ -258,16 +258,22 @@ class TurpialHTTP:
             signed_httpreq = self.__basic_sign_http_request(httpreq, args)
         return signed_httpreq
         
-    def fetch_http_resource(self, httpreq, fmt):
+    def fetch_http_resource(self, httpreq, fmt, redirect):
         req = urllib2.Request(httpreq.strReq, httpreq.argData, httpreq.headers)
-        handle = urllib2.urlopen(req)
+        handle = None
+        if redirect:
+            handle = urllib2.urlopen(req)
+        else:
+            opener = urllib2.build_opener(RedirectHandler())
+            handle = opener.open(req)
         response = handle.read()
         if fmt == 'json':
             return json.loads(response)
         else:
             return response
     
-    def request(self, url, args={}, fmt=DEFAULT_FORMAT, base_url=None, secure=False):
+    def request(self, url, args={}, fmt=DEFAULT_FORMAT, base_url=None, 
+        secure=False, redirect=True):
         if not base_url:
             base_url = self.urls['api']
         if secure:
@@ -277,7 +283,7 @@ class TurpialHTTP:
         request_url = "%s%s" % (base_url, url)
         httpreq = self.build_http_request(request_url, args, fmt)
         authreq = self.auth_http_request(httpreq, self.auth_args)
-        return self.fetch_http_resource(authreq, fmt)
+        return self.fetch_http_resource(authreq, fmt, redirect)
     
 class TurpialHTTPRequest:
     def __init__(self, argStr='', headers={}, argData=None, encoded_args='', 
@@ -293,12 +299,9 @@ class TurpialHTTPRequest:
         self.uri = uri
         
     def __str__(self):
-        
         return " method: %s\n encoded_args: %s\n argStr: %s\n argData: %s\n \
 headers: %s\n strReq: %s\n***" % (self.method, self.encoded_args, 
             self.argStr, self.argData, self.headers, self.strReq)
-        
-        pass
     
 class ProxyHTTPConnection(httplib.HTTPConnection):
 
@@ -380,3 +383,17 @@ class ConnectHTTPSHandler(urllib2.HTTPSHandler):
         if self.proxy is not None:
             req.set_proxy(self.proxy, 'https')
         return urllib2.HTTPSHandler.do_open(self, ProxyHTTPSConnection, req)
+
+class RedirectHandler(urllib2.HTTPRedirectHandler):
+    def __handle_redirect(self, url):
+        req = urllib2.Request(url)
+        handle = urllib2.urlopen(req)
+        return handle
+    
+    def http_error_301(self, req, fp, code, msg, headers):
+        #print headers['Location']
+        return self.__handle_redirect(headers['Location'])
+
+    def http_error_302(self, req, fp, code, msg, headers):
+        #print headers['Location']
+        return self.__handle_redirect(headers['Location'])

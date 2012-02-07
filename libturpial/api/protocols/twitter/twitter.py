@@ -577,9 +577,6 @@ class Main(Protocol):
     def get_profile_image(self, user):
         self.log.debug('Getting profile image for %s' % (user))
         url = '/users/profile_image/%s' % user
-        result = self.request(url, {'screen_name': user, 'size': 'original'}, 
-            fmt='xml')
-        #result = self.request('/users/profile_image', 
-        #    {'screen_name': user, 'size': 'original'}, fmt='xml')
+        result = self.request(url, {'size': 'original'}, fmt='xml', redirect=False)
         return result
     
