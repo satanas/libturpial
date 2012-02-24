@@ -14,7 +14,7 @@ def clean_bytecodes(root_path, logger=None):
     """Clean all .pyc y .pyo. This is intented to use by all UI interfaces"""
     if logger:
         logger.debug("Cleaning da house...")
-    
+
     path = os.path.join(os.path.dirname(root_path))
     for root, dirs, files in os.walk(path):
         for f in files:
@@ -25,7 +25,7 @@ def clean_bytecodes(root_path, logger=None):
                 os.remove(path)
     if logger:
         logger.debug("Everything is clean now")
-        
+
 def detect_os():
     """ Returns a string according to the OS host """
     if sys.platform.startswith('linux'):
@@ -49,4 +49,3 @@ def get_urls(text):
             url = url[:-1]
         urls.append(url)
     return urls
-        

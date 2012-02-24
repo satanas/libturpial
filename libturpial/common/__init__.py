@@ -20,7 +20,7 @@ HASHTAG_PATTERN = re.compile('(?<![\w])#[\wáéíóúÁÉÍÓÚñÑçÇ]+')
 MENTION_PATTERN = re.compile('(?<![\w])@[\w]+')
 CLIENT_PATTERN = re.compile('<a href="(.*?)">(.*?)</a>')
 # According to RFC 3986 - http://www.ietf.org/rfc/rfc3986.txt
-URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$&\'()*+,;=]*)')
+URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$%&\'()*+,;=]*)')
 
 class ProtocolType:
     TWITTER = 'twitter'
