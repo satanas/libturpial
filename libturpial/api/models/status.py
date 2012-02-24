@@ -36,7 +36,7 @@ class Status:
         count = [self.username]
         if self.entities.has_key('mentions'):
             for user in self.entities['mentions']:
-                if user.display_text != account:
+                if user.display_text.lower() != account.lower():
                     count.append(user.display_text[1:])
             return count
         else:
