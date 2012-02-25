@@ -174,6 +174,12 @@ class Core:
     ''' all_* methods returns arrays of objects '''
     def all_accounts(self):
         return self.accman.get_all()
+
+    def name_as_id(self, acc_id):
+        if self.accman.get(acc_id).protocol_id == ProtocolType.TWITTER:
+            return self.accman.change_id(acc_id, self.accman.get(acc_id).profile.username)
+        else:
+            return acc_id
     
     def all_columns(self):
         columns = {}

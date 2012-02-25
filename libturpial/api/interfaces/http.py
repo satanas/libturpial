@@ -115,7 +115,7 @@ class TurpialHTTP:
         self.log.debug('Obtain a request token')
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
             http_url=self.REQUEST_TOKEN_URL)
-        
+
         oauth_request.sign_request(self.sign_method_hmac_sha1,
             self.consumer, None)
         
@@ -125,7 +125,6 @@ class TurpialHTTP:
         req = urllib2.Request(self.REQUEST_TOKEN_URL, headers=oauth_request.to_header())
         response = urllib2.urlopen(req)
         self.token = oauth.OAuthToken.from_string(response.read())
-        
         self.log.debug('GOT')
         self.log.debug('key: %s' % str(self.token.key))
         self.log.debug('secret: %s' % str(self.token.secret))
