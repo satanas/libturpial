@@ -68,7 +68,7 @@ class Protocol(TurpialHTTP):
         d = datetime.datetime(year, month, day, hour, minute, second)
         
         i_hate_timezones = time.timezone
-        if (time.daylight):
+        if (time.localtime().tm_isdst):
             i_hate_timezones = time.altzone
         
         dt = datetime.datetime(*d.timetuple()[:-3]) - \
