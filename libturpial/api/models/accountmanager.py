@@ -37,6 +37,18 @@ class AccountManager:
             self.__accounts[account_id] = account
             self.log.debug('Account %s loaded successfully' % account_id)
         return account_id
+
+    def change_id(self, original_id, destination_id):
+        account = self.get(original_id)
+        new_id = "%s-%s" % (destination_id, account.protocol_id)
+        self.unregister(original_id, True)
+        account.username = destination_id
+        account.profile.username = destination_id
+        account.config = AccountConfig(new_id, "")
+        account.store_token()
+        account.id_ = new_id
+        self.__accounts[new_id] = account
+        return new_id
         
     def register(self, username, protocol_id, passwd, auth):
         if username == '' or protocol_id == '':

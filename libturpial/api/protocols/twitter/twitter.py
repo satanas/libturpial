@@ -38,6 +38,7 @@ class Main(Protocol):
             self.set_auth_info(auth)
     
     def json_to_profile(self, response):
+
         if isinstance(response, list):
             profiles = []
             for pf in response:
