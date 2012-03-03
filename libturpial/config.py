@@ -56,7 +56,11 @@ APP_CFG = {
         'server': '',
         'port': '',
         'url': '',
-    }
+    },
+    'Advanced': {
+        'socket-timeout': '20',
+        'show-user-avatars': 'on',
+    },
 }
 
 ACCOUNT_CFG = {
@@ -199,7 +203,7 @@ class AppConfig(ConfigBase):
         _fd = open(self.filterpath, 'w')
         _fd.close()
         
-    def load_filter_list(self):
+    def load_filters(self):
         muted = []
         _fd = open(self.filterpath, 'r')
         for line in _fd:

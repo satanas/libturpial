@@ -569,5 +569,5 @@ class Core:
     def save_all_config(self, new_config):
         self.config.save(new_config)
 
-    def get_filter_list(self):
-        return self.config.load_filter_list()
+    def list_filters(self):
+        return self.config.load_filters()
