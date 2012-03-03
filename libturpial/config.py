@@ -35,9 +35,13 @@ APP_CFG = {
     'Columns':{
     },
     'Notifications':{
-        'sounds': 'on',
-        'login': 'on',
         'updates': 'on',
+        'login': 'on',
+        'icon': 'on',
+    },
+    'Sounds':{
+        'updates': 'on',
+        'login': 'on',
     },
     'Services':{
         'shorten-url': 'is.gd',
