@@ -105,7 +105,7 @@ class Core:
 
     def __apply_filters(self, statuses):
         filtered_statuses = []
-        filtered_terms = self.config.load_filter_list()
+        filtered_terms = self.config.load_filters()
         if len(filtered_terms) == 0:
             return statuses
 
@@ -533,7 +533,7 @@ class Core:
         return account.logged_in
 
     def is_muted(self, username):
-        filtered_terms = self.config.load_filter_list()
+        filtered_terms = self.config.load_filters()
         for term in filtered_terms:
             if not term.startswith('@'):
                 continue
