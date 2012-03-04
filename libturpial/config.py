@@ -55,7 +55,6 @@ APP_CFG = {
         'password': '',
         'server': '',
         'port': '',
-        'url': '',
     },
     'Advanced': {
         'socket-timeout': '20',
@@ -213,7 +212,7 @@ class AppConfig(ConfigBase):
         _fd.close()
         return muted
     
-    def save_filter_list(self, lst):
+    def save_filters(self, lst):
         _fd = open(self.filterpath, 'w')
         for expression in lst:
             _fd.write(expression + '\n')

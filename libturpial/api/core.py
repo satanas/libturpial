@@ -571,3 +571,6 @@ class Core:
 
     def list_filters(self):
         return self.config.load_filters()
+
+    def save_filters(self, lst):
+        self.config.save_filters(lst)
