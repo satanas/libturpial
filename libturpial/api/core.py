@@ -31,9 +31,9 @@ class Core:
         self.queue = Queue.Queue()
         self.log = logging.getLogger('Core')
         self.log.debug('Started')
-        self.accman = AccountManager()
         self.config = AppConfig()
 
+        self.accman = AccountManager(self.config)
         self.load_registered_accounts()
         self.load_registered_columns()
 

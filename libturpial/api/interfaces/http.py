@@ -30,6 +30,7 @@ except ImportError:
 
 class TurpialHTTP:
     DEFAULT_FORMAT = 'json'
+    timeout = 20
 
     def __init__(self, post_actions, oauth_support=True):
         self.urls = {}
@@ -37,8 +38,7 @@ class TurpialHTTP:
         self.post_actions = post_actions
         self.log = logging.getLogger('TurpialHTTP')
         # timeout in seconds
-        timeout = 20
-        socket.setdefaulttimeout(timeout)
+        socket.setdefaulttimeout(self.timeout)
         self.oauth_support = oauth_support
         self.token = None
         self.consumer = None
