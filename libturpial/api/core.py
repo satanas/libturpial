@@ -569,6 +569,10 @@ class Core:
     def get_update_interval(self):
         return int(self.config.read('General', 'update-interval'))
 
+    def minimize_on_close(self):
+        minimize = self.config.read('General', 'minimize-on-close')
+        return True if minimize == 'on' else False
+
     def get_config(self):
         return self.config.read_all()
 
