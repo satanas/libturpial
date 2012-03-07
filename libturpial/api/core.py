@@ -563,8 +563,20 @@ class Core:
             return True
         return False
 
+    def get_max_statuses_per_column(self):
+        return int(self.config.read('General', 'statuses'))
+
+    def get_update_interval(self):
+        return int(self.config.read('General', 'update-interval'))
+
     def get_config(self):
         return self.config.read_all()
+
+    def read_config_value(self, section, option):
+        return self.config.read(section, option)
+
+    def write_config_value(self, section, option, value):
+        self.config.write(section, option, value)
 
     def save_all_config(self, new_config):
         self.config.save(new_config)

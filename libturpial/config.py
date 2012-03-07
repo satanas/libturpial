@@ -24,7 +24,7 @@ APP_CFG = {
         'update-interval': '5',
         'profile-color': 'on',
         'minimize-on-close': 'on',
-        'num-tweets': '60',
+        'statuses': '60',
     },
     'Window': {
         'size': '320,480',
