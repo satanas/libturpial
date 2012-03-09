@@ -521,11 +521,17 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
 
-    def get_media_content(self, url):
+    def get_media_content(self, url, acc_id):
         service = ShowMediaServiceUtils.get_service_from_url(url)
         try:
-            mediacontent = service.do_service(url)
-            return Response(mediacontent)
+            mediacontent = service.do_service(url).response
+            filename = url.replace("/", "%")
+            account = self.accman.get(acc_id)
+            img_path = os.path.join(account.config.imgdir, filename)
+            fd = open(img_path, 'wb')
+            fd.write(mediacontent)
+            fd.close()
+            return Response(img_path)
         except Exception, exc:
             return self.__handle_exception(exc)
 
