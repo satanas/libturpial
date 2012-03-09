@@ -20,6 +20,8 @@ from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 from libturpial.api.services.shorturl.servicelist import URL_SERVICES
+from libturpial.api.services.showmedia.servicelist import SHOWMEDIA_SERVICES
+from libturpial.api.services.showmedia.utils import ShowMediaServiceUtils
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -516,6 +518,14 @@ class Core:
                 urlshorter = URL_SERVICES[service].do_service(url)
                 message = message.replace(url, urlshorter.response)
             return Response(message)
+        except Exception, exc:
+            return self.__handle_exception(exc)
+
+    def get_media_content(self, url):
+        service = ShowMediaServiceUtils.get_service_from_url(url)
+        try:
+            mediacontent = service.do_service(url)
+            return Response(mediacontent)
         except Exception, exc:
             return self.__handle_exception(exc)
 
