@@ -606,3 +606,6 @@ class Core:
 
     def save_filters(self, lst):
         self.config.save_filters(lst)
+
+    def delete_current_config(self):
+        self.config.delete_current_config()

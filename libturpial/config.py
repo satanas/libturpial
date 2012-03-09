@@ -88,7 +88,7 @@ class ConfigBase:
             self.default = default
         self.cfg = ConfigParser.ConfigParser()
         self.filepath = ''
-    
+
     def create(self):
         self.log.debug('Creating configuration file')
         _fd = open(self.configpath, 'w')
@@ -98,14 +98,14 @@ class ConfigBase:
                 self.cfg.set(section, option, value)
         self.cfg.write(_fd)
         _fd.close()
-    
+
     def load(self):
         self.cfg.read(self.configpath)
-        
+
         for section, _v in self.default.iteritems():
             if not self.__config.has_key(section):
                 self.__config[section] = {}
-            if not self.cfg.has_section(section): 
+            if not self.cfg.has_section(section):
                 self.write_section(section, self.default[section])
             if section == 'Columns':
                 for item in self.cfg.items(section):
@@ -117,11 +117,11 @@ class ConfigBase:
                 else:
                     self.write(section, option, value)
         self.log.debug('Loaded configuration')
-    
+
     def load_failsafe(self):
         self.__config = self.default
         self.log.debug('Loaded failsafe configuration')
-    
+
     def save(self, config):
         self.log.debug('Saving configuration')
         _fd = open(self.configpath, 'w')
@@ -134,14 +134,14 @@ class ConfigBase:
                 self.__config[section][option] = value
         self.cfg.write(_fd)
         _fd.close()
-    
+
     def write(self, section, option, value):
         _fd = open(self.configpath, 'w')
         self.cfg.set(section, option, value)
         self.cfg.write(_fd)
         _fd.close()
         self.__config[section][option] = value
-    
+
     def write_section(self, section, items):
         #self.log.debug('Writing section %s' % section)
         _fd = open(self.configpath, 'w')
@@ -154,20 +154,20 @@ class ConfigBase:
             self.__config[section][option] = value
         self.cfg.write(_fd)
         _fd.close()
-    
+
     def read(self, section, option):
         try:
             return self.__config[section][option]
         except Exception:
             return None
-    
+
     def read_section(self, section):
         #self.log.debug('Reading section %s' % section)
         try:
             return self.__config[section]
         except Exception:
             return None
-    
+
     def read_all(self):
         self.log.debug('Reading all')
         try:
@@ -182,26 +182,26 @@ class AppConfig(ConfigBase):
         self.log = logging.getLogger('AppConfig')
         self.log.debug('Started')
         self.basedir = BASEDIR
-        
+
         self.configpath = os.path.join(self.basedir, 'config')
         self.filterpath = os.path.join(self.basedir, 'filtered')
-        
-        if not os.path.isdir(self.basedir): 
+
+        if not os.path.isdir(self.basedir):
             os.makedirs(self.basedir)
-        if not os.path.isfile(self.configpath): 
+        if not os.path.isfile(self.configpath):
             self.create()
-        if not os.path.isfile(self.filterpath): 
+        if not os.path.isfile(self.filterpath):
             self.create_filter_list()
-        
+
         self.log.debug('CONFIG_FILE: %s' % self.configpath)
         self.log.debug('MUTED_FILE: %s' % self.filterpath)
-        
+
         self.load()
-        
+
     def create_filter_list(self):
         _fd = open(self.filterpath, 'w')
         _fd.close()
-        
+
     def load_filters(self):
         muted = []
         _fd = open(self.filterpath, 'r')
@@ -211,13 +211,13 @@ class AppConfig(ConfigBase):
             muted.append(line.strip('\n'))
         _fd.close()
         return muted
-    
+
     def save_filters(self, lst):
         _fd = open(self.filterpath, 'w')
         for expression in lst:
             _fd.write(expression + '\n')
         _fd.close()
-    
+
     def append_filter(self, expression):
         self.log.debug('Filtering expression: %s' % expression)
         for term in self.load_filter_list():
@@ -227,7 +227,7 @@ class AppConfig(ConfigBase):
         _fd = open(self.filterpath, 'a')
         _fd.write(expression + '\n')
         _fd.close()
-        
+
     def remove_filter(self, expression):
         self.log.debug('Unfiltering expression: %s' % expression)
         new_list = []
@@ -236,7 +236,7 @@ class AppConfig(ConfigBase):
                 continue
             new_list.append(term)
         self.save_filter_list(new_list)
-    
+
     def get_stored_accounts(self):
         accounts = []
         acc_dir = os.path.join(BASEDIR, 'accounts')
@@ -246,13 +246,13 @@ class AppConfig(ConfigBase):
                 if os.path.isfile(filepath):
                     accounts.append(acc_dir)
         return accounts
-    
+
     def get_stored_columns(self):
         stored_cols = self.read_section('Columns')
         indexes = stored_cols.keys()
         indexes.sort()
         columns = []
-        
+
         for i in indexes:
             value = stored_cols[i]
             if value != '':
@@ -263,28 +263,32 @@ class AppConfig(ConfigBase):
                 id_ = "%s-%s" % (acc_id, col_id)
                 columns.append(Column(id_, acc_id, pt_id, col_id))
         return columns
-    
+
     def save_account(self, account):
         pass
 
+    def delete_current_config(self):
+        os.remove(self.configpath)
+        self.log.debug('Deleted current config. Please restart Turpial')
+
 class AccountConfig(ConfigBase):
-    
+
     def __init__(self, account_id, pw=None):
         ConfigBase.__init__(self, default=ACCOUNT_CFG)
         self.log = logging.getLogger('AccountConfig')
         self.basedir = os.path.join(BASEDIR, 'accounts', account_id)
-        
+
         if XDG_CACHE:
             cachedir = BaseDirectory.xdg_cache_home
             self.imgdir = os.path.join(cachedir, 'turpial', account_id, 'images')
         else:
             self.imgdir = os.path.join(self.basedir, 'images')
-        
+
         self.configpath = os.path.join(self.basedir, 'config')
-        
+
         self.log.debug('CACHEDIR: %s' % self.imgdir)
         self.log.debug('CONFIGFILE: %s' % self.configpath)
-        
+
         exist = True
         if not os.path.isdir(self.basedir):
             os.makedirs(self.basedir)
@@ -293,25 +297,25 @@ class AccountConfig(ConfigBase):
         if not os.path.isfile(self.configpath):
             self.create()
             exist = False
-            
+
         try:
             self.load()
         except Except, exc:
             self.load_failsafe()
-        
+
         if not exist:
             us = account_id.split('-')[0]
             pt = account_id.split('-')[1]
             self.write('Login', 'username', us)
             self.write('Login', 'protocol', pt)
             self.remember(pw, us)
-    
+
     def remember(self, pw, us):
         self.write('Login', 'password', self.transform(pw, us))
-    
+
     def forget(self):
         self.write('Login', 'password', '')
-        
+
     def transform(self, pw, us):
         a = base64.b16encode(pw)
         b = us[0] + a + ('%s' % us[-1])
@@ -319,7 +323,7 @@ class AccountConfig(ConfigBase):
         d = ('%s' % us[-1]) + c + us[0]
         e = base64.b64encode(d)
         return e[0:len(us)]+ e[len(us):]
-        
+
     def revert(self, pw, us):
         if pw == '':
             return None
@@ -329,7 +333,7 @@ class AccountConfig(ConfigBase):
         d = c[1:-1]
         e = base64.b16decode(d)
         return e[0:len(us)]+ e[len(us):]
-        
+
     def dismiss(self):
         if os.path.isdir(self.imgdir):
             shutil.rmtree(self.imgdir)
