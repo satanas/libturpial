@@ -10,6 +10,7 @@ import ssl
 import Queue
 import urllib2
 import logging
+import tempfile
 import traceback
 
 from libturpial.common import *
@@ -526,8 +527,7 @@ class Core:
         try:
             mediacontent = service.do_service(url).response
             filename = url.replace("/", "%")
-            account = self.accman.get(acc_id)
-            img_path = os.path.join(account.config.imgdir, filename)
+            img_path = os.path.join(tempfile.gettempdir(), filename)
             fd = open(img_path, 'wb')
             fd.write(mediacontent)
             fd.close()
