@@ -609,3 +609,13 @@ class Core:
 
     def delete_current_config(self):
         self.config.delete_current_config()
+
+    def delete_cache(self):
+        for account in self.all_accounts():
+            account.delete_cache()
+
+    def get_cache_size(self):
+        total_size = 0
+        for account in self.all_accounts():
+            total_size += account.get_cache_size()
+        return total_size

@@ -344,3 +344,19 @@ class AccountConfig(ConfigBase):
         if os.path.isdir(self.basedir):
             shutil.rmtree(self.basedir)
             self.log.debug('Removed base directory')
+
+    def delete_cache(self):
+        for root, dirs, files in os.walk(self.imgdir):
+            for f in files:
+                path = os.path.join(root, f)
+                self.log.debug("Deleting %s" % path)
+                os.remove(path)
+
+    def calculate_cache_size(self):
+        size = 0
+        for root, dirs, files in os.walk(self.imgdir):
+            for f in files:
+                path = os.path.join(root, f)
+                size += os.path.getsize(path)
+        print 'size', size
+        return size

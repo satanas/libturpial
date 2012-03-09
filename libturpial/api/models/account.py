@@ -77,6 +77,12 @@ class Account:
         self.config.write('OAuth', 'secret', self.token.secret)
         self.config.write('OAuth', 'verifier', self.token.verifier)
 
+    def delete_cache(self):
+        self.config.delete_cache()
+
+    def get_cache_size(self):
+        return self.config.calculate_cache_size()
+
     def __getattr__(self, name):
         try:
             return getattr(self.protocol, name)
