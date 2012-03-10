@@ -7,8 +7,10 @@
 
 from twitpic import TwitpicMediaContent
 from yfrog import YfrogMediaContent
+from instagram import InstagramMediaContent
 
 SHOWMEDIA_SERVICES = {
     'twitpic' : TwitpicMediaContent(),
-    'yfrog' : YfrogMediaContent()
+    'yfrog' : YfrogMediaContent(),
+    'instagram' : InstagramMediaContent()
 }
