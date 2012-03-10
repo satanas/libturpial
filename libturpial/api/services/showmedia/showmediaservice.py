@@ -22,7 +22,7 @@ class ShowMediaService(GenericService):
     def do_service(self, url):
         raise NotImplementedError
    
-    def _get_raw_image_from_url(self, url):
+    def _get_content_from_url(self, url):
         return urllib2.urlopen(url).read()
 
     def _get_id_from_url(self, url):
