@@ -6,7 +6,9 @@
 # 2012-08-01
 
 from twitpic import TwitpicMediaContent
+from yfrog import YfrogMediaContent
 
 SHOWMEDIA_SERVICES = {
-    'twitpic' : TwitpicMediaContent()
+    'twitpic' : TwitpicMediaContent(),
+    'yfrog' : YfrogMediaContent()
 }
