@@ -6,13 +6,15 @@
 # 2012-03-10
 
 import traceback
-from showmediaservice import *
+
+from libturpial.api.interfaces.service import ServiceResponse
+from libturpial.api.services.showmedia.base import ShowMediaService
 
 class YfrogMediaContent(ShowMediaService):
     def __init__(self):
         ShowMediaService.__init__(self)
         self.url_pattern = "(http(s)?://)?yfrog.com"
-        
+
     def do_service(self, url):
         try:
             media_content_url = "%s:medium" % url

@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 
-"""Twitpic show media content service"""
+""" pic.twitter.com show media content service """
 #
-# Author: Andrea Stagi (aka 4ndreaSt4gi)
-# 2012-03-08
+# Author: Wil Alvarez (aka satanas)
+# 2012-03-10
 
 import traceback
 
 from libturpial.api.interfaces.service import ServiceResponse
 from libturpial.api.services.showmedia.base import ShowMediaService
 
-class TwitpicMediaContent(ShowMediaService):
+class PicTwitterMediaContent(ShowMediaService):
     def __init__(self):
         ShowMediaService.__init__(self)
-        self.url_pattern = "(http(s)?://)?twitpic.com"
+        self.url_pattern = "(http(s)?://)?p.twimg.com"
 
     def do_service(self, url):
         try:
-            media_id = self._get_id_from_url(url)
-            media_content_url =  "http://twitpic.com/show/full/%s.png" % media_id
-            rawimg = self._get_content_from_url(media_content_url)
+            rawimg = self._get_content_from_url(url)
             return ServiceResponse(rawimg)
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))

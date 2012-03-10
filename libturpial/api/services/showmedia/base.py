@@ -12,7 +12,6 @@ import urllib2
 import logging
 
 from libturpial.api.interfaces.service import GenericService
-from libturpial.api.interfaces.service import ServiceResponse
 
 class ShowMediaService(GenericService):
     def __init__(self):
@@ -21,7 +20,7 @@ class ShowMediaService(GenericService):
 
     def do_service(self, url):
         raise NotImplementedError
-   
+
     def _get_content_from_url(self, url):
         return urllib2.urlopen(url).read()
 
