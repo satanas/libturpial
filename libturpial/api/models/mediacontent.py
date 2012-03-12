@@ -12,11 +12,15 @@ IMAGE_CONTENT = 0
 VIDEO_CONTENT = 1
 
 class MediaContent(object):
-    def __init__(self, type_, name, content):
+    def __init__(self, type_, name, content, path=None, info=None):
         self.type_ = type_
         self.name = name.replace("/", "%")
         self.content = content
-        self.path = os.path.join(tempfile.gettempdir(), self.name)
+        if path == None:
+            self.path = os.path.join(tempfile.gettempdir(), self.name)
+        else:
+            self.path = path
+        self.info = info
 
     def save_content(self):
         try:
@@ -27,11 +31,8 @@ class MediaContent(object):
             pass
 
     def is_video(self):
-        if self.type_ == VIDEO_CONTENT:
-            return True
-        return False
+        return self.type_ == VIDEO_CONTENT
 
     def is_image(self):
-        if self.type_ == IMAGE_CONTENT:
-            return True
-        return False
+        return self.type_ == IMAGE_CONTENT
+
