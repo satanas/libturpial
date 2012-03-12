@@ -8,7 +8,7 @@
 import traceback
 
 from libturpial.api.interfaces.service import ServiceResponse
-from libturpial.api.services.showmedia.base import ShowMediaService
+from libturpial.api.services.showmedia.base import *
 
 class YfrogMediaContent(ShowMediaService):
     def __init__(self):
@@ -19,7 +19,7 @@ class YfrogMediaContent(ShowMediaService):
         try:
             media_content_url = "%s:medium" % url
             rawimg = self._get_content_from_url(media_content_url)
-            return ServiceResponse(rawimg)
+            return ServiceResponse(MediaContent(IMAGE_CONTENT, url.replace("/", "%"), rawimg))
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
             return ServiceResponse(err=True, err_msg=_('Problem showing media content'))

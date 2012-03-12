@@ -13,6 +13,24 @@ import logging
 
 from libturpial.api.interfaces.service import GenericService
 
+IMAGE_CONTENT = 0
+VIDEO_CONTENT = 1
+
+class MediaContent(object):
+    def __init__(self, type, name, content, info={}):
+        self.type = type
+        self.name = name
+        self.content = content
+        self.info = info
+    
+    def save_content(self):
+        try:
+            fd = open(self.info['path'], 'wb')
+            fd.write(self.content)
+            fd.close()
+        except KeyError:
+            pass
+
 class ShowMediaService(GenericService):
     def __init__(self):
         self.log = logging.getLogger('Service')
