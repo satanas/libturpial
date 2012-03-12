@@ -526,12 +526,8 @@ class Core:
         service = showmediautils.get_service_from_url(url)
         try:
             mediacontent = service.do_service(url).response
-            filename = url.replace("/", "%")
-            img_path = os.path.join(tempfile.gettempdir(), filename)
-            fd = open(img_path, 'wb')
-            fd.write(mediacontent)
-            fd.close()
-            return Response(img_path)
+            mediacontent.info['path'] = os.path.join(tempfile.gettempdir(), mediacontent.name)
+            return Response(mediacontent)
         except Exception, exc:
             return self.__handle_exception(exc)
 
