@@ -525,9 +525,9 @@ class Core:
     def get_media_content(self, url, acc_id):
         service = showmediautils.get_service_from_url(url)
         try:
-            mediacontent = service.do_service(url).response
-            mediacontent.info['path'] = os.path.join(tempfile.gettempdir(), mediacontent.name)
-            return Response(mediacontent)
+            #mediacontent = service.do_service(url).response
+            #return Response(mediacontent)
+            return service.do_service(url)
         except Exception, exc:
             return self.__handle_exception(exc)
 

@@ -7,8 +7,9 @@
 
 import traceback
 
-from libturpial.api.interfaces.service import ServiceResponse
+from libturpial.api.models.mediacontent import *
 from libturpial.api.services.showmedia.base import *
+from libturpial.api.interfaces.service import ServiceResponse
 
 class PicTwitterMediaContent(ShowMediaService):
     def __init__(self):
@@ -18,7 +19,7 @@ class PicTwitterMediaContent(ShowMediaService):
     def do_service(self, url):
         try:
             rawimg = self._get_content_from_url(url)
-            return ServiceResponse(MediaContent(IMAGE_CONTENT, url.replace("/", "%"), rawimg))
+            return ServiceResponse(MediaContent(IMAGE_CONTENT, url, rawimg))
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
             return ServiceResponse(err=True, err_msg=_('Problem showing media content'))

@@ -7,8 +7,9 @@
 
 import traceback
 
-from libturpial.api.interfaces.service import ServiceResponse
+from libturpial.api.models.mediacontent import *
 from libturpial.api.services.showmedia.base import *
+from libturpial.api.interfaces.service import ServiceResponse
 
 class InstagramMediaContent(ShowMediaService):
     def __init__(self):
@@ -20,7 +21,7 @@ class InstagramMediaContent(ShowMediaService):
             page_content = self._get_content_from_url(url)
             media_content_url = self.__find_url_in_html(page_content)
             rawimg = self._get_content_from_url(media_content_url)
-            return ServiceResponse(MediaContent(IMAGE_CONTENT, url.replace("/", "%"), rawimg))
+            return ServiceResponse(MediaContent(IMAGE_CONTENT, url, rawimg))
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
             return ServiceResponse(err=True, err_msg=_('Problem showing media content'))
