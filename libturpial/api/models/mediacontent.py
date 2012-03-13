@@ -10,6 +10,7 @@ import tempfile
 
 IMAGE_CONTENT = 0
 VIDEO_CONTENT = 1
+MAP_CONTENT = 2
 
 class MediaContent(object):
     def __init__(self, type_, name, content, path=None, info=None):
@@ -35,4 +36,7 @@ class MediaContent(object):
 
     def is_image(self):
         return self.type_ == IMAGE_CONTENT
+
+    def is_map(self):
+        return self.type_ == MAP_CONTENT
 
