@@ -358,5 +358,4 @@ class AccountConfig(ConfigBase):
             for f in files:
                 path = os.path.join(root, f)
                 size += os.path.getsize(path)
-        print 'size', size
         return size
