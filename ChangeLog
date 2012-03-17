@@ -1,6 +1,7 @@
-v1.0 (In development - current v0.8.2)
+v0.8.9
     * Feature #446: OAuth support for Twitter
     * Feature #447: Handle accounts and columns
+    * Feature #448: Fetch timeline ,replies, directs, sents, lists and favorites
     * Feature #449: Fetch public timeline
     * Feature #450: Fetch friends
     * Feature #451: Fetch conversations
@@ -10,5 +11,11 @@ v1.0 (In development - current v0.8.2)
     * Feature #455: Handle relationship (follow, unfollow, block, unblock, report as spam)
     * Feature #456: Perform searchs
     * Feature #458: Fetch trends
+    * Feature #460: Handle services for short URLs
     * Feature #463: Handle highlighted reources as entities
     * Feature #464: Handle configuration stuffs
+    * Feature #482: Fetch followers and friends
+    * Feature #490: Support for undo retweet
+    * Feature #492: Implemented filtering by words/expressions
+    * Feature #512: Open media module to handle embedded resources (images, videos, etc)
+    * Bug #459: Improved security using HTTPS on Identi.ca and working with SSL certificates for all services
