@@ -11,6 +11,8 @@ from libturpial.api.services.showmedia.instagram import InstagramMediaContent
 from libturpial.api.services.showmedia.pictwitter import PicTwitterMediaContent
 from libturpial.api.services.showmedia.youtube import YouTubeMediaContent
 from libturpial.api.services.showmedia.foursquare import FoursquareMediaContent
+from libturpial.api.services.showmedia.pinterest import PinterestMediaContent
+from libturpial.api.services.showmedia.lockerz import LockerzMediaContent
 
 SHOWMEDIA_SERVICES = {
     'twitpic': TwitpicMediaContent(),
@@ -19,4 +21,6 @@ SHOWMEDIA_SERVICES = {
     'pic.twitter.com': PicTwitterMediaContent(),
     'youtube' : YouTubeMediaContent(),
     'foursquare' : FoursquareMediaContent()
+    'pinterest': PinterestMediaContent(),
+    'lockerz': LockerzMediaContent(),
 }
