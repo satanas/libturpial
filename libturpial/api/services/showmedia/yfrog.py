@@ -23,4 +23,4 @@ class YfrogMediaContent(ShowMediaService):
             return ServiceResponse(MediaContent(IMAGE_CONTENT, url, rawimg))
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
-            return ServiceResponse(err=True, err_msg=_('Problem showing media content'))
+            return ServiceResponse(err=True, errmsg=_('Problem showing media content'))

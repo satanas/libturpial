@@ -26,7 +26,7 @@ class YouTubeMediaContent(ShowMediaService):
             return ServiceResponse(MediaContent(VIDEO_CONTENT, url, content, path, info))
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
-            return ServiceResponse(err=True, err_msg=_('Problem showing media content'))
+            return ServiceResponse(err=True, errmsg=_('Problem showing media content'))
 
     def _get_id_from_url(self, url):
         if url.find("youtu.be") != -1:

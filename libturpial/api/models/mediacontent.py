@@ -15,9 +15,10 @@ MAP_CONTENT = 2
 class MediaContent(object):
     def __init__(self, type_, name, content, path=None, info=None):
         self.type_ = type_
-        self.name = name.replace("/", "%")
+        self.name = name.replace("/", "_")
+        self.name = self.name.replace(":", ".")
         self.content = content
-        if path == None:
+        if path is None:
             self.path = os.path.join(tempfile.gettempdir(), self.name)
         else:
             self.path = path

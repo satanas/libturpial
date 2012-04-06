@@ -5,8 +5,9 @@
 # Author: Andrea Stagi (aka 4ndreaSt4gi)
 # 2012-03-12
 
-import traceback
 import urllib
+import traceback
+
 from libturpial.api.models.mediacontent import *
 from libturpial.api.services.showmedia.base import *
 from libturpial.api.interfaces.service import ServiceResponse
@@ -27,4 +28,4 @@ class FoursquareMediaContent(ShowMediaService):
             return ServiceResponse(MediaContent(MAP_CONTENT, url, long_url, path, info))
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
-            return ServiceResponse(err=True, err_msg=_('Problem showing media content'))
+            return ServiceResponse(err=True, errmsg=_('Problem showing media content'))

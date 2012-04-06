@@ -15,7 +15,7 @@ class LockerzMediaContent(ShowMediaService):
     def __init__(self):
         ShowMediaService.__init__(self)
         self.url_pattern = "(http(s)?://)?lockerz.com"
-        
+
     def do_service(self, url):
         try:
             page_content = self._get_content_from_url(url)
@@ -25,8 +25,8 @@ class LockerzMediaContent(ShowMediaService):
         except Exception, error:
             pass
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
-            return ServiceResponse(err=True, err_msg=_('Problem showing media content'))
-        
+            return ServiceResponse(err=True, errmsg=_('Problem showing media content'))
+
     def __find_url_in_html(self, html, url):
         path = '<img id="photo" src="'
         start = html.find(path) + len(path)
