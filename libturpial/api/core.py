@@ -244,34 +244,34 @@ class Core:
             self.accman.login_status(acc_id, LoginStatus.NONE)
             return self.__handle_exception(exc)
 
-    def get_column_statuses(self, acc_id, col_id, count=STATUSPP):
+    def get_column_statuses(self, acc_id, col_id, count=STATUSPP, since_id=None):
         try:
             account = self.accman.get(acc_id)
             if col_id == ColumnType.TIMELINE:
-                rtn = self.__apply_filters(account.get_timeline(count))
+                rtn = self.__apply_filters(account.get_timeline(count, since_id))
             elif col_id == ColumnType.REPLIES:
-                rtn = account.get_replies(count)
+                rtn = account.get_replies(count, since_id)
             elif col_id == ColumnType.DIRECTS:
-                rtn = account.get_directs(count)
+                rtn = account.get_directs(count, since_id)
             elif col_id == ColumnType.SENT:
-                rtn = account.get_sent(count)
+                rtn = account.get_sent(count, since_id)
             elif col_id == ColumnType.FAVORITES:
                 rtn = account.get_favorites(count)
             elif col_id == ColumnType.PUBLIC:
-                rtn = account.get_public_timeline(count)
+                rtn = account.get_public_timeline(count, since_id)
             else:
                 list_id = account.get_list_id(col_id)
                 if list_id is None:
                     raise IndexError
-                rtn = account.get_list_statuses(list_id, count)
+                rtn = account.get_list_statuses(list_id, count, since_id)
             return Response(rtn)
         except Exception, exc:
             return self.__handle_exception(exc)
 
-    def get_public_timeline(self, acc_id, count=STATUSPP):
+    def get_public_timeline(self, acc_id, count=STATUSPP, since_id=None):
         try:
             account = self.accman.get(acc_id, False)
-            return Response(account.get_public_timeline(count))
+            return Response(account.get_public_timeline(count, since_id))
         except Exception, exc:
             return self.__handle_exception(exc)
 

@@ -37,6 +37,12 @@ class Main(Protocol):
         if auth:
             self.set_auth_info(auth)
 
+    def __build_basic_args(self, count, since_id):
+        args = {'count': count, 'include_entities': True}
+        if since_id:
+            args['since_id'] = since_id
+        return args
+
     def json_to_profile(self, response):
 
         if isinstance(response, list):
@@ -245,34 +251,37 @@ class Main(Protocol):
             entities = Protocol.get_entities(self, tweet)
         return entities
 
-    def get_timeline(self, count=STATUSPP):
+    def get_timeline(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting timeline')
-        rtn = self.request('/statuses/home_timeline', {'count': count,
-            'include_entities': True})
+        args = self.__build_basic_args(count, since_id)
+        rtn = self.request('/statuses/home_timeline', args)
         return self.json_to_status(rtn, StatusColumn.TIMELINE)
 
-    def get_replies(self, count=STATUSPP):
+    def get_replies(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting replies')
-        rtn = self.request('/statuses/mentions', {'count': count,
-            'include_entities': True})
+        args = self.__build_basic_args(count, since_id)
+        rtn = self.request('/statuses/mentions', args)
         return self.json_to_status(rtn, StatusColumn.REPLIES)
 
-    def get_directs(self, count=STATUSPP):
+    def get_directs(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting directs')
-        rtn = self.request('/direct_messages', {'count': count / 2,
-            'include_entities': True})
-        directs = self.json_to_status(rtn, StatusColumn.DIRECTS,
+        args = self.__build_basic_args(count, since_id)
+        rtn = self.request('/direct_messages', args)
+        return self.json_to_status(rtn, StatusColumn.DIRECTS,
             _type=StatusType.DIRECT)
-        rtn2 = self.request('/direct_messages/sent', {'count': count / 2,
-            'include_entities': True})
-        directs += self.json_to_status(rtn2, StatusColumn.DIRECTS,
-            _type=StatusType.DIRECT)
-        return directs
 
-    def get_sent(self, count=STATUSPP):
+    def get_direct_sent(self, count=STATUSPP, since_id=None):
+        self.log.debug('Getting directs sent')
+        args = self.__build_basic_args(count, since_id)
+        rtn = self.request('/direct_messages/sent', args)
+        return self.json_to_status(rtn, StatusColumn.DIRECTS,
+            _type=StatusType.DIRECT)
+
+    def get_sent(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting my statuses')
-        rtn = self.request('/statuses/user_timeline', {'count': count,
-            'include_entities': True, 'include_rts': True})
+        args = self.__build_basic_args(count, since_id)
+        args['include_rts'] = True
+        rtn = self.request('/statuses/user_timeline', args)
         return self.json_to_status(rtn, StatusColumn.SENT)
 
     def get_favorites(self, count=STATUSPP):
@@ -280,10 +289,10 @@ class Main(Protocol):
         rtn = self.request('/favorites', {'include_entities': True})
         return self.json_to_status(rtn, StatusColumn.FAVORITES)
 
-    def get_public_timeline(self, count=STATUSPP):
+    def get_public_timeline(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting public timeline')
-        rtn = self.request('/statuses/public_timeline', {'count': count,
-            'include_entities': True})
+        args = self.__build_basic_args(count, since_id)
+        rtn = self.request('/statuses/public_timeline', args)
         return self.json_to_status(rtn, StatusColumn.PUBLIC)
 
     def get_lists(self, username):
@@ -293,10 +302,12 @@ class Main(Protocol):
         self.log.debug('--Downloaded %i lists' % len(lists))
         return lists
 
-    def get_list_statuses(self, list_id, count=STATUSPP):
+    def get_list_statuses(self, list_id, count=STATUSPP, since_id=None):
         self.log.debug('Getting statuses from list %s' % list_id)
-        rtn = self.request('/lists/statuses', {'list_id': list_id,
-            'per_page': count, 'include_entities': True})
+        args = {'list_id': list_id, 'per_page': count, 'include_entities': True}
+        if since_id:
+            args['since_id'] = since_id
+        rtn = self.request('/lists/statuses', args)
         return self.json_to_status(rtn, list_id)
 
     def get_conversation(self, status_id):

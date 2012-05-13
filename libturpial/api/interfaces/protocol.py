@@ -152,25 +152,31 @@ class Protocol(TurpialHTTP):
     def auth(self, username, password):
         raise NotImplementedError
 
-    def get_timeline(self, count):
+    def get_timeline(self, count, since_id):
         '''
         Fetch the timeline from the server
         '''
         raise NotImplementedError
 
-    def get_replies(self, count):
+    def get_replies(self, count, since_id):
         '''
         Fetch the mentions from the server
         '''
         raise NotImplementedError
 
-    def get_directs(self, count):
+    def get_directs(self, count, since_id):
         '''
         Fetch the directs from the server
         '''
         raise NotImplementedError
 
-    def get_sent(self, count):
+    def get_directs_sent(self, count, since_id):
+        '''
+        Fetch the directs sent from the server
+        '''
+        raise NotImplementedError
+
+    def get_sent(self, count, since_id):
         '''
         Fetch the sent messages from the server
         '''
@@ -182,7 +188,7 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
 
-    def get_public_timeline(self, count):
+    def get_public_timeline(self, count, since_id):
         '''
         Fetch the public timeline from the server
         '''
@@ -194,7 +200,7 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
 
-    def get_list_statuses(self, list_id):
+    def get_list_statuses(self, list_id, since_id):
         '''
         Fetch all statuses for a specific list
         '''

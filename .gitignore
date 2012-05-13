@@ -3,4 +3,5 @@ dist/
 *.pyc
 *.pyo
 *.mo
+*.swp
 *~

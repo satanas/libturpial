@@ -36,7 +36,6 @@ class StatusColumn:
     CONVERSATION = 'conversation'
     PROFILE = 'profile'
     SINGLE = 'single'
-    
 
 class StatusType:
     NORMAL = 0x1
@@ -62,11 +61,11 @@ ERROR_CODES = {
     404: "Invalid request",
     406: "What are you trying to search?",
     420: "Wait! Your search is being too intense",
-    
+
     500: "Oops! The server is broken",
     502: "Oh oh... The server is down",
     503: "The server is overloaded",
-    
+
     801: "There are some network issues",
     802: "Your status was sent. Don't try again",
     803: "User is already a friend",
@@ -81,7 +80,7 @@ ERROR_CODES = {
     812: "There are no URLs to short",
     813: "That user is not following you. You cannot send messages",
     814: "That message is too long, it looks like a testament",
-    
+
     900: "Feature not implemented yet",
     999: "Unknown error",
 }

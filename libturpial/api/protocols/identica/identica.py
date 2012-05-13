@@ -149,27 +149,29 @@ class Main(Protocol):
             entities['groups'].append(Entity(url, item, item))
         return entities
 
-    def get_timeline(self, count=STATUSPP):
+    def get_timeline(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting timeline')
-        rtn = self.request('/statuses/home_timeline', {'count': count})
+        rtn = self.request('/statuses/home_timeline', {'count': count, 'since_id': since_id})
         return self.json_to_status(rtn, StatusColumn.TIMELINE)
 
-    def get_replies(self, count=STATUSPP):
+    def get_replies(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting replies')
         rtn = self.request('/statuses/mentions', {'count': count})
         return self.json_to_status(rtn, StatusColumn.REPLIES)
 
-    def get_directs(self, count=STATUSPP):
+    def get_directs(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting directs')
-        rtn = self.request('/direct_messages', {'count': count / 2})
-        directs = self.json_to_status(rtn, StatusColumn.DIRECTS,
+        rtn = self.request('/direct_messages', {'count': count})
+        return self.json_to_status(rtn, StatusColumn.DIRECTS,
             _type=StatusType.DIRECT)
-        rtn2 = self.request('/direct_messages/sent', {'count': count / 2})
-        directs += self.json_to_status(rtn, StatusColumn.DIRECTS,
-            _type=StatusType.DIRECT)
-        return directs
 
-    def get_sent(self, count=STATUSPP):
+    def get_directs_sent(self, count=STATUSPP, since_id=None):
+        self.log.debug('Getting directs sent')
+        rtn = self.request('/direct_messages/sent', {'count': count})
+        return self.json_to_status(rtn, StatusColumn.DIRECTS,
+            _type=StatusType.DIRECT)
+
+    def get_sent(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting my statuses')
         rtn = self.request('/statuses/user_timeline', {'count': count})
         return self.json_to_status(rtn, StatusColumn.SENT)
@@ -179,7 +181,7 @@ class Main(Protocol):
         rtn = self.request('/favorites')
         return self.json_to_status(rtn, StatusColumn.FAVORITES)
 
-    def get_public_timeline(self, count=STATUSPP):
+    def get_public_timeline(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting public timeline')
         rtn = self.request('/statuses/public_timeline', {'count': count,
             'include_entities': True})
@@ -188,7 +190,7 @@ class Main(Protocol):
     def get_lists(self, username):
         return []
 
-    def get_list_statuses(self, list_id, user, count=STATUSPP):
+    def get_list_statuses(self, list_id, user, count=STATUSPP, since_id=None):
         pass
 
     def get_conversation(self, status_id):
