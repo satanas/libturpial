@@ -44,6 +44,7 @@ setup(name="libturpial",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
+    include_package_data=True,
     packages=find_packages(),
     package_data={
         'libturpial': ['certs/*']
