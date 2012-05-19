@@ -6,7 +6,7 @@
 # 2012-03-13
 
 import traceback
-from showmediaservice import *
+
 from libturpial.api.models.mediacontent import *
 from libturpial.api.services.showmedia.base import *
 from libturpial.api.interfaces.service import ServiceResponse
