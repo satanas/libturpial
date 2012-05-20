@@ -297,9 +297,13 @@ class Core:
                 for profile in account.get_following():
                     if profile not in friends:
                         friends.append(profile)
+            self.config.save_friends([f.username for f in friends])
             return Response(friends)
         except Exception, exc:
             return self.__handle_exception(exc)
+
+    def load_all_friends_list(self):
+        return self.config.load_friends()
 
     def get_own_profile(self, acc_id):
         try:

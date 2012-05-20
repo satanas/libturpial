@@ -185,22 +185,22 @@ class AppConfig(ConfigBase):
 
         self.configpath = os.path.join(self.basedir, 'config')
         self.filterpath = os.path.join(self.basedir, 'filtered')
+        self.friendspath = os.path.join(self.basedir, 'friends')
 
         if not os.path.isdir(self.basedir):
             os.makedirs(self.basedir)
         if not os.path.isfile(self.configpath):
             self.create()
         if not os.path.isfile(self.filterpath):
-            self.create_filter_list()
+            open(self.filterpath, 'w').close()
+        if not os.path.isfile(self.friendspath):
+            open(self.friendspath, 'w').close()
 
         self.log.debug('CONFIG_FILE: %s' % self.configpath)
-        self.log.debug('MUTED_FILE: %s' % self.filterpath)
+        self.log.debug('FILTERS_FILE: %s' % self.filterpath)
+        self.log.debug('FRIENDS_FILE: %s' % self.friendspath)
 
         self.load()
-
-    def create_filter_list(self):
-        _fd = open(self.filterpath, 'w')
-        _fd.close()
 
     def load_filters(self):
         muted = []
@@ -236,6 +236,22 @@ class AppConfig(ConfigBase):
                 continue
             new_list.append(term)
         self.save_filter_list(new_list)
+
+    def load_friends(self):
+        friends = []
+        _fd = open(self.friendspath, 'r')
+        for line in _fd:
+            if line == '\n':
+                continue
+            friends.append(line.strip('\n'))
+        _fd.close()
+        return friends
+
+    def save_friends(self, lst):
+        _fd = open(self.friendspath, 'w')
+        for friend in lst:
+            _fd.write(friend + '\n')
+        _fd.close()
 
     def get_stored_accounts(self):
         accounts = []
