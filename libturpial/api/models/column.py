@@ -13,6 +13,7 @@ class Column:
         self.protocol_id = pt_id
         self.column_name = col_name
         self.updating = False
+        self.size = 0
     
     def __str__(self):
         return "id_: %s, acc_id: %s, pro_id: %s, col_name: %s" % (self.id_,
@@ -20,3 +21,6 @@ class Column:
     
     def build_id(self):
         return "%s-%s" % (self.account_id, self.column_name)
+
+    def inc_size(self, size):
+        self.size += size
