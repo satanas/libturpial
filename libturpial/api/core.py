@@ -264,6 +264,7 @@ class Core:
                 if list_id is None:
                     raise IndexError
                 rtn = account.get_list_statuses(list_id, count, since_id)
+                print len(rtn), rtn
             return Response(rtn)
         except Exception, exc:
             return self.__handle_exception(exc)
