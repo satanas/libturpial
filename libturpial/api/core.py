@@ -572,8 +572,14 @@ class Core:
             return True
         return False
 
-    def play_sounds_in_notification(self):
-        temp = self.config.read('Notifications', 'sounds')
+    def play_sounds_in_login(self):
+        temp = self.config.read('Sounds', 'login')
+        if temp == 'on':
+            return True
+        return False
+
+    def play_sounds_in_updates(self):
+        temp = self.config.read('Sounds', 'updates')
         if temp == 'on':
             return True
         return False
