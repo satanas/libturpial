@@ -13,5 +13,5 @@ import re
 
 try:
     import json
-except ImportError:
+except:
     import simplejson as json
