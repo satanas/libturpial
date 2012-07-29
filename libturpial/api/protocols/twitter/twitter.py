@@ -419,7 +419,12 @@ class Main(Protocol):
     def get_profile(self, user):
         self.log.debug('Getting profile of user %s' % user)
         rtn = self.request('/users/show', {'screen_name': user})
-        return self.json_to_profile(rtn)
+        profile = self.json_to_profile(rtn)
+        self.log.debug('Getting recent statuses of user %s' % user)
+        rtn = self.request('/statuses/user_timeline', {'screen_name': user, 'count': 10,
+            'include_entities': True})
+        profile.recent_updates = self.json_to_status(rtn)
+        return profile
 
     def get_blocked(self):
         self.log.debug('Getting list of blocked users')
