@@ -29,12 +29,12 @@ class AccountManager:
         auth = cfg.read_section('OAuth')
         username = cfg.read('Login', 'username')
         protocol = cfg.read('Login', 'protocol')
-        passwd = cfg.revert(cfg.read('Login', 'password'), username)
+        p = cfg.revert(cfg.read('Login', 'password'), username)
 
         if self.__accounts.has_key(account_id):
             self.log.debug('Account %s is already registered' % account_id)
         else:
-            account = Account(username, account_id, protocol, passwd, auth, cfg)
+            account = Account(username, account_id, protocol, p, auth, cfg)
             timeout = int(self.config.read('Advanced', 'socket-timeout'))
             account.protocol.timeout = timeout
             self.log.debug('Using %i sec for socket timeout in account %s' % (
