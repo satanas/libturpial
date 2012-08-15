@@ -23,6 +23,6 @@ SHOWMEDIA_SERVICES = {
     'yfrog': YfrogMediaContent(),
     'instagram': InstagramMediaContent(),
     'pic.twitter.com': PicTwitterMediaContent(),
-    'youtube' : YouTubeMediaContent(),
-    'foursquare' : FoursquareMediaContent()
+#    'youtube' : YouTubeMediaContent(),
+#    'foursquare' : FoursquareMediaContent()
 }
