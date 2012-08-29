@@ -24,5 +24,5 @@ SHOWMEDIA_SERVICES = {
     'instagram': InstagramMediaContent(),
     'pic.twitter.com': PicTwitterMediaContent(),
 #    'youtube' : YouTubeMediaContent(),
-#    'foursquare' : FoursquareMediaContent()
+    'foursquare' : FoursquareMediaContent()
 }
