@@ -314,8 +314,8 @@ class Core:
 
     def get_user_profile(self, acc_id, user):
         try:
-            account = self.accman.get(acc_id)
-            profile = account.get_profile(user)
+            account = self.accman.get(str(acc_id))
+            profile = account.get_profile(str(user))
             profile.muted = self.is_muted(profile.username)
             return Response(profile)
         except Exception, exc:

@@ -7,6 +7,7 @@
 
 import os
 import ssl
+import sys
 import socket
 import urllib2
 import urllib
@@ -43,8 +44,15 @@ class TurpialHTTP:
         self.token = None
         self.consumer = None
         self.sign_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
-        self.ca_certs_file = os.path.realpath(os.path.join(os.path.dirname(__file__),
+        if  getattr(sys, 'frozen', None):
+            basedir = sys._MEIPASS
+            self.ca_certs_file = os.path.realpath(os.path.join(basedir,
+            'cacert.pem'))
+        else:
+            basedir = os.path.dirname(__file__) 
+            self.ca_certs_file = os.path.realpath(os.path.join(basedir,
             '..', '..', 'certs', 'cacert.pem'))
+        print "     !!!! CERTIFICADOS !!!!!!",self.ca_certs_file
 
     def __oauth_sign_http_request(self, httpreq, args):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
