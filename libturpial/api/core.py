@@ -366,14 +366,14 @@ class Core:
 
     def repeat_status(self, acc_id, status_id):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(str(acc_id))
             return Response(account.repeat(status_id))
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def unrepeat_status(self, acc_id, status_id):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(str(acc_id))
             return Response(account.unrepeat(status_id))
         except Exception, exc:
             return self.__handle_exception(exc)
@@ -410,56 +410,56 @@ class Core:
 
     def destroy_direct(self, acc_id, status_id):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(str(acc_id))
             return Response(account.destroy_direct(status_id))
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def mark_favorite(self, acc_id, status_id):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(str(acc_id))
             return Response(account.mark_favorite(status_id))
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def unmark_favorite(self, acc_id, status_id):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(str(acc_id))
             return Response(account.unmark_favorite(status_id))
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def search(self, acc_id, query):
         try:
-            account = self.accman.get(acc_id, False)
+            account = self.accman.get(str(acc_id), False)
             return Response(account.search(query))
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def trends(self, acc_id):
         try:
-            account = self.accman.get(acc_id, False)
+            account = self.accman.get(str(acc_id), False)
             return Response(account.trends())
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def block(self, acc_id, user):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(str(acc_id))
             return Response(account.block(user))
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def unblock(self, acc_id, user):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(str(acc_id))
             return Response(account.unblock(user))
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def report_spam(self, acc_id, user):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(str(acc_id))
             return Response(account.report_spam(user))
         except Exception, exc:
             return self.__handle_exception(exc)
@@ -469,30 +469,30 @@ class Core:
 
     def is_friend(self, acc_id, user):
         try:
-            account = self.accman.get(acc_id)
+            account = self.accman.get(str(acc_id))
             return Response(account.is_friend(user))
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def mute(self, user):
         try:
-            self.config.append_filter('@%s' % user)
+            self.config.append_filter('@%s' % str(user))
             return Response(user)
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def unmute(self, user):
         try:
-            self.config.remove_filter('@%s' % user)
+            self.config.remove_filter('@%s' % str(user))
             return Response(user)
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def get_profile_image(self, acc_id, user):
         try:
-            account = self.accman.get(acc_id)
-            img_content = account.get_profile_image(user)
-            img_path = os.path.join(account.config.imgdir, user)
+            account = self.accman.get(str(acc_id))
+            img_content = account.get_profile_image(str(user))
+            img_path = os.path.join(account.config.imgdir, str(user))
             fd = open(img_path, 'w')
             fd.write(img_content)
             fd.close()
@@ -507,7 +507,7 @@ class Core:
     def short_url(self, url):
         service = self.config.read('Services', 'shorten-url')
         try:
-            urlshorter = URL_SERVICES[service].do_service(url)
+            urlshorter = URL_SERVICES[service].do_service(str(url))
             return Response(urlshorter.response)
         except Exception, exc:
             return self.__handle_exception(exc)
