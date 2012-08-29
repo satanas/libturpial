@@ -7,7 +7,7 @@
 
 class Profile:
     DEFAULT_LINK_COLOR = '#0F0F85'
-    
+
     def __init__(self):
         self.id_ = None
         self.account_id = None
@@ -32,12 +32,12 @@ class Profile:
         self.protected = False
         self.verified = False
         self.muted = False
-    
+
     def is_me(self):
         if self.username == self.account_id.split('-')[0]:
             return True
         return False
-    
+
     def get_protocol_id(self):
         if self.account_id:
             return self.account_id.split('-')[1]

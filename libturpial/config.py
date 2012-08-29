@@ -338,17 +338,21 @@ class AccountConfig(ConfigBase):
         c = base64.b32encode(b)
         d = ('%s' % us[-1]) + c + us[0]
         e = base64.b64encode(d)
-        return e[0:len(us)]+ e[len(us):]
+        f = [e[i] for i in range(len(e))]
+        f.reverse()
+        return ''.join(f)
 
     def revert(self, pw, us):
         if pw == '':
             return None
-        a = base64.b64decode(pw)
-        b = a[1:-1]
-        c = base64.b32decode(b)
-        d = c[1:-1]
-        e = base64.b16decode(d)
-        return e[0:len(us)]+ e[len(us):]
+        z = [pw[i] for i in range(len(pw))]
+        z.reverse()
+        y = ''.join(z)
+        x = base64.b64decode(y)
+        w = ('%s' % x[1:len(x)])[:-1]
+        v = base64.b32decode(w)
+        u = ('%s' % v[:len(v) - 1])[1:]
+        return base64.b16decode(u)
 
     def dismiss(self):
         if os.path.isdir(self.imgdir):

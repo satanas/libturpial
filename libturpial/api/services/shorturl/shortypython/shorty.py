@@ -48,7 +48,7 @@ import re
 
 try:
     import json
-except ImportError:
+except:
     import simplejson as json
 
 
@@ -61,7 +61,7 @@ class ShortyError(Exception):
         return repr(self.reason)
 
 """Do a http request"""
-def request(url, parameters=None, username_pass=None, post_data=None):
+def request(url, parameters=None, username_pass=None, post_data=None, headers={}):
 
     # build url + parameters
     if parameters:
@@ -70,7 +70,6 @@ def request(url, parameters=None, username_pass=None, post_data=None):
         url_params = url
 
     # if username and pass supplied, build basic auth header
-    headers = {}
     if username_pass:
         headers['Authorization'] = 'Basic %s' % base64.b64encode('%s:%s' % username_pass)
 
@@ -161,6 +160,21 @@ def expand(tinyurl):
     if not s:
         return get_redirect(tinyurl)
     return s.expand(tinyurl)
+
+# github
+class Github(Service):
+
+    def shrink(self, bigurl):
+        gitio_pattern = 'http(s)?://((gist|raw|develop(er)?)\.)?github\.com'
+        gitio_re = re.compile(gitio_pattern)
+        if not gitio_re.search(bigurl):
+            raise ShortyError('URL must match %s' % gitio_pattern)
+        resp = request('http://git.io', post_data="url=%s" % bigurl)
+        for header in resp.info().headers:
+            if header.startswith("Location:"):
+                return header[10:].strip('\n\r')
+        raise ShortyError('Failed to shrink url')
+github = Github()
 
 # ur1ca
 class Ur1ca(Service):
@@ -323,13 +337,15 @@ github = Github()
 class Google(Service):
 
     def shrink(self, bigurl):
-        resp = request('http://goo.gl/api/url', {'url': bigurl}, post_data = 'toolbar')
+        resp = request('https://www.googleapis.com/urlshortener/v1/url', 
+                        headers={"content-type":"application/json"}, 
+                        post_data=json.dumps({"longUrl": bigurl}))
         data = resp.read()
         jdata = json.loads(data)
-        if 'short_url' not in jdata:
+        if 'id' not in jdata:
             raise ShortyError(data)
         else:
-            return jdata['short_url']
+            return jdata['id']
 
     def qrcode(self, tinyurl):
         qrdata = request(tinyurl + '.qr').read()

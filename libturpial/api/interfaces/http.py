@@ -127,23 +127,23 @@ class TurpialHTTP:
         oauth_request.sign_request(self.sign_method_hmac_sha1,
             self.consumer, None)
 
-        self.log.debug('REQUEST (via headers)')
-        self.log.debug('parameters: %s' % str(oauth_request.parameters))
+        #self.log.debug('REQUEST (via headers)')
+        #self.log.debug('parameters: %s' % str(oauth_request.parameters))
 
         req = urllib2.Request(self.REQUEST_TOKEN_URL, headers=oauth_request.to_header())
         response = urllib2.urlopen(req)
         self.token = oauth.OAuthToken.from_string(response.read())
-        self.log.debug('GOT')
-        self.log.debug('key: %s' % str(self.token.key))
-        self.log.debug('secret: %s' % str(self.token.secret))
-        self.log.debug('callback confirmed? %s' % str(self.token.callback_confirmed))
+        #self.log.debug('GOT')
+        #self.log.debug('key: %s' % str(self.token.key))
+        #self.log.debug('secret: %s' % str(self.token.secret))
+        #self.log.debug('callback confirmed? %s' % str(self.token.callback_confirmed))
 
         self.log.debug('Authorize the request token')
         oauth_request = oauth.OAuthRequest.from_token_and_callback(token=self.token,
             http_url=self.AUTHORIZATION_URL)
 
-        self.log.debug('REQUEST (via url query string)')
-        self.log.debug('parameters: %s' % str(oauth_request.parameters))
+        #self.log.debug('REQUEST (via url query string)')
+        #self.log.debug('parameters: %s' % str(oauth_request.parameters))
         return oauth_request.to_url()
 
     def authorize_token(self, pin):

@@ -1,4 +1,8 @@
-v0.8.9
+v0.8.8
+    * Feature #479: Optimized tweets loading
+    * Minor improvements
+
+v0.8.5
     * Feature #446: OAuth support for Twitter
     * Feature #447: Handle accounts and columns
     * Feature #448: Fetch timeline ,replies, directs, sents, lists and favorites

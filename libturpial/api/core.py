@@ -264,6 +264,7 @@ class Core:
                 if list_id is None:
                     raise IndexError
                 rtn = account.get_list_statuses(list_id, count, since_id)
+                print len(rtn), rtn
             return Response(rtn)
         except Exception, exc:
             return self.__handle_exception(exc)
@@ -571,8 +572,14 @@ class Core:
             return True
         return False
 
-    def play_sounds_in_notification(self):
-        temp = self.config.read('Notifications', 'sounds')
+    def play_sounds_in_login(self):
+        temp = self.config.read('Sounds', 'login')
+        if temp == 'on':
+            return True
+        return False
+
+    def play_sounds_in_updates(self):
+        temp = self.config.read('Sounds', 'updates')
         if temp == 'on':
             return True
         return False
