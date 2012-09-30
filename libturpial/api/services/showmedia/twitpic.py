@@ -20,6 +20,7 @@ class TwitpicMediaContent(ShowMediaService):
         try:
             media_id = self._get_id_from_url(url)
             media_content_url =  "http://twitpic.com/show/full/%s.png" % media_id
+            self.log.debug('Twitpic url: %s' % media_content_url)
             rawimg = self._get_content_from_url(media_content_url)
             return ServiceResponse(MediaContent(IMAGE_CONTENT, url, rawimg))
         except Exception, error:

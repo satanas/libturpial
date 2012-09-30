@@ -18,6 +18,7 @@ class PicTwitterMediaContent(ShowMediaService):
 
     def do_service(self, url):
         try:
+            self.log.debug('Twitter image url: %s' % url)
             rawimg = self._get_content_from_url(url)
             return ServiceResponse(MediaContent(IMAGE_CONTENT, url, rawimg))
         except Exception, error:

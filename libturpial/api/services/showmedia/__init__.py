@@ -6,7 +6,6 @@
 # 2012-08-01
 
 from libturpial.api.services.showmedia.imgur import ImgurMediaContent
-from libturpial.api.services.showmedia.pinterest import PinterestMediaContent
 from libturpial.api.services.showmedia.lockerz import LockerzMediaContent
 from libturpial.api.services.showmedia.twitpic import TwitpicMediaContent
 from libturpial.api.services.showmedia.yfrog import YfrogMediaContent
@@ -18,7 +17,6 @@ from libturpial.api.services.showmedia.foursquare import FoursquareMediaContent
 
 SHOWMEDIA_SERVICES = {
     'imgur': ImgurMediaContent(),
-    'pinterest': PinterestMediaContent(),
     'lockerz': LockerzMediaContent(),
     'twitpic': TwitpicMediaContent(),
     'yfrog': YfrogMediaContent(),
