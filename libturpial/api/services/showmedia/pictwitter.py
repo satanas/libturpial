@@ -14,7 +14,7 @@ from libturpial.api.interfaces.service import ServiceResponse
 class PicTwitterMediaContent(ShowMediaService):
     def __init__(self):
         ShowMediaService.__init__(self)
-        self.url_pattern = "(http(s)?://)?(p.twimg.com|pic.twitter.com)"
+        self.url_pattern = "(http(s)?://)?(twimg.com|pic.twitter.com)"
 
     def do_service(self, url):
         try:
