@@ -11,6 +11,7 @@ from libturpial.api.services.showmedia.lockerz import LockerzMediaContent
 from libturpial.api.services.showmedia.twitpic import TwitpicMediaContent
 from libturpial.api.services.showmedia.yfrog import YfrogMediaContent
 from libturpial.api.services.showmedia.instagram import InstagramMediaContent
+from libturpial.api.services.showmedia.viame import ViameMediaContent
 from libturpial.api.services.showmedia.pictwitter import PicTwitterMediaContent
 from libturpial.api.services.showmedia.youtube import YouTubeMediaContent
 from libturpial.api.services.showmedia.foursquare import FoursquareMediaContent
@@ -23,6 +24,7 @@ SHOWMEDIA_SERVICES = {
     'yfrog': YfrogMediaContent(),
     'instagram': InstagramMediaContent(),
     'pic.twitter.com': PicTwitterMediaContent(),
+    'via.me': ViameMediaContent(),
 #    'youtube' : YouTubeMediaContent(),
 #    'foursquare' : FoursquareMediaContent()
 }
