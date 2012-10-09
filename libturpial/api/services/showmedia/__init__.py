@@ -26,5 +26,5 @@ SHOWMEDIA_SERVICES = {
     'via.me': ViameMediaContent(),
     'flic.kr': FlickrMediaContent(),
 #    'youtube' : YouTubeMediaContent(),
-#    'foursquare' : FoursquareMediaContent()
+    'foursquare' : FoursquareMediaContent()
 }

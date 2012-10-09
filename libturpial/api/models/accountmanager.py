@@ -87,6 +87,7 @@ class AccountManager:
             self.log.debug('Account %s is not registered' % account_id)
 
     def get(self, account_id, validate_login=True):
+        print "__accounts",self.__accounts
         account = self.__accounts[account_id]
         if (validate_login and account.logged_in == LoginStatus.DONE) or (not validate_login):
             return account

@@ -6,3 +6,4 @@ dist/
 *.mo
 *.swp
 *~
+setuptools*
