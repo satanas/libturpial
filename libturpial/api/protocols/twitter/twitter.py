@@ -17,16 +17,17 @@ from libturpial.api.interfaces.protocol import Protocol
 from libturpial.api.models.trend import Trend, TrendsResults
 from libturpial.api.protocols.twitter.params import CK, CS, SALT, POST_ACTIONS
 
+
 class Main(Protocol):
     def __init__(self, username, account_id, auth):
         p_name = 'Twitter(%s)' % username
         Protocol.__init__(self, account_id, p_name,
-            'http://api.twitter.com/1',
-            'http://search.twitter.com',
-            'http://twitter.com/search?q=%23',
-            None,
-            'http://www.twitter.com',
-            POST_ACTIONS)
+                          'http://api.twitter.com/1',
+                          'http://search.twitter.com',
+                          'http://twitter.com/search?q=%23',
+                          None,
+                          'http://www.twitter.com',
+                          POST_ACTIONS)
 
         self.REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
         self.ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
@@ -69,7 +70,7 @@ class Main(Protocol):
             profile.favorites_count = response['favourites_count']
             profile.protected = response['protected']
             profile.verified = response['verified']
-            if response.has_key('status'):
+            if 'status' in response:
                 profile.last_update = response['status']['text']
                 profile.last_update_id = response['status']['id']
             profile.link_color = ('#' + response['profile_link_color']) or Profile.DEFAULT_LINK_COLOR
@@ -94,7 +95,7 @@ class Main(Protocol):
         else:
             reposted_by = None
             retweeted_id = None
-            if response.has_key('retweeted_status'):
+            if 'retweeted_status' in response:
                 reposted_by = response['user']['screen_name']
                 retweeted_id = response['id']
                 post = response['retweeted_status']
@@ -103,37 +104,36 @@ class Main(Protocol):
 
             protected = False
             verified = False
-            if post.has_key('user'):
+            if 'user' in post:
                 username = post['user']['screen_name']
                 avatar = post['user']['profile_image_url']
                 protected = post['user']['protected']
                 verified = post['user']['verified']
-            elif post.has_key('sender'):
+            elif 'sender' in post:
                 username = post['sender']['screen_name']
                 avatar = post['sender']['profile_image_url']
                 protected = post['sender']['protected']
                 verified = post['sender']['verified']
-            elif post.has_key('from_user'):
+            elif 'from_user' in post:
                 username = post['from_user']
                 avatar = post['profile_image_url']
 
             in_reply_to_id = None
             in_reply_to_user = None
-            if post.has_key('in_reply_to_status_id') and \
-               post['in_reply_to_status_id']:
+            if 'in_reply_to_status_id' in post and post['in_reply_to_status_id']:
                 in_reply_to_id = post['in_reply_to_status_id']
                 in_reply_to_user = post['in_reply_to_screen_name']
 
             fav = False
-            if post.has_key('favorited'):
+            if 'favorited' in post:
                 fav = post['favorited']
 
             retweeted = False
-            if post.has_key('retweeted'):
+            if 'retweeted' in post:
                 retweeted = post['retweeted']
 
             source = None
-            if post.has_key('source'):
+            if 'source' in post:
                 source = post['source']
 
             status = Status()
@@ -211,7 +211,7 @@ class Main(Protocol):
         return profile
 
     def get_entities(self, tweet):
-        if tweet.has_key('entities'):
+        if 'entities' in tweet:
             entities = {
                 'urls': [],
                 'hashtags': [],
@@ -220,7 +220,8 @@ class Main(Protocol):
             }
             for mention in tweet['entities']['user_mentions']:
                 text = '@' + mention['screen_name']
-                url = "%s%s%s" % (mention['screen_name'], ARG_SEP, self.account_id)
+                url = "%s%s%s" % (mention['screen_name'], ARG_SEP,
+                                  self.account_id)
                 entities['mentions'].append(Entity(url, text, text))
 
             for url in tweet['entities']['urls']:
@@ -235,13 +236,13 @@ class Main(Protocol):
                     display_url = url['url']
 
                 entities['urls'].append(Entity(expanded_url, display_url,
-                    url['url']))
+                                        url['url']))
 
-            if tweet['entities'].has_key('media'):
+            if 'media' in tweet['entities']:
                 for url in tweet['entities']['media']:
                     display_url = 'http://' + url['display_url']
-                    entities['urls'].append(Entity(url['media_url'], display_url,
-                        url['url']))
+                    entities['urls'].append(Entity(url['media_url'],
+                                            display_url, url['url']))
 
             for ht in tweet['entities']['hashtags']:
                 text = '#' + ht['text']
@@ -268,14 +269,14 @@ class Main(Protocol):
         args = self.__build_basic_args(count, since_id)
         rtn = self.request('/direct_messages', args)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
-            _type=StatusType.DIRECT)
+                                   _type=StatusType.DIRECT)
 
     def get_direct_sent(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting directs sent')
         args = self.__build_basic_args(count, since_id)
         rtn = self.request('/direct_messages/sent', args)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
-            _type=StatusType.DIRECT)
+                                   _type=StatusType.DIRECT)
 
     def get_sent(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting my statuses')
@@ -304,7 +305,8 @@ class Main(Protocol):
 
     def get_list_statuses(self, list_id, count=STATUSPP, since_id=None):
         self.log.debug('Getting statuses from list %s' % list_id)
-        args = {'list_id': list_id, 'per_page': count, 'include_entities': True}
+        args = {'list_id': list_id, 'per_page': count,
+                'include_entities': True}
         if since_id:
             args['since_id'] = since_id
         rtn = self.request('/lists/statuses', args)
@@ -316,10 +318,10 @@ class Main(Protocol):
 
         while 1:
             rtn = self.request('/statuses/show', {'id': status_id,
-                'include_entities': True})
+                               'include_entities': True})
             self.log.debug('--Fetched status: %s' % status_id)
             conversation.append(self.json_to_status(rtn,
-                StatusColumn.CONVERSATION))
+                                StatusColumn.CONVERSATION))
 
             if rtn['in_reply_to_status_id']:
                 status_id = str(rtn['in_reply_to_status_id'])
@@ -329,7 +331,7 @@ class Main(Protocol):
 
     def get_status(self, status_id):
         rtn = self.request('/statuses/show', {'id': status_id,
-            'include_entities': True})
+                           'include_entities': True})
         return self.json_to_status(rtn)
 
     def get_followers(self, only_id=False):
@@ -421,8 +423,9 @@ class Main(Protocol):
         rtn = self.request('/users/show', {'screen_name': user})
         profile = self.json_to_profile(rtn)
         self.log.debug('Getting recent statuses of user %s' % user)
-        rtn = self.request('/statuses/user_timeline', {'screen_name': user, 'count': 10,
-            'include_entities': True})
+        rtn = self.request('/statuses/user_timeline',
+                           {'screen_name': user, 'count': 10,
+                           'include_entities': True})
         profile.recent_updates = self.json_to_status(rtn)
         return profile
 
@@ -456,13 +459,13 @@ class Main(Protocol):
 
         # We use if's instead update method to guarantee valid arguments
         args = {}
-        if p_args.has_key('name'):
+        if 'name' in p_args:
             args['name'] = p_args['name']
-        if p_args.has_key('url'):
+        if 'url' in p_args:
             args['url'] = p_args['url']
-        if p_args.has_key('description'):
+        if 'description' in p_args:
             args['description'] = p_args['description']
-        if p_args.has_key('location'):
+        if 'location' in p_args:
             args['location'] = p_args['location']
 
         rtn = self.request('/account/update_profile', args)
@@ -481,20 +484,20 @@ class Main(Protocol):
     def destroy_status(self, status_id):
         self.log.debug('Destroying status: %s' % status_id)
         rtn = self.request('/statuses/destroy', {'id': status_id,
-            'include_entities': True})
+                           'include_entities': True})
         return self.json_to_status(rtn)
 
     def send_direct(self, screen_name, text):
         self.log.debug('Sending direct to %s' % screen_name)
         args = {'screen_name': screen_name, 'text': text,
-            'include_entities': True}
+                'include_entities': True}
         rtn = self.request('/direct_messages/new', args)
         return self.json_to_status(rtn)
 
     def destroy_direct(self, status_id):
         self.log.debug('Destroying direct %s' % status_id)
         rtn = self.request('/direct_messages/destroy', {'id': status_id,
-            'include_entities': True})
+                           'include_entities': True})
         return self.json_to_status(rtn)
 
     def repeat(self, status_id):
@@ -517,13 +520,13 @@ class Main(Protocol):
     def mark_favorite(self, status_id):
         self.log.debug('Marking status %s as favorite' % status_id)
         rtn = self.request('/favorites/create', {'id': status_id,
-            'include_entities': True})
+                           'include_entities': True})
         return self.json_to_status(rtn)
 
     def unmark_favorite(self, status_id):
         self.log.debug('Unmarking status %s as favorite' % status_id)
         rtn = self.request('/favorites/destroy', {'id': status_id,
-            'include_entities': True})
+                           'include_entities': True})
         return self.json_to_status(rtn)
 
     def follow(self, screen_name, by_id=False):
@@ -537,7 +540,8 @@ class Main(Protocol):
 
     def unfollow(self, screen_name):
         self.log.debug('Unfollow to %s' % screen_name)
-        rtn = self.request('/friendships/destroy', {'screen_name': screen_name})
+        rtn = self.request('/friendships/destroy',
+                           {'screen_name': screen_name})
         return self.json_to_profile(rtn)
 
     def block(self, screen_name):
@@ -557,8 +561,8 @@ class Main(Protocol):
 
     def search(self, query, count=STATUSPP):
         self.log.debug('Searching: %s' % query)
-        rtn = self.request('/search',{'q': query, 'rpp': count},
-            base_url=self.urls['search'])
+        rtn = self.request('/search', {'q': query, 'rpp': count},
+                           base_url=self.urls['search'])
         return self.json_to_status(rtn['results'])
 
     def trends(self):
@@ -588,12 +592,13 @@ class Main(Protocol):
     def is_friend(self, user):
         self.log.debug('Testing friendship of %s against %s' % (self.uname, user))
         result = self.request('/friendships/show',
-            {'source_screen_name': self.uname, 'target_screen_name': user})
+                              {'source_screen_name': self.uname,
+                              'target_screen_name': user})
         return result['relationship']['target']['following']
 
     def get_profile_image(self, user):
         self.log.debug('Getting profile image for %s' % (user))
         url = '/users/profile_image/%s' % user
-        result = self.request(url, {'size': 'original'}, fmt='xml', redirect=False)
+        result = self.request(url, {'size': 'original'},
+                              fmt='xml', redirect=False)
         return result
-

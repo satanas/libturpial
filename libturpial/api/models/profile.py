@@ -5,6 +5,7 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 12, 2011
 
+
 class Profile:
     DEFAULT_LINK_COLOR = '#0F0F85'
 

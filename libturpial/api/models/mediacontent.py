@@ -12,6 +12,7 @@ IMAGE_CONTENT = 0
 VIDEO_CONTENT = 1
 MAP_CONTENT = 2
 
+
 class MediaContent(object):
     def __init__(self, type_, name, content, path=None, info=None):
         self.type_ = type_
@@ -40,4 +41,3 @@ class MediaContent(object):
 
     def is_map(self):
         return self.type_ == MAP_CONTENT
-

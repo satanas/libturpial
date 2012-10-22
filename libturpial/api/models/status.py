@@ -7,6 +7,7 @@
 
 from libturpial.common import StatusType
 
+
 class Status:
     def __init__(self):
         self.id_ = None
@@ -30,20 +31,20 @@ class Status:
         self.retweeted = False
         self.retweeted_id = None
         self.display_id = None
-    
+
     def get_reply_mentions(self):
         account = '@' + self.account_id.split('-')[0]
         count = [self.username]
-        if self.entities.has_key('mentions'):
+        if 'mentions' in self.entities:
             for user in self.entities['mentions']:
                 if user.display_text.lower() != account.lower():
                     count.append(user.display_text[1:])
             return count
         else:
             return []
-    
+
     def set_display_id(self, column_id):
         self.display_id = "%s-%s-%s" % (self.account_id, self.id_, column_id)
-    
+
     def is_direct(self):
         return (self._type == StatusType.DIRECT)

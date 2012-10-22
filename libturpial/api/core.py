@@ -26,6 +26,7 @@ from libturpial.api.services.showmedia import utils as showmediautils
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
+
 class Core:
     '''Turpial core'''
     def __init__(self, log_level=logging.DEBUG):
@@ -74,7 +75,7 @@ class Core:
                 if type(errmsg) == str:
                     msg = errmsg
                 elif type(errmsg) == dict:
-                    if errmsg.has_key('error'):
+                    if 'error' in errmsg:
                         msg = errmsg['error']
                 else:
                     msg = errmsg
@@ -124,11 +125,13 @@ class Core:
         return filtered_statuses
 
     ''' Microblogging '''
-    def register_account(self, username, protocol_id, password=None, auth=None):
+    def register_account(self, username, protocol_id,
+                         password=None, auth=None):
         self.log.debug('Registering account %s' % username)
         acc = self.accman.register(username, protocol_id, password, auth)
         if not acc:
-            self.log.debug('Invalid account %s in %s' % (username, protocol_id))
+            self.log.debug('Invalid account %s in %s' % (username,
+                                                         protocol_id))
         return acc
 
     def unregister_account(self, account_id, delete_all=False):
@@ -188,7 +191,8 @@ class Core:
         columns = {}
         for account in self.all_accounts():
             columns[account.id_] = {}
-            if account.logged_in != LoginStatus.DONE: continue
+            if account.logged_in != LoginStatus.DONE:
+                continue
             for col in account.get_columns():
                 id_ = ""
                 for reg in self.reg_columns:
@@ -244,7 +248,8 @@ class Core:
             self.accman.login_status(acc_id, LoginStatus.NONE)
             return self.__handle_exception(exc)
 
-    def get_column_statuses(self, acc_id, col_id, count=STATUSPP, since_id=None):
+    def get_column_statuses(self, acc_id, col_id,
+                            count=STATUSPP, since_id=None):
         try:
             account = self.accman.get(acc_id)
             if col_id == ColumnType.TIMELINE:

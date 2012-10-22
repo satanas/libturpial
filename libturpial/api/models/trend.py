@@ -12,6 +12,7 @@ class TrendsResults:
         self.timestamp = None
         self.items = None
 
+
 class Trend:
     def __init__(self):
         self.name = None

@@ -18,13 +18,13 @@ POST_ACTIONS = [
     # Notification Methods
     'leave', 'follow',
 
-    # Status Methods, Block Methods, Direct Message Methods, 
+    # Status Methods, Block Methods, Direct Message Methods,
     # Friendship Methods, Favorite Methods
     'destroy',
 
     # Block Methods, Friendship Methods, Favorite Methods
     'create',
-    
+
     'retweet',
 ]
 

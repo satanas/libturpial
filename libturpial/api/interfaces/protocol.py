@@ -16,12 +16,13 @@ from libturpial.api.models.client import Client
 from libturpial.api.models.entity import Entity
 from libturpial.api.interfaces.http import TurpialHTTP
 
+
 class Protocol(TurpialHTTP):
     ''' Base class to define basic functions that must have any protocol
     implementation '''
 
     def __init__(self, account_id, name, api_url, search_url, tags_url=None,
-        groups_url=None, profiles_url=None, post_actions=[]):
+                 groups_url=None, profiles_url=None, post_actions=[]):
         TurpialHTTP.__init__(self, post_actions)
 
         self.account_id = account_id
@@ -46,7 +47,7 @@ class Protocol(TurpialHTTP):
         # Tue Mar 13 00:12:41 +0000 2007 -> Tweets normales
         # Wed, 08 Apr 2009 19:22:10 +0000 -> Busquedas
         month_names = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
-            'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                       'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
         date_info = str_datetime.split()
 
@@ -71,8 +72,8 @@ class Protocol(TurpialHTTP):
         if (time.localtime().tm_isdst):
             i_hate_timezones = time.altzone
 
-        dt = datetime.datetime(*d.timetuple()[:-3]) - \
-             datetime.timedelta(seconds=i_hate_timezones)
+        dt = datetime.datetime(*d.timetuple()[:-3]) -\
+            datetime.timedelta(seconds=i_hate_timezones)
         return dt.timetuple()
 
     def get_str_time(self, strdate):

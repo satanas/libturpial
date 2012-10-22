@@ -11,9 +11,11 @@ from libturpial.api.models.profile import Profile
 from libturpial.api.protocols.twitter import twitter
 from libturpial.api.protocols.identica import identica
 
+
 class Account:
-    def __init__(self, username, account_id, protocol_id, password, auth, config=None):
-        self.id_ = account_id # username-protocol_id
+    def __init__(self, username, account_id, protocol_id,
+                 password, auth, config=None):
+        self.id_ = account_id  # username-protocol_id
         self.username = username
         self.protocol_id = protocol_id
 
@@ -36,11 +38,13 @@ class Account:
             self.config = AccountConfig(account_id, password)
 
     def auth(self):
-        self.profile = self.protocol.auth(self.profile.username, self.profile.password)
+        self.profile = self.protocol.auth(self.profile.username,
+                                          self.profile.password)
         self.lists = self.protocol.get_lists(self.profile.username)
 
         self.columns = [ColumnType.TIMELINE, ColumnType.REPLIES,
-            ColumnType.DIRECTS, ColumnType.SENT, ColumnType.FAVORITES]
+                        ColumnType.DIRECTS, ColumnType.SENT,
+                        ColumnType.FAVORITES]
         for li in self.lists:
             self.columns.append(li.name)
         return self.id_
