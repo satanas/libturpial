@@ -11,6 +11,7 @@ from libturpial.api.models.mediacontent import *
 from libturpial.api.services.showmedia.base import *
 from libturpial.api.interfaces.service import ServiceResponse
 
+
 class PicTwitterMediaContent(ShowMediaService):
     def __init__(self):
         ShowMediaService.__init__(self)
@@ -23,4 +24,5 @@ class PicTwitterMediaContent(ShowMediaService):
             return ServiceResponse(MediaContent(IMAGE_CONTENT, url, rawimg))
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
-            return ServiceResponse(err=True, errmsg=_('Problem showing media content'))
+            return ServiceResponse(err=True,
+                                   errmsg=_('Problem showing media content'))
