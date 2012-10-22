@@ -14,10 +14,11 @@ from libturpial.api.interfaces.service import ServiceResponse
 class PicTwitterMediaContent(ShowMediaService):
     def __init__(self):
         ShowMediaService.__init__(self)
-        self.url_pattern = "(http(s)?://)?(p.twimg.com|pic.twitter.com)"
+        self.url_pattern = "(http(s)?://)?(twimg.com|pic.twitter.com)"
 
     def do_service(self, url):
         try:
+            self.log.debug('Twitter image url: %s' % url)
             rawimg = self._get_content_from_url(url)
             return ServiceResponse(MediaContent(IMAGE_CONTENT, url, rawimg))
         except Exception, error:
