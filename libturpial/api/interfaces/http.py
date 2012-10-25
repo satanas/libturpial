@@ -8,20 +8,24 @@
 import os
 import ssl
 import socket
-import urllib2
 import urllib
+import urllib2
 import httplib
 import logging
 
 from base64 import b64encode
 from urllib import urlencode
 
-from libturpial.api.protocols import oauth
 from libturpial.api.models.auth_object import AuthObject
 
 def _py26_or_greater():
     import sys
     return sys.hexversion > 0x20600f0
+
+try:
+    import oauth.oauth as oauth
+except:
+    import oauth
 
 try:
     import json
