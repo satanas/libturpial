@@ -19,6 +19,7 @@ from libturpial.api.protocols.twitter.params import CK, CS, SALT, POST_ACTIONS
 
 
 class Main(Protocol):
+    """Twitter implementation for libturpial"""
     def __init__(self, username, account_id, auth):
         p_name = 'Twitter(%s)' % username
         Protocol.__init__(self, account_id, p_name,

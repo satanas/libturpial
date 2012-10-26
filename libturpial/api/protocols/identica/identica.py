@@ -17,6 +17,7 @@ from libturpial.api.protocols.identica.params import CK, CS, SALT, POST_ACTIONS
 
 
 class Main(Protocol):
+    """Identi.ca implementation for libturpial"""
     GROUP_PATTERN = re.compile('(?<![\w])![\wáéíóúÁÉÍÓÚñÑçÇ]+')
 
     def __init__(self, username, account_id, auth):

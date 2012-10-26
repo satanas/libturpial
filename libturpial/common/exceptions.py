@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 
-""" Module to handle custom exceptions for Turpial """
+"""Module to handle custom exceptions for Turpial"""
 #
 # Author: Wil Alvarez (aka Satanas)
 # Jan 07, 2012
 
 
 class URLShortenError(Exception):
-    def __init__(self, message):
-        self.message = message
+	"""An URL shorten error ocurred"""
+	def __init__(self, message):
+		self.message = message
 
 
 class NoURLException(Exception):
-    def __init__(self):
-        self.message = 'No URL to short'
+	"""No URL to short"""
+	def __init__(self):
+		self.message = 'No URL to short'
 
 
 class UploadImageError(Exception):
-    def __init__(self, message):
-        self.message = message
+	"""An upload image error ocurred"""
+	def __init__(self, message):
+		self.message = message
