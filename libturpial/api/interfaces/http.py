@@ -73,6 +73,7 @@ class TurpialHTTP:
         port = 443
 
         ip = socket.getaddrinfo(host, port)[0][4][0]
+        print "=================== HOST: %s, IP: %s, PORT: %s" % (host, str(ip), str(port))
         sock = socket.socket()
         sock.connect((ip, port))
 
