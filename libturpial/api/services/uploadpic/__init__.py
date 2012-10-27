@@ -8,5 +8,5 @@
 from twitpic import TwitpicPicUploader
 
 PIC_SERVICES = {
-    'twitpic' : TwitpicPicUploader()
+    'twitpic': TwitpicPicUploader()
 }

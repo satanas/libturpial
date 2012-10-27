@@ -14,6 +14,7 @@ from libturpial.api.interfaces.service import ServiceResponse
 
 API_KEY = '7ea1d30de2992c783a567df86faa388e'
 
+
 class ImgurMediaContent(ShowMediaService):
     def __init__(self):
         ShowMediaService.__init__(self)
@@ -31,7 +32,8 @@ class ImgurMediaContent(ShowMediaService):
             return ServiceResponse(MediaContent(IMAGE_CONTENT, url, rawimg))
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
-            return ServiceResponse(err=True, errmsg=_('Problem showing media content'))
+            return ServiceResponse(err=True,
+                                   errmsg=_('Problem showing media content'))
 
     def __find_url_in_html(self, html):
         path = '<link rel="image_src" href="'

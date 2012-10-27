@@ -22,9 +22,11 @@ CLIENT_PATTERN = re.compile('<a href="(.*?)">(.*?)</a>')
 # According to RFC 3986 - http://www.ietf.org/rfc/rfc3986.txt
 URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$%&\'()*+,;=]*)')
 
+
 class ProtocolType:
     TWITTER = 'twitter'
     IDENTICA = 'identica'
+
 
 class StatusColumn:
     TIMELINE = 'timeline'
@@ -37,9 +39,11 @@ class StatusColumn:
     PROFILE = 'profile'
     SINGLE = 'single'
 
+
 class StatusType:
     NORMAL = 0x1
     DIRECT = 0x2
+
 
 class ColumnType:
     TIMELINE = 'timeline'
@@ -48,6 +52,7 @@ class ColumnType:
     SENT = 'sent'
     FAVORITES = 'favorites'
     PUBLIC = 'public'
+
 
 class LoginStatus:
     NONE = 0
@@ -84,4 +89,3 @@ ERROR_CODES = {
     900: "Feature not implemented yet",
     999: "Unknown error",
 }
-

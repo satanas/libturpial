@@ -5,6 +5,7 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 12, 2011
 
+
 class Proxy:
     def __init__(self):
         self.secure = False

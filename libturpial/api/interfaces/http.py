@@ -9,25 +9,31 @@ import os
 import ssl
 import sys
 import socket
-import urllib2
 import urllib
+import urllib2
 import httplib
 import logging
 
 from base64 import b64encode
 from urllib import urlencode
 
-from libturpial.api.protocols import oauth
 from libturpial.api.models.auth_object import AuthObject
+
 
 def _py26_or_greater():
     import sys
     return sys.hexversion > 0x20600f0
 
 try:
+    import oauth.oauth as oauth
+except:
+    import oauth
+
+try:
     import json
 except ImportError:
     import simplejson as json
+
 
 class TurpialHTTP:
     DEFAULT_FORMAT = 'json'
@@ -35,7 +41,7 @@ class TurpialHTTP:
 
     def __init__(self, post_actions, oauth_support=True):
         self.urls = {}
-        self.auth_args = {'key':'', 'secret':'', 'verifier':''}
+        self.auth_args = {'key': '', 'secret': '', 'verifier': ''}
         self.post_actions = post_actions
         self.log = logging.getLogger('TurpialHTTP')
         # timeout in seconds
@@ -47,19 +53,24 @@ class TurpialHTTP:
         if  getattr(sys, 'frozen', None):
             basedir = sys._MEIPASS
             self.ca_certs_file = os.path.realpath(os.path.join(basedir,
-            'cacert.pem'))
+                                                               'cacert.pem'))
         else:
-            basedir = os.path.dirname(__file__) 
+            basedir = os.path.dirname(__file__)
             self.ca_certs_file = os.path.realpath(os.path.join(basedir,
-            '..', '..', 'certs', 'cacert.pem'))
-        print "     !!!! CERTIFICADOS !!!!!!",self.ca_certs_file
+                                                               '..',
+                                                               '..',
+                                                               'certs',
+                                                               'cacert.pem'))
+        print "     !!!! CERTIFICADOS !!!!!!", self.ca_certs_file
 
     def __oauth_sign_http_request(self, httpreq, args):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
-            token=self.token, http_method=httpreq.method, http_url=httpreq.uri,
-            parameters=httpreq.params)
+                                                             token=self.token,
+                                                             http_method=httpreq.method,
+                                                             http_url=httpreq.uri,
+                                                             parameters=httpreq.params)
         request.sign_request(self.sign_method_hmac_sha1,
-            self.consumer, self.token)
+                             self.consumer, self.token)
         httpreq.headers.update(request.to_header())
         return httpreq
 
@@ -77,11 +88,13 @@ class TurpialHTTP:
         port = 443
 
         ip = socket.getaddrinfo(host, port)[0][4][0]
+        print "=================== HOST: %s, IP: %s, PORT: %s" % (host, str(ip), str(port))
         sock = socket.socket()
         sock.connect((ip, port))
 
         sock = ssl.wrap_socket(sock,
-            cert_reqs=ssl.CERT_REQUIRED, ca_certs=self.ca_certs_file)
+                               cert_reqs=ssl.CERT_REQUIRED,
+                               ca_certs=self.ca_certs_file)
 
         cert = sock.getpeercert()
 
@@ -89,16 +102,13 @@ class TurpialHTTP:
             if field[0][0] == 'commonName':
                 certhost = field[0][1]
                 if certhost != host:
-                    raise ssl.SSLError("Host name '%s' doesn't match certificate host '%s'"
-                                 % (host, certhost))
+                    raise ssl.SSLError("Host name '%s' doesn't match certificate host '%s'" % (host, certhost))
 
         self.log.debug('Validated SSL cert for host: %s' % host)
-
 
     # ------------------------------------------------------------
     # OAuth Methods
     # ------------------------------------------------------------
-
     def set_auth_info(self, auth):
         self.auth_args = auth
 
@@ -106,8 +116,7 @@ class TurpialHTTP:
         self.consumer = oauth.OAuthConsumer(key, sec)
 
     def start_oauth(self, account_id):
-        if self.auth_args['key'] != '' and self.auth_args['secret'] != '' and \
-        self.auth_args['verifier'] != '':
+        if self.auth_args['key'] != '' and self.auth_args['secret'] != '' and self.auth_args['verifier'] != '':
             token = self.build_token(self.auth_args)
             return AuthObject('done', account_id, token=token)
         else:
@@ -122,15 +131,16 @@ class TurpialHTTP:
     def request_token(self):
         self.log.debug('Obtain a request token')
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
-            http_url=self.REQUEST_TOKEN_URL)
+                                                                   http_url=self.REQUEST_TOKEN_URL)
 
         oauth_request.sign_request(self.sign_method_hmac_sha1,
-            self.consumer, None)
+                                   self.consumer, None)
 
         #self.log.debug('REQUEST (via headers)')
         #self.log.debug('parameters: %s' % str(oauth_request.parameters))
 
-        req = urllib2.Request(self.REQUEST_TOKEN_URL, headers=oauth_request.to_header())
+        req = urllib2.Request(self.REQUEST_TOKEN_URL,
+                              headers=oauth_request.to_header())
         response = urllib2.urlopen(req)
         self.token = oauth.OAuthToken.from_string(response.read())
         #self.log.debug('GOT')
@@ -140,7 +150,7 @@ class TurpialHTTP:
 
         self.log.debug('Authorize the request token')
         oauth_request = oauth.OAuthRequest.from_token_and_callback(token=self.token,
-            http_url=self.AUTHORIZATION_URL)
+                                                                   http_url=self.AUTHORIZATION_URL)
 
         #self.log.debug('REQUEST (via url query string)')
         #self.log.debug('parameters: %s' % str(oauth_request.parameters))
@@ -149,16 +159,18 @@ class TurpialHTTP:
     def authorize_token(self, pin):
         self.log.debug('Obtain an access token')
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
-            token=self.token, verifier=pin,
-            http_url=self.ACCESS_TOKEN_URL)
+                                                                   token=self.token,
+                                                                   verifier=pin,
+                                                                   http_url=self.ACCESS_TOKEN_URL)
 
         oauth_request.sign_request(self.sign_method_hmac_sha1,
-            self.consumer, self.token)
+                                   self.consumer, self.token)
 
         self.log.debug('REQUEST (via headers)')
         self.log.debug('parameters: %s' % str(oauth_request.parameters))
 
-        req = urllib2.Request(self.ACCESS_TOKEN_URL, headers=oauth_request.to_header())
+        req = urllib2.Request(self.ACCESS_TOKEN_URL,
+                              headers=oauth_request.to_header())
         response = urllib2.urlopen(req)
         self.token = oauth.OAuthToken.from_string(response.read())
 
@@ -208,7 +220,8 @@ class TurpialHTTP:
             proxy_url['http'] = "%s:%d" % (proxy.server, proxy.port)
 
         if _py26_or_greater():
-            opener = urllib2.build_opener(urllib2.ProxyHandler(proxy_url), urllib2.HTTPHandler)
+            opener = urllib2.build_opener(urllib2.ProxyHandler(proxy_url),
+                                          urllib2.HTTPHandler)
         else:
             opener = urllib2.build_opener(ConnectHTTPSHandler(proxy=proxy_url))
         urllib2.install_opener(opener)
@@ -227,7 +240,7 @@ class TurpialHTTP:
                 method = "POST"
                 break
 
-        if args.has_key('id'):
+        if 'id' in args:
             uri = "%s/%s" % (uri, args['id'])
             del args['id']
 
@@ -254,7 +267,7 @@ class TurpialHTTP:
 
         strReq = "%s%s" % (uri, argStr)
         req = TurpialHTTPRequest(argStr, headers, argData, encoded_args,
-            method, strReq, uri, args)
+                                 method, strReq, uri, args)
         #print req
         return req
 
@@ -280,7 +293,7 @@ class TurpialHTTP:
             return response
 
     def request(self, url, args={}, fmt=DEFAULT_FORMAT, base_url=None,
-        secure=False, redirect=True):
+                secure=False, redirect=True):
         if not base_url:
             base_url = self.urls['api']
         if secure:
@@ -292,9 +305,10 @@ class TurpialHTTP:
         authreq = self.auth_http_request(httpreq, self.auth_args)
         return self.fetch_http_resource(authreq, fmt, redirect)
 
+
 class TurpialHTTPRequest:
     def __init__(self, argStr='', headers={}, argData=None, encoded_args='',
-        method="GET", strReq='', uri='', params={}):
+                 method="GET", strReq='', uri='', params={}):
 
         self.argStr = argStr
         self.headers = headers
@@ -308,19 +322,20 @@ class TurpialHTTPRequest:
     def __str__(self):
         return " method: %s\n encoded_args: %s\n argStr: %s\n argData: %s\n \
 headers: %s\n strReq: %s\n***" % (self.method, self.encoded_args,
-            self.argStr, self.argData, self.headers, self.strReq)
+                                  self.argStr, self.argData,
+                                  self.headers, self.strReq)
+
 
 class ProxyHTTPConnection(httplib.HTTPConnection):
 
-    _ports = {'http' : 80, 'https' : 443}
-
+    _ports = {'http': 80, 'https': 443}
 
     def request(self, method, url, body=None, headers={}):
         #request is called before connect, so can interpret url and get
         #real host/port to be used to make CONNECT request to proxy
         proto, rest = urllib.splittype(url)
         if proto is None:
-            raise ValueError, "unknown URL type: %s" % url
+            raise ValueError("unknown URL type: %s" % url)
         #get host
         host, rest = urllib.splithost(rest)
         #try to get port
@@ -330,35 +345,40 @@ class ProxyHTTPConnection(httplib.HTTPConnection):
             try:
                 port = self._ports[proto]
             except KeyError:
-                raise ValueError, "unknown protocol for: %s" % url
+                raise ValueError("unknown protocol for: %s" % url)
         self._real_host = host
         self._real_port = port
         httplib.HTTPConnection.request(self, method, url, body, headers)
 
-
     def connect(self):
         httplib.HTTPConnection.connect(self)
         #send proxy CONNECT request
-        self.send("CONNECT %s:%d HTTP/1.0\r\n\r\n" % (self._real_host, self._real_port))
+        self.send("CONNECT %s:%d HTTP/1.0\r\n\r\n" % (self._real_host,
+                                                      self._real_port))
         #expect a HTTP/1.0 200 Connection established
-        response = self.response_class(self.sock, strict=self.strict, method=self._method)
+        response = self.response_class(self.sock, strict=self.strict,
+                                       method=self._method)
         (version, code, message) = response._read_status()
         #probably here we can handle auth requests...
         if code != 200:
             #proxy returned and error, abort connection, and raise exception
             self.close()
-            raise socket.error, "Proxy connection failed: %d %s" % (code, message.strip())
+            raise socket.error("Proxy connection failed: %d %s" %
+                               (code, message.strip()))
         #eat up header block from proxy....
         while True:
             #should not use directly fp probablu
             line = response.fp.readline()
-            if line == '\r\n': break
+            if line == '\r\n':
+                break
+
 
 class ProxyHTTPSConnection(ProxyHTTPConnection):
 
     default_port = 443
 
-    def __init__(self, host, port = None, key_file = None, cert_file = None, strict = None):
+    def __init__(self, host, port=None, key_file=None,
+                 cert_file=None, strict=None):
         ProxyHTTPConnection.__init__(self, host, port)
         self.key_file = key_file
         self.cert_file = cert_file
@@ -368,6 +388,7 @@ class ProxyHTTPSConnection(ProxyHTTPConnection):
         #make the sock ssl-aware
         ssl = socket.ssl(self.sock, self.key_file, self.cert_file)
         self.sock = httplib.FakeSocket(self.sock, ssl)
+
 
 class ConnectHTTPHandler(urllib2.HTTPHandler):
 
@@ -380,6 +401,7 @@ class ConnectHTTPHandler(urllib2.HTTPHandler):
             req.set_proxy(self.proxy, 'http')
         return urllib2.HTTPHandler.do_open(self, ProxyHTTPConnection, req)
 
+
 class ConnectHTTPSHandler(urllib2.HTTPSHandler):
 
     def __init__(self, proxy=None, debuglevel=0):
@@ -390,6 +412,7 @@ class ConnectHTTPSHandler(urllib2.HTTPSHandler):
         if self.proxy is not None:
             req.set_proxy(self.proxy, 'https')
         return urllib2.HTTPSHandler.do_open(self, ProxyHTTPSConnection, req)
+
 
 class RedirectHandler(urllib2.HTTPRedirectHandler):
     def __handle_redirect(self, url):

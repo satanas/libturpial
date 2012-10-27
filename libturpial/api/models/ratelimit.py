@@ -5,6 +5,7 @@
 # Author: Wil Alvarez (aka Satanas)
 # Mar 18, 2011
 
+
 class RateLimit:
     def __init__(self):
         self.hourly_limit = None

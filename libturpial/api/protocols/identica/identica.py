@@ -15,18 +15,20 @@ from libturpial.api.models.profile import Profile
 from libturpial.api.interfaces.protocol import Protocol
 from libturpial.api.protocols.identica.params import CK, CS, SALT, POST_ACTIONS
 
+
 class Main(Protocol):
+    """Identi.ca implementation for libturpial"""
     GROUP_PATTERN = re.compile('(?<![\w])![\wáéíóúÁÉÍÓÚñÑçÇ]+')
 
     def __init__(self, username, account_id, auth):
         p_name = 'Identi.ca(%s)' % username
         Protocol.__init__(self, account_id, p_name,
-            'https://identi.ca/api',
-            'http://identi.ca/api',
-            'http://identi.ca/tag',
-            'http://identi.ca/group',
-            'http://identi.ca',
-            POST_ACTIONS)
+                          'https://identi.ca/api',
+                          'http://identi.ca/api',
+                          'http://identi.ca/tag',
+                          'http://identi.ca/group',
+                          'http://identi.ca',
+                          POST_ACTIONS)
 
         self.REQUEST_TOKEN_URL = 'https://identi.ca/api/oauth/request_token'
         self.ACCESS_TOKEN_URL = 'https://identi.ca/api/oauth/access_token'
@@ -61,7 +63,7 @@ class Main(Protocol):
             profile.statuses_count = response['statuses_count']
             profile.favorites_count = response['favourites_count']
             profile.protected = response['protected']
-            if response.has_key('status'):
+            if 'status' in response:
                 profile.last_update = response['status']['text']
                 profile.last_update_id = response['status']['id']
             profile.link_color = Profile.DEFAULT_LINK_COLOR
@@ -78,38 +80,37 @@ class Main(Protocol):
             return statuses
         else:
             reposted_by = None
-            if response.has_key('retweeted_status'):
+            if 'retweeted_status' in response:
                 reposted_by = response['user']['screen_name']
                 post = response['retweeted_status']
             else:
                 post = response
 
             protected = False
-            if post.has_key('user'):
+            if 'user' in post:
                 username = post['user']['screen_name']
                 avatar = post['user']['profile_image_url']
                 protected = post['user']['protected']
-            elif post.has_key('sender'):
+            elif 'sender' in post:
                 username = post['sender']['screen_name']
                 avatar = post['sender']['profile_image_url']
                 protected = post['sender']['protected']
-            elif post.has_key('from_user'):
+            elif 'from_user' in post:
                 username = post['from_user']
                 avatar = post['profile_image_url']
 
             in_reply_to_id = None
             in_reply_to_user = None
-            if post.has_key('in_reply_to_status_id') and \
-               post['in_reply_to_status_id']:
+            if 'in_reply_to_status_id' in post and post['in_reply_to_status_id']:
                 in_reply_to_id = post['in_reply_to_status_id']
                 in_reply_to_user = post['in_reply_to_screen_name']
 
             fav = False
-            if post.has_key('favorited'):
+            if 'favorited' in post:
                 fav = post['favorited']
 
             source = None
-            if post.has_key('source'):
+            if 'source' in post:
                 source = post['source']
 
             status = Status()
@@ -151,7 +152,8 @@ class Main(Protocol):
 
     def get_timeline(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting timeline')
-        rtn = self.request('/statuses/home_timeline', {'count': count, 'since_id': since_id})
+        rtn = self.request('/statuses/home_timeline',
+                           {'count': count, 'since_id': since_id})
         return self.json_to_status(rtn, StatusColumn.TIMELINE)
 
     def get_replies(self, count=STATUSPP, since_id=None):
@@ -163,13 +165,13 @@ class Main(Protocol):
         self.log.debug('Getting directs')
         rtn = self.request('/direct_messages', {'count': count})
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
-            _type=StatusType.DIRECT)
+                                   _type=StatusType.DIRECT)
 
     def get_directs_sent(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting directs sent')
         rtn = self.request('/direct_messages/sent', {'count': count})
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
-            _type=StatusType.DIRECT)
+                                   _type=StatusType.DIRECT)
 
     def get_sent(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting my statuses')
@@ -184,7 +186,7 @@ class Main(Protocol):
     def get_public_timeline(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting public timeline')
         rtn = self.request('/statuses/public_timeline', {'count': count,
-            'include_entities': True})
+                           'include_entities': True})
         return self.json_to_status(rtn, StatusColumn.PUBLIC)
 
     def get_lists(self, username):
@@ -201,7 +203,7 @@ class Main(Protocol):
             rtn = self.request('/statuses/show', {'id': status_id})
             self.log.debug('--Fetched status: %s' % status_id)
             conversation.append(self.json_to_status(rtn,
-                StatusColumn.CONVERSATION))
+                                StatusColumn.CONVERSATION))
 
             if rtn['in_reply_to_status_id']:
                 status_id = str(rtn['in_reply_to_status_id'])
@@ -222,7 +224,8 @@ class Main(Protocol):
             for id_ in rtn:
                 followers.append(str(id_))
         else:
-            rtn = self.request('/statuses/followers', {'screen_name': self.account_id.split('-')[0]})
+            rtn = self.request('/statuses/followers',
+                               {'screen_name': self.account_id.split('-')[0]})
             for user in rtn:
                 followers.append(self.json_to_profile(user))
 
@@ -238,7 +241,8 @@ class Main(Protocol):
             for id_ in rtn:
                 following.append(str(id_))
         else:
-            rtn = self.request('/statuses/friends', {'screen_name': self.account_id.split('-')[0]})
+            rtn = self.request('/statuses/friends',
+                               {'screen_name': self.account_id.split('-')[0]})
             for user in rtn:
                 following.append(self.json_to_profile(user))
 
@@ -250,10 +254,10 @@ class Main(Protocol):
         rtn = self.request('/users/show', {'screen_name': user})
         profile = self.json_to_profile(rtn)
         self.log.debug('Getting recent statuses of user %s' % user)
-        rtn = self.request('/statuses/user_timeline', {'screen_name': user, 'count': 10})
+        rtn = self.request('/statuses/user_timeline',
+                           {'screen_name': user, 'count': 10})
         profile.recent_updates = self.json_to_status(rtn)
         return profile
-
 
     def get_blocked(self):
         return []
@@ -268,13 +272,13 @@ class Main(Protocol):
 
         # We use if's instead update method to guarantee valid arguments
         args = {}
-        if p_args.has_key('name'):
+        if 'name' in p_args:
             args['name'] = p_args['name']
-        if p_args.has_key('url'):
+        if 'url' in p_args:
             args['url'] = p_args['url']
-        if p_args.has_key('description'):
+        if 'description' in p_args:
             args['description'] = p_args['description']
-        if p_args.has_key('location'):
+        if 'location' in p_args:
             args['location'] = p_args['location']
 
         rtn = self.request('/account/update_profile', args)
@@ -332,7 +336,8 @@ class Main(Protocol):
 
     def unfollow(self, screen_name):
         self.log.debug('Unfollow to %s' % screen_name)
-        rtn = self.request('/friendships/destroy', {'screen_name': screen_name})
+        rtn = self.request('/friendships/destroy',
+                           {'screen_name': screen_name})
         return self.json_to_profile(rtn)
 
     def block(self, screen_name):
@@ -347,19 +352,22 @@ class Main(Protocol):
 
     def search(self, query, count=STATUSPP):
         self.log.debug('Searching: %s' % query)
-        rtn = self.request('/search',{'q': query, 'rpp': count},
-            base_url=self.urls['search'])
+        rtn = self.request('/search', {'q': query, 'rpp': count},
+                           base_url=self.urls['search'])
         return self.json_to_status(rtn['results'])
 
     def is_friend(self, user):
         self.log.debug('Testing friendship of %s against %s' % (self.uname, user))
         result = self.request('/friendships/show',
-            {'source_screen_name': self.uname, 'target_screen_name': user})
+                              {'source_screen_name': self.uname,
+                              'target_screen_name': user})
         return result['relationship']['target']['following']
         '''
         self.log.debug('Testing friendship with %s' % user)
-        result = self.request('/friendships/exists', {'screen_name_a': self.uname,
-            'screen_name_b': user}, format='xml')
+        result = self.request('/friendships/exists',
+                              {'screen_name_a': self.uname,
+                              'screen_name_b': user},
+                               format='xml')
         print result
         if result.find('true') > 0:
             return True
@@ -369,8 +377,9 @@ class Main(Protocol):
     def get_profile_image(self, user):
         self.log.debug('Getting profile image for %s' % (user))
         url = '/users/profile_image/%s' % user
-        result = self.request(url, {'screen_name': user, 'size': 'original'},
-            fmt='xml')
+        result = self.request(url,
+                              {'screen_name': user, 'size': 'original'},
+                              fmt='xml')
         #result = self.request('/users/profile_image',
         #    {'screen_name': user, 'size': 'original'}, fmt='xml')
         return result

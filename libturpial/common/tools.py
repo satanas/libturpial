@@ -10,6 +10,7 @@ import sys
 
 from libturpial.common import *
 
+
 def clean_bytecodes(root_path, logger=None):
     """Clean all .pyc y .pyo. This is intented to use by all UI interfaces"""
     if logger:
@@ -19,12 +20,13 @@ def clean_bytecodes(root_path, logger=None):
     for root, dirs, files in os.walk(path):
         for f in files:
             path = os.path.join(root, f)
-            if path.endswith('.pyc') or path.endswith('.pyo'): 
+            if path.endswith('.pyc') or path.endswith('.pyo'):
                 if logger:
                     logger.debug("Deleting %s" % path)
                 os.remove(path)
     if logger:
         logger.debug("Everything is clean now")
+
 
 def detect_os():
     """ Returns a string according to the OS host """
@@ -39,7 +41,9 @@ def detect_os():
     else:
         return OS_UNKNOWN
 
+
 def get_urls(text):
+    """Returns all URL patterns encountered in text"""
     urls = []
     forbidden = [')', '.']
     for item in URL_PATTERN.findall(text):
