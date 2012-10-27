@@ -17,10 +17,14 @@ We will be very graceful for your contributions.
 Feature support
 ---------------
 
-- Twitter API support
-- Identi.ca API support
+- Twitter API
+- Identi.ca API
 - HTTP and OAuth authentication
 - Proxy
+- Services for shorten URL and upload images
+- Multiple accounts
+- Image preview
+- Filtering expressions
 
 User Guide
 ----------
@@ -34,40 +38,23 @@ This part of the documentation begins with some background information about lib
    user/install
    user/quickstart
 
-Community Guide
----------------
-
-This part of the documentation details the libturpial ecosystem and our community.
-
-.. toctree::
-   :maxdepth: 1
-
-   contrib/faq
-   contrib/support
-   contrib/donate
-   contrib/contribute
-
 API Documentation
 -----------------
 
-This part of the documentation show you details about specific functions, methods and classes in libturpial.
+This part of the documentation shows you details about specific functions, methods and classes in libturpial.
 
 .. toctree::
    :maxdepth: 2
 
    api
 
-Developer Guide
----------------
+More information
+----------------
 
-If you want to contribute to the project, please read this part of the documentation.
+For more information about the development process, please go to:
 
-.. toctree::
-   :maxdepth: 1
+http://wiki.turpial.org.ve/dev:welcome
 
-   dev/todo
-   dev/authors
-   dev/write
 
 Indices and tables
 ==================
