@@ -28,7 +28,8 @@ from libturpial.api.services.showmedia import utils as showmediautils
 
 
 class Core:
-    """The main class of libturpial. This is the public interface for all methods
+    """The main core libturpial. This should be the only class you need to
+    instanciate to use libturpial.
     """
     def __init__(self, log_level=logging.DEBUG):
         logging.basicConfig(level=log_level)
@@ -128,7 +129,16 @@ class Core:
     ''' Microblogging '''
     def register_account(self, username, protocol_id,
                          password=None, auth=None):
-        """
+        """Register an account permanently. If the account doesn't exist it
+        create all the needed files to store the config.
+
+        :param str username: user account
+        :param str protocol_id: protocol id (see ProtocolType class for \
+                possible values)
+        :param str password: user password (only for Identi.ca accounts, \
+                Twitter accounts should receive None because it uses OAuth)
+        :param auth:
+        :returns: (str) The account id
         """
         self.log.debug('Registering account %s' % username)
         acc = self.accman.register(username, protocol_id, password, auth)
@@ -138,16 +148,26 @@ class Core:
         return acc
 
     def unregister_account(self, account_id, delete_all=False):
+        """Removes an account. If *delete_all* is **True** removes all the
+        config files asociated to that account.
+        """
         self.log.debug('Unregistering account %s' % account_id)
         return self.accman.unregister(account_id, delete_all)
 
     def load_registered_accounts(self):
+        """Loads into the account manager all stored accounts
+        """
         accounts = self.config.get_stored_accounts()
         for acc in accounts:
             self.log.debug('Registering account: %s' % acc)
             self.accman.load(acc)
 
     def register_column(self, column_id):
+        """Register a new column.
+
+        :param str column_id: A composite string by <username>-<account_id>-<column_name>
+        :returns: (Column) - The column registered
+        """
         count = len(self.reg_columns) + 1
         key = "column%s" % count
         self.config.write('Columns', key, column_id)

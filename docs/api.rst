@@ -45,6 +45,11 @@ Constants
 ---------
 
 .. autoattribute:: libturpial.common.ProtocolType
+
+.. data:: STATUSPP
+
+    Default value for the number of statuses fetched by request
+
 .. data:: OS_LINUX
 
     Constant to identify Linux based operating systems
@@ -80,6 +85,10 @@ Constants
 .. data:: URL_PATTERN
 
     Regex pattern to match URLs
+
+.. data:: ERROR_CODES
+
+    Dictionary with all error messages supported by libturpial
 
 Exceptions
 ----------

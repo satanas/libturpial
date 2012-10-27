@@ -8,7 +8,6 @@
 import re
 
 STATUSPP = 20
-ARG_SEP = '-%&%-'
 
 OS_LINUX = 'linux'
 OS_WINDOWS = 'windows'
