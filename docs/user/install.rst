@@ -10,7 +10,7 @@ libturpial needs this packages to work properly:
 
 * Python >= 2.5
 * simplejson >= 1.9.2
-* OAuth
+* OAuth >= 1.0.1
 
 Distribute
 ----------
@@ -42,6 +42,11 @@ Download the `tarball <https://github.com/Turpial/libturpial/tarball/master>`_::
     $ wget -c https://github.com/Turpial/libturpial/tarball/master
 
 Once you have a copy of the source, you can embed it in your Python package,
-or install it into your site-packages easily::
+or install it into your site-packages easily. If you just want to use libturpial::
 
     $ python setup.py install
+
+Or if you want to hack libturpial::
+
+    $ python setup.py develop
+
