@@ -28,7 +28,8 @@ from libturpial.api.services.showmedia import utils as showmediautils
 
 
 class Core:
-    '''Turpial core'''
+    """The main class of libturpial. This is the public interface for all methods
+    """
     def __init__(self, log_level=logging.DEBUG):
         logging.basicConfig(level=log_level)
 
@@ -127,6 +128,8 @@ class Core:
     ''' Microblogging '''
     def register_account(self, username, protocol_id,
                          password=None, auth=None):
+        """
+        """
         self.log.debug('Registering account %s' % username)
         acc = self.accman.register(username, protocol_id, password, auth)
         if not acc:

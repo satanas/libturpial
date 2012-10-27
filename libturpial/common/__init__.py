@@ -24,8 +24,8 @@ URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]
 
 
 class ProtocolType:
-    TWITTER = 'twitter'
-    IDENTICA = 'identica'
+    TWITTER = 'twitter' #: Twitter
+    IDENTICA = 'identica' #: Identica
 
 
 class StatusColumn:
