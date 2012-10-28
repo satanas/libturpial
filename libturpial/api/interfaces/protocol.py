@@ -94,15 +94,14 @@ class Protocol(TurpialHTTP):
         text = status['text']
 
         for url in get_urls(text):
-            entities['urls'].append(Entity(url, url, url))
+            entities['urls'].append(Entity(self.account_id, url, url, url))
 
         for item in HASHTAG_PATTERN.findall(text):
             url = "%s/%s" % (self.urls['hashtags'], item[1:])
-            entities['hashtags'].append(Entity(url, item, item))
+            entities['hashtags'].append(Entity(self.account_id, url, item, item))
 
         for item in MENTION_PATTERN.findall(text):
-            url = "%s%s%s" % (item[1:], ARG_SEP, self.account_id)
-            entities['mentions'].append(Entity(url, item, item))
+            entities['mentions'].append(Entity(self.account_id, item[1:], item, item))
         return entities
 
     def get_source(self, source):

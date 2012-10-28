@@ -221,9 +221,9 @@ class Main(Protocol):
             }
             for mention in tweet['entities']['user_mentions']:
                 text = '@' + mention['screen_name']
-                url = "%s%s%s" % (mention['screen_name'], ARG_SEP,
-                                  self.account_id)
-                entities['mentions'].append(Entity(url, text, text))
+                entities['mentions'].append(Entity(self.account_id,
+                                            mention['screen_name'], text,
+                                            text))
 
             for url in tweet['entities']['urls']:
                 try:
@@ -236,19 +236,21 @@ class Main(Protocol):
                 except KeyError:
                     display_url = url['url']
 
-                entities['urls'].append(Entity(expanded_url, display_url,
-                                        url['url']))
+                entities['urls'].append(Entity(self.account_id, expanded_url,
+                                        display_url, url['url']))
 
             if 'media' in tweet['entities']:
                 for url in tweet['entities']['media']:
                     display_url = 'http://' + url['display_url']
-                    entities['urls'].append(Entity(url['media_url'],
-                                            display_url, url['url']))
+                    entities['urls'].append(Entity(self.account_id,
+                                            url['media_url'], display_url,
+                                            url['url']))
 
             for ht in tweet['entities']['hashtags']:
                 text = '#' + ht['text']
                 url = "%s%s" % (self.urls['hashtags'], ht['text'])
-                entities['hashtags'].append(Entity(url, text, text))
+                entities['hashtags'].append(Entity(self.account_id, url, text,
+                                            text))
         else:
             entities = Protocol.get_entities(self, tweet)
         return entities
