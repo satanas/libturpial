@@ -30,6 +30,40 @@ from libturpial.api.services.showmedia import utils as showmediautils
 class Core:
     """The main core libturpial. This should be the only class you need to
     instanciate to use libturpial.
+
+    Most important params used in Core are:
+
+    * account_id: A composite string formed by the **username** and the **protocol_id**
+    * column:id: A composite string formed by **account_id** and the **column-name**
+
+    Examples of account_id:
+
+    >>> my_twitter_account = 'foo-twitter'
+    >>> my_identica_account = 'foo-identica'
+
+    Example of column_id:
+
+    >>> twitter_timeline = 'foo-twitter-timeline'
+    >>> identica_replies = 'foo-identica-replies'
+
+    Most of Core methods return a
+    :class:`libturpial.api.models.reponse.Response` object. If request is
+    successful error code will be zero an **items** attribute will hold the
+    response for the request. Otherwise error code will be greater than zero
+    and errmsg will hold a string with the error message.
+
+    On errors not related to the request methods will return an exception.
+
+    >>> response = c.get_own_profile('foo-twitter')
+    >>> if response.code > 0:
+    >>>     raise Exception, response.errmsg
+    >>> 
+    >>> value = response.items
+
+    If the request returns an array, you can iterate over the elements with:
+
+    >>> for v in value:
+    >>>     print v
     """
     def __init__(self, log_level=logging.DEBUG):
         logging.basicConfig(level=log_level)
@@ -129,16 +163,16 @@ class Core:
     ''' Microblogging '''
     def register_account(self, username, protocol_id,
                          password=None, auth=None):
-        """Register an account permanently. If the account doesn't exist it
-        create all the needed files to store the config.
+        """Register an account for the user *username* and the protocol
+        *protocol_id* (see :class:`libturpial.common.ProtocolType` for
+        possible values). *password* is neccessary only for Identi.ca accounts,
+        Twitter accounts receive None because they use OAuth. **auth** is not
+        used anymore (left only for backward compatibility).
 
-        :param str username: user account
-        :param str protocol_id: protocol id (see ProtocolType class for \
-                possible values)
-        :param str password: user password (only for Identi.ca accounts, \
-                Twitter accounts should receive None because it uses OAuth)
-        :param auth:
-        :returns: (str) The account id
+        If the account doesn't exist it will create all the needed files to
+        store the config.
+
+        Returns a string with the id of the account registered.
         """
         self.log.debug('Registering account %s' % username)
         acc = self.accman.register(username, protocol_id, password, auth)
@@ -148,14 +182,14 @@ class Core:
         return acc
 
     def unregister_account(self, account_id, delete_all=False):
-        """Removes an account. If *delete_all* is **True** removes all the
-        config files asociated to that account.
+        """Removes an account form config. If *delete_all* is **True** removes 
+        all the config files asociated to that account.
         """
         self.log.debug('Unregistering account %s' % account_id)
         return self.accman.unregister(account_id, delete_all)
 
     def load_registered_accounts(self):
-        """Loads into the account manager all stored accounts
+        """Loads all stored accounts
         """
         accounts = self.config.get_stored_accounts()
         for acc in accounts:
@@ -163,10 +197,7 @@ class Core:
             self.accman.load(acc)
 
     def register_column(self, column_id):
-        """Register a new column.
-
-        :param str column_id: A composite string by <username>-<account_id>-<column_name>
-        :returns: (Column) - The column registered
+        """Register the *column_id* column and returns a :class:`Column` object
         """
         count = len(self.reg_columns) + 1
         key = "column%s" % count
@@ -180,6 +211,8 @@ class Core:
         return temp
 
     def unregister_column(self, column_id):
+        """Removes the column *column_id* from config.
+        """
         index = 0
         to_store = {}
         for col in self.reg_columns:
@@ -191,17 +224,31 @@ class Core:
         self.load_registered_columns()
 
     def load_registered_columns(self):
+        """Reads the config to load all stored columns
+        """
         self.reg_columns = self.config.get_stored_columns()
 
-    ''' list_* methods returns arrays of string '''
     def list_accounts(self):
+        """Returns an array of registered accounts. For example:
+
+        >>> ['foo-twitter', 'foo-identica']
+        """
         return self.accman.list()
 
     def list_protocols(self):
+        """Returns an array of supported protocols. For example:
+
+        >>> ['twitter', 'identica']
+
+        See :class:`libturpial.common.ProtocolType` for more information
+        """
         return [ProtocolType.TWITTER, ProtocolType.IDENTICA]
 
     ''' all_* methods returns arrays of objects '''
     def all_accounts(self):
+        """Returns all registered accounts as an array of
+        :class:`libturpial.api.models.Account` objects
+        """
         return self.accman.get_all()
 
     def name_as_id(self, acc_id):
@@ -211,6 +258,10 @@ class Core:
             return acc_id
 
     def all_columns(self):
+        """Returns a dictionary with all registered columns per account. Example:
+
+        >>> {'foo-twitter': ['timeline', 'replies', 'direct', 'sent', 'favorites']}
+        """
         columns = {}
         for account in self.all_accounts():
             columns[account.id_] = {}
@@ -227,6 +278,9 @@ class Core:
         return columns
 
     def all_registered_columns(self):
+        """Returns an array of :class:`libturpial.api.models.Column` objects
+        per column registered
+        """
         return self.reg_columns
 
     def change_login_status(self, acc_id, status):
@@ -236,6 +290,36 @@ class Core:
             return self.__handle_exception(exc)
 
     def login(self, acc_id):
+        """Starts login sequence for account *acc_id*. Returns a
+        :class:`libturpial.api.models.response.Response` object.
+
+        On success, response item will contain a
+        :class:`libturpial.api.models.auth_object.AuthObject` object. With this
+        object you have to validate if the account requires authorization or not.
+        On **True** (needs OAuth authorization), you need to open a browser with
+        the URL pointed by **AuthObject**, user must authorize Turpial and then
+        write back the PIN returned by the service. After getting the PIN you can
+        continue the process with the method
+        :meth:`libturpial.api.code.Core.authorize_oauth_token`. If the account
+        doesn't require authorization you must continue with the
+        :meth:`libturpial.api.core.Core.auth` method.
+
+        On error, response code will be greater than zero.
+
+        >>> acc_id = 'foo-twitter'
+        >>> response = c.login(acc_id)
+        >>> if response.code > 0:
+        >>>     raise Exception
+        >>> 
+        >>> auth_obj = response.items
+        >>> # Validates if account needs authorization
+        >>> if auth_obj.must_auth():
+        >>>     print "Visit %s, authorize Turpial and write back the pin" % auth_obj.url
+        >>>     pin = raw_input('Pin: ')
+        >>>     c.core.authorize_oauth_token(acc_id, pin)
+        >>> 
+        >>> # Continue with the authentication process
+        """
         self.log.debug('Starting login sequence with %s' % acc_id)
         try:
             account = self.accman.get(acc_id, False)
@@ -249,6 +333,12 @@ class Core:
             return self.__handle_exception(exc)
 
     def authorize_oauth_token(self, acc_id, pin):
+        """Authorize an OAuth token for the account *account_id* with the given
+        *pin*. Returns a
+        :class:`libturpial.api.models.response.Response` object. You need to
+        validate response code because on success response items will be
+        **None**
+        """
         self.log.debug('Authorizating OAuth token for %s' % acc_id)
         try:
             account = self.accman.get(acc_id, False)
@@ -260,6 +350,12 @@ class Core:
             return self.__handle_exception(exc)
 
     def auth(self, acc_id):
+        """Second step on login sequence (after authorization). This method will
+        authenticate account *acc_id* against service (Twitter, Identica, etc)
+        and returns a :class:`libturpial.api.models.response.Response` object.
+        On success response items will hold the id of the authenticated
+        account.
+        """
         try:
             account = self.accman.get(acc_id, False)
             if account.logged_in == LoginStatus.DONE:
