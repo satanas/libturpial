@@ -253,10 +253,7 @@ class TurpialHTTP:
         if len(args) > 0:
             s_args = []
             for k, v in args.items():
-                if (type(v) == str or type(v) == unicode):
-                    s_args.append((k, v.encode('utf-8')))
-                else:
-                    s_args.append((k, v))
+                s_args.append((k, v))
             encoded_args = urlencode(s_args)
 
         if method == "GET":
