@@ -147,7 +147,7 @@ class Main(Protocol):
         entities = Protocol.get_entities(self, status)
         for item in self.GROUP_PATTERN.findall(status['text']):
             url = "%s/%s" % (self.urls['groups'], item[1:])
-            entities['groups'].append(Entity(url, item, item))
+            entities['groups'].append(Entity(self.account_id, url, item, item))
         return entities
 
     def get_timeline(self, count=STATUSPP, since_id=None):
