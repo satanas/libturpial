@@ -285,7 +285,7 @@ class Main(Protocol):
         return self.json_to_profile(rtn)
 
     def update_status(self, text, in_reply_id=None):
-        self.log.debug(u'Updating status: %s' % text)
+        self.log.debug('Updating status: %s' % text)
         if in_reply_id:
             args = {'status': text, 'in_reply_to_status_id': in_reply_id}
         else:
