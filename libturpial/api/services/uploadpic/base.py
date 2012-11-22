@@ -22,7 +22,7 @@ except ImportError:
     MIME_FLAG = False
 
 
-class PicService(GenericService):
+class UploadService(GenericService):
     def __init__(self, host, base_url, provider):
         self.log = logging.getLogger('Service')
         self.host = host
