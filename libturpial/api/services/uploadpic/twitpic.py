@@ -13,13 +13,10 @@ TWITPIC_KEY = '57d17b42f1001ffc64bf22ceef98968d'
 
 class TwitpicPicUploader(PicService):
     def __init__(self):
-        PicService.__init__(self)
-        self.server = "api.twitpic.com"
-        self.base = "/2/upload.xml"
-        self.provider = 'https://api.twitter.com/1/account/verify_credentials.json'
+        PicService.__init__(self, "api.twitpic.com", "/2/upload.xml",
+            "https://api.twitter.com/1/account/verify_credentials.json")
 
-    def do_service(self, filepath, message, protocol,
-                   username=None, password=None):
+    def do_service(self, account, filepath, message):
         try:
             _image = self._open_file(filepath)
         except:
@@ -34,8 +31,8 @@ class TwitpicPicUploader(PicService):
             ('message', message),
         )
         try:
-            resp = self._upload_pic(self.server, self.base,
-                                    fields, files, protocol)
+            resp = self._upload_pic(account, fields, files)
+            print resp
             link = self._parse_xml('url', resp)
             return ServiceResponse(link)
         except Exception, error:
