@@ -29,7 +29,7 @@ class UploadService(GenericService):
         self.base_url = base_url
         self.provider = provider
 
-    def _upload_pic(self, account, fields, files):
+    def _upload_pic(self, account, fields, files, custom_headers={}):
         """
         Post fields and files to an http host as multipart/form-data.
         fields is a sequence of (name, value) elements for regular form fields.
@@ -44,6 +44,8 @@ class UploadService(GenericService):
             'User-Agent': 'Turpial',
             'Content-Type': content_type
         }
+
+        headers = dict(headers.items() + custom_headers.items())
 
         httpreq = TurpialHTTPRequest(method='GET', uri=self.provider)
         httpresp = account.auth_http_request(httpreq, {})
