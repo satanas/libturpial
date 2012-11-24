@@ -38,4 +38,4 @@ class TwitpicUploader(UploadService):
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
             return ServiceResponse(err=True,
-                                   err_msg=_('Problem uploading pic'))
+                                   err_msg='Problem uploading pic')

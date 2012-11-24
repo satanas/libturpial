@@ -35,4 +35,4 @@ class YfrogUploader(UploadService):
             return ServiceResponse(link)
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
-            return ServiceResponse(err=True, err_msg=_('Problem uploading pic'))
+            return ServiceResponse(err=True, err_msg='Problem uploading pic')
