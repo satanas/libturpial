@@ -15,12 +15,12 @@ from libturpial.api.services.uploadpic.mobypicture import MobypictureUploader
 
 
 PIC_SERVICES = {
-    'twitpic': TwitpicUploader(),
+    'lockerz': LockerzUploader(),
     'yfrog': YfrogUploader(),
+    'twitpic': TwitpicUploader(),
     'img.ly': ImglyUploader(),
     'imgur': ImgurUploader(),
     'mobypicture': MobypictureUploader(),
     'posterous': PosterousUploader(),
     'twitgoo': TwitgooUploader(),
-    'lockerz': LockerzUploader(),
 }
