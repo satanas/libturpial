@@ -84,6 +84,7 @@ ERROR_CODES = {
     812: "There are no URLs to short",
     813: "That user is not following you. You cannot send messages",
     814: "That message is too long, it looks like a testament",
+    815: "URL already short",
 
     900: "Feature not implemented yet",
     999: "Unknown error",
