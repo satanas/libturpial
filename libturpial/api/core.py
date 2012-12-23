@@ -635,7 +635,9 @@ class Core:
             account = self.accman.get(str(acc_id))
             basename = "%s-%s-profile-image" % (acc_id, user)
             img_path = os.path.join(account.config.imgdir, basename)
-            if not os.path.isfile(img_path):
+            if os.path.isfile(img_path):
+                self.log.debug('Getting profile image for %s from cache' % user)
+            else:
                 fd = open(img_path, 'w')
                 fd.write(account.get_profile_image(str(user)))
                 fd.close()
