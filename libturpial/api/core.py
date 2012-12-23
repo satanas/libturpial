@@ -138,6 +138,8 @@ class Core:
             response = Response(code=811)
         elif _type == NoURLException:
             response = Response(code=812)
+        elif _type == AlreadyShortURLException:
+            response = Response(code=815)
         else:
             response = Response(code=999)
 
@@ -646,26 +648,36 @@ class Core:
     def short_url(self, url):
         service = self.config.read('Services', 'shorten-url')
         try:
-            urlshorter = URL_SERVICES[service].do_service(str(url))
-            return Response(urlshorter.response)
+            # Validate already shorten URLs
+            if os.path.split(url)[0].find(service) >= 0:
+                raise AlreadyShortURLException
+            urlshorter = URL_SERVICES[service]
+            resp = urlshorter.do_service(str(url))
+            return Response(resp.response)
         except Exception, exc:
             return self.__handle_exception(exc)
 
     def autoshort_url(self, message):
         message = str(message)
-        service = self.config.read('Services', 'shorten-url')
         try:
             all_urls = get_urls(message)
             if len(all_urls) == 0:
                 raise NoURLException
 
-            # TODO: Validate already shorten URLs
+            code = 0
             for url in all_urls:
-                urlshorter = URL_SERVICES[service].do_service(url)
-                message = message.replace(url, urlshorter.response)
-            return Response(message)
+                response = self.short_url(url)
+                if response.code == 0:
+                    message = message.replace(url, response.items)
+                elif response.code > 0 and code == 0:
+                    code = response.code
+            response = Response(message)
+            response.code = code
+            return response
         except Exception, exc:
-            return self.__handle_exception(exc)
+            response = self.__handle_exception(exc)
+            response.items = message
+            return response
 
     def get_media_content(self, url, acc_id):
         service = showmediautils.get_service_from_url(str(url))
