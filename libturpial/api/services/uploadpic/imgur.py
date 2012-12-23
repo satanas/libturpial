@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 
-"""Twitpic service"""
+"""Imgur service"""
 #
 # Author: Wil Alvarez (aka Satanas)
 
+import json
+import base64
+import urllib
 import traceback
 
 from libturpial.api.interfaces.service import ServiceResponse
 from libturpial.api.services.uploadpic.base import UploadService
 
-TWITPIC_KEY = '57d17b42f1001ffc64bf22ceef98968d'
+IMGUR_KEY = '710afc95df6a25864a9f7df6b6a0b103'
 
 
-class TwitpicUploader(UploadService):
+class ImgurUploader(UploadService):
     def __init__(self):
-        UploadService.__init__(self, "api.twitpic.com", "/2/upload.xml",
+        UploadService.__init__(self, "api.imgur.com", "/2/upload.json",
             "https://api.twitter.com/1/account/verify_credentials.json")
 
     def do_service(self, account, filepath, message):
@@ -23,17 +26,16 @@ class TwitpicUploader(UploadService):
         except:
             return self._error_opening_file(filepath)
 
-        files = (
-            ('media', self._get_pic_name(filepath), _image),
-        )
+        postdata = {"key": IMGUR_KEY,
+            "image":base64.b64encode(_image),
+            "caption":message}
+        data = urllib.urlencode(postdata)
 
-        fields = (
-            ('key', TWITPIC_KEY),
-            ('message', message),
-        )
         try:
-            resp = self._upload_pic(account, fields, files)
-            link = self._parse_xml('url', resp)
+            fetch_url = "http://%s%s" % (self.host, self.base_url)
+            resp = urllib.urlopen(fetch_url, data)
+            resp_json = json.loads(resp.read())
+            link = resp_json['upload']['links'].get('imgur_page')
             return ServiceResponse(link)
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Twitpic service"""
+"""Posterous service"""
 #
 # Author: Wil Alvarez (aka Satanas)
 
@@ -9,12 +9,10 @@ import traceback
 from libturpial.api.interfaces.service import ServiceResponse
 from libturpial.api.services.uploadpic.base import UploadService
 
-TWITPIC_KEY = '57d17b42f1001ffc64bf22ceef98968d'
 
-
-class TwitpicUploader(UploadService):
+class PosterousUploader(UploadService):
     def __init__(self):
-        UploadService.__init__(self, "api.twitpic.com", "/2/upload.xml",
+        UploadService.__init__(self, "posterous.com", "/api2/upload.xml",
             "https://api.twitter.com/1/account/verify_credentials.json")
 
     def do_service(self, account, filepath, message):
@@ -28,7 +26,6 @@ class TwitpicUploader(UploadService):
         )
 
         fields = (
-            ('key', TWITPIC_KEY),
             ('message', message),
         )
         try:

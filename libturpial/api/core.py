@@ -21,6 +21,7 @@ from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
 from libturpial.api.models.accountmanager import AccountManager
 from libturpial.api.services.shorturl import URL_SERVICES
+from libturpial.api.services.uploadpic import PIC_SERVICES
 from libturpial.api.services.showmedia import SHOWMEDIA_SERVICES
 from libturpial.api.services.showmedia import utils as showmediautils
 
@@ -374,6 +375,11 @@ class Core:
 
     def get_column_statuses(self, acc_id, col_id,
                             count=STATUSPP, since_id=None):
+        """Fetch the statuses for the account *acc_id* and the column *col_id*.
+        *count* let you specify how many statuses do you want to fetch, values
+        range goes from 0-200. If *since_id* is not **None** libturpial will
+        only fetch statuses newer than that.
+        """
         try:
             account = self.accman.get(acc_id)
             if col_id == ColumnType.TIMELINE:
@@ -399,6 +405,10 @@ class Core:
             return self.__handle_exception(exc)
 
     def get_public_timeline(self, acc_id, count=STATUSPP, since_id=None):
+        """Fetch the public timeline for the service associated to the
+        account *acc_id*. *count* and *since_id* work in the same way
+        that in :meth:`libturpial.api.core.Core.get_column_statuses`
+        """
         try:
             account = self.accman.get(acc_id, False)
             return Response(account.get_public_timeline(count, since_id))
@@ -663,6 +673,19 @@ class Core:
             return service.do_service(str(url))
         except Exception, exc:
             return self.__handle_exception(exc)
+
+    def list_upload_pic_services(self):
+        return PIC_SERVICES.keys()
+
+    def upload_pic(self, acc_id, filepath, message):
+        service = self.config.read('Services', 'upload-pic')
+        try:
+            account = self.accman.get(str(acc_id))
+            uploader = PIC_SERVICES[service].do_service(account, filepath, message)
+            return Response(uploader.response)
+        except Exception, exc:
+            return self.__handle_exception(exc)
+
 
     ''' Configuration '''
     def has_stored_passwd(self, acc_id):

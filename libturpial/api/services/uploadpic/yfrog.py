@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Twitpic service"""
+"""Yfrog service"""
 #
 # Author: Wil Alvarez (aka Satanas)
 
@@ -9,13 +9,12 @@ import traceback
 from libturpial.api.interfaces.service import ServiceResponse
 from libturpial.api.services.uploadpic.base import UploadService
 
-TWITPIC_KEY = '57d17b42f1001ffc64bf22ceef98968d'
+YFROG_KEY = '189ACHINb967317adad418caebd9a22615d00cb7'
 
-
-class TwitpicUploader(UploadService):
+class YfrogUploader(UploadService):
     def __init__(self):
-        UploadService.__init__(self, "api.twitpic.com", "/2/upload.xml",
-            "https://api.twitter.com/1/account/verify_credentials.json")
+        UploadService.__init__(self, "yfrog.com", "/api/xauth_upload",
+            "https://api.twitter.com/1/account/verify_credentials.xml")
 
     def do_service(self, account, filepath, message):
         try:
@@ -28,14 +27,12 @@ class TwitpicUploader(UploadService):
         )
 
         fields = (
-            ('key', TWITPIC_KEY),
-            ('message', message),
+            ('key', YFROG_KEY),
         )
         try:
             resp = self._upload_pic(account, fields, files)
-            link = self._parse_xml('url', resp)
+            link = self._parse_xml('mediaurl', resp)
             return ServiceResponse(link)
         except Exception, error:
             self.log.debug("Error: %s\n%s" % (error, traceback.print_exc()))
-            return ServiceResponse(err=True,
-                                   err_msg='Problem uploading pic')
+            return ServiceResponse(err=True, err_msg='Problem uploading pic')

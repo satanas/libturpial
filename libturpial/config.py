@@ -45,7 +45,7 @@ APP_CFG = {
     },
     'Services':{
         'shorten-url': 'is.gd',
-        'upload-pic': 'TwitPic',
+        'upload-pic': 'twitpic',
     },
     'Browser':{
         'cmd': ''

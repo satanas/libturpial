@@ -11,9 +11,9 @@ import httplib
 import urllib2
 import logging
 
-from libturpial.api.interfaces.http import TurpialHTTPRequest
 from libturpial.api.interfaces.service import GenericService
 from libturpial.api.interfaces.service import ServiceResponse
+from libturpial.api.interfaces.http import TurpialHTTPRequest
 
 try:
     import mimetypes
@@ -22,11 +22,14 @@ except ImportError:
     MIME_FLAG = False
 
 
-class PicService(GenericService):
-    def __init__(self):
+class UploadService(GenericService):
+    def __init__(self, host, base_url, provider):
         self.log = logging.getLogger('Service')
+        self.host = host
+        self.base_url = base_url
+        self.provider = provider
 
-    def _upload_pic(self, host, upload_url, fields, files, protocol=None):
+    def _upload_pic(self, account, fields, files, custom_headers={}):
         """
         Post fields and files to an http host as multipart/form-data.
         fields is a sequence of (name, value) elements for regular form fields.
@@ -35,29 +38,25 @@ class PicService(GenericService):
         Return the server's response page.
         """
         content_type, body = self._encode_multipart_formdata(fields, files)
-        h = httplib.HTTPConnection(host)
+        h = httplib.HTTPConnection(self.host)
 
         headers = {
             'User-Agent': 'Turpial',
             'Content-Type': content_type
         }
 
-        if protocol:
-            if self.provider[-4:] == '.xml':
-                protocol.change_format('xml')
-            httpreq = TurpialHTTPRequest(method='GET', uri=self.provider)
-            httpresp = protocol.auth_http_request(httpreq)
-            auth_head = httpresp.headers['Authorization']
-            auth_head = auth_head.replace('OAuth realm=""',
-                                          'OAuth realm="http://api.twitter.com/"')
+        headers = dict(headers.items() + custom_headers.items())
 
-            headers['X-Verify-Credentials-Authorization'] = auth_head
-            headers['X-Auth-Service-Provider'] = self.provider
+        httpreq = TurpialHTTPRequest(method='GET', uri=self.provider)
+        httpresp = account.auth_http_request(httpreq, {})
+        auth_head = httpresp.headers['Authorization']
+        auth_head = auth_head.replace('OAuth realm=""',
+                                      'OAuth realm="http://api.twitter.com/"')
 
-            if self.provider[-4:] == '.xml':
-                protocol.change_format('json')
+        headers['X-Verify-Credentials-Authorization'] = auth_head
+        headers['X-Auth-Service-Provider'] = self.provider
 
-        h.request('POST', upload_url, body, headers)
+        h.request('POST', self.base_url, body, headers)
         res = h.getresponse()
         return res.read()
 
