@@ -147,7 +147,7 @@ class Main(Protocol):
         entities = Protocol.get_entities(self, status)
         for item in self.GROUP_PATTERN.findall(status['text']):
             url = "%s/%s" % (self.urls['groups'], item[1:])
-            entities['groups'].append(Entity(url, item, item))
+            entities['groups'].append(Entity(self.account_id, url, item, item))
         return entities
 
     def get_timeline(self, count=STATUSPP, since_id=None):
@@ -285,7 +285,7 @@ class Main(Protocol):
         return self.json_to_profile(rtn)
 
     def update_status(self, text, in_reply_id=None):
-        self.log.debug(u'Updating status: %s' % text)
+        self.log.debug('Updating status: %s' % text)
         if in_reply_id:
             args = {'status': text, 'in_reply_to_status_id': in_reply_id}
         else:
