@@ -384,7 +384,10 @@ class Core:
         """
         try:
             account = self.accman.get(acc_id)
-            if col_id == ColumnType.TIMELINE:
+            if col_id.find(ColumnType.SEARCH) == 0:
+                criteria = col_id[len(ColumnType.SEARCH) + 1:]
+                rtn = account.search(criteria, count)
+            elif col_id == ColumnType.TIMELINE:
                 rtn = self.__apply_filters(account.get_timeline(count, since_id))
             elif col_id == ColumnType.REPLIES:
                 rtn = account.get_replies(count, since_id)
