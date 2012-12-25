@@ -123,7 +123,8 @@ class Main(Protocol):
             in_reply_to_user = None
             if 'in_reply_to_status_id' in post and post['in_reply_to_status_id']:
                 in_reply_to_id = post['in_reply_to_status_id']
-                in_reply_to_user = post['in_reply_to_screen_name']
+                if 'in_reply_to_screen_name' in post:
+                    in_reply_to_user = post['in_reply_to_screen_name']
 
             fav = False
             if 'favorited' in post:
@@ -562,10 +563,11 @@ class Main(Protocol):
         rtn = self.request('/report_spam', {'screen_name': screen_name})
         return self.json_to_profile(rtn)
 
-    def search(self, query, count=STATUSPP):
+    def search(self, query, count=STATUSPP, since_id=None):
         self.log.debug('Searching: %s' % query)
-        rtn = self.request('/search', {'q': query, 'rpp': count},
-                           base_url=self.urls['search'])
+        args = self.__build_basic_args(count, since_id)
+        args['q'] = query
+        rtn = self.request('/search', args, base_url=self.urls['search'])
         return self.json_to_status(rtn['results'])
 
     def trends(self):

@@ -384,7 +384,10 @@ class Core:
         """
         try:
             account = self.accman.get(acc_id)
-            if col_id == ColumnType.TIMELINE:
+            if col_id.find(ColumnType.SEARCH) == 0:
+                criteria = col_id[len(ColumnType.SEARCH) + 1:]
+                rtn = account.search(criteria, count)
+            elif col_id == ColumnType.TIMELINE:
                 rtn = self.__apply_filters(account.get_timeline(count, since_id))
             elif col_id == ColumnType.REPLIES:
                 rtn = account.get_replies(count, since_id)
@@ -401,7 +404,6 @@ class Core:
                 if list_id is None:
                     raise IndexError
                 rtn = account.get_list_statuses(list_id, count, since_id)
-                print len(rtn), rtn
             return Response(rtn)
         except Exception, exc:
             return self.__handle_exception(exc)
@@ -630,13 +632,33 @@ class Core:
             return self.__handle_exception(exc)
 
     def get_profile_image(self, acc_id, user):
+        # Returns the path of profile image in original size
         try:
             account = self.accman.get(str(acc_id))
-            img_content = account.get_profile_image(str(user))
-            img_path = os.path.join(account.config.imgdir, str(user))
-            fd = open(img_path, 'w')
-            fd.write(img_content)
-            fd.close()
+            basename = "%s-%s-profile-image" % (acc_id, user)
+            img_path = os.path.join(account.config.imgdir, basename)
+            if os.path.isfile(img_path):
+                self.log.debug('Getting profile image for %s from cache' % user)
+            else:
+                fd = open(img_path, 'w')
+                fd.write(account.get_profile_image(str(user)))
+                fd.close()
+            return Response(img_path)
+        except Exception, exc:
+            return self.__handle_exception(exc)
+
+    def get_status_avatar(self, status):
+        # Returns the path of profile image for the user who post the status
+        # in avatar size (48x48)
+        try:
+            account = self.accman.get(status.account_id)
+            basename = "%s-%s-avatar-%s" % (status.account_id, status.username, os.path.basename(status.avatar))
+            img_path = os.path.join(account.config.imgdir, basename)
+            if not os.path.isfile(img_path):
+                handle = urllib2.urlopen(status.avatar)
+                fp = open(img_path, 'w')
+                fp.write(handle.read())
+                fp.close()
             return Response(img_path)
         except Exception, exc:
             return self.__handle_exception(exc)

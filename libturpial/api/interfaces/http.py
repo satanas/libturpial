@@ -61,7 +61,6 @@ class TurpialHTTP:
                                                                '..',
                                                                'certs',
                                                                'cacert.pem'))
-        print "     !!!! CERTIFICADOS !!!!!!", self.ca_certs_file
 
     def __oauth_sign_http_request(self, httpreq, args):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
@@ -88,7 +87,6 @@ class TurpialHTTP:
         port = 443
 
         ip = socket.getaddrinfo(host, port)[0][4][0]
-        print "=================== HOST: %s, IP: %s, PORT: %s" % (host, str(ip), str(port))
         sock = socket.socket()
         sock.connect((ip, port))
 
@@ -248,13 +246,13 @@ class TurpialHTTP:
             uri = "%s" % (uri)
         else:
             uri = "%s.%s" % (uri, fmt)
-        self.log.debug('%s Request to: %s' % (method, uri))
 
         if len(args) > 0:
             s_args = []
             for k, v in args.items():
                 s_args.append((k, v))
             encoded_args = urlencode(s_args)
+
 
         if method == "GET":
             if encoded_args:
@@ -263,6 +261,12 @@ class TurpialHTTP:
             argData = encoded_args
 
         strReq = "%s%s" % (uri, argStr)
+
+        if method == "GET":
+            self.log.debug('GET %s' % strReq)
+        else:
+            self.log.debug('POST %s with params: %s' % (uri, argData))
+
         req = TurpialHTTPRequest(argStr, headers, argData, encoded_args,
                                  method, strReq, uri, args)
         #print req

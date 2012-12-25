@@ -362,17 +362,6 @@ class Main(Protocol):
                               {'source_screen_name': self.uname,
                               'target_screen_name': user})
         return result['relationship']['target']['following']
-        '''
-        self.log.debug('Testing friendship with %s' % user)
-        result = self.request('/friendships/exists',
-                              {'screen_name_a': self.uname,
-                              'screen_name_b': user},
-                               format='xml')
-        print result
-        if result.find('true') > 0:
-            return True
-        elif result.find('false') > 0:
-            return False '''
 
     def get_profile_image(self, user):
         self.log.debug('Getting profile image for %s' % (user))

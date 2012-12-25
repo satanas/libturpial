@@ -66,6 +66,7 @@ class ColumnType:
     SENT = 'sent'
     FAVORITES = 'favorites'
     PUBLIC = 'public'
+    SEARCH = 'search'
 
 
 class LoginStatus:
