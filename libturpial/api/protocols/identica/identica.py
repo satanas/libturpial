@@ -350,7 +350,7 @@ class Main(Protocol):
         rtn = self.request('/blocks/destroy', {'screen_name': screen_name})
         return self.json_to_profile(rtn)
 
-    def search(self, query, count=STATUSPP):
+    def search(self, query, count=STATUSPP, since_id=None):
         self.log.debug('Searching: %s' % query)
         rtn = self.request('/search', {'q': query, 'rpp': count},
                            base_url=self.urls['search'])

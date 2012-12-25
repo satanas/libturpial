@@ -325,7 +325,7 @@ class Protocol(TurpialHTTP):
         '''
         raise NotImplementedError
 
-    def search(self, query, count):
+    def search(self, query, count, since_id=None):
         '''
         Execute a search query in server
         '''
