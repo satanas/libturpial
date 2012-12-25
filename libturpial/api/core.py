@@ -383,11 +383,12 @@ class Core:
         only fetch statuses newer than that.
         """
         try:
-            account = self.accman.get(acc_id)
             if col_id.find(ColumnType.SEARCH) == 0:
                 criteria = col_id[len(ColumnType.SEARCH) + 1:]
-                rtn = account.search(criteria, count)
-            elif col_id == ColumnType.TIMELINE:
+                return self.search(acc_id, criteria, count, since_id)
+
+            account = self.accman.get(acc_id)
+            if col_id == ColumnType.TIMELINE:
                 rtn = self.__apply_filters(account.get_timeline(count, since_id))
             elif col_id == ColumnType.REPLIES:
                 rtn = account.get_replies(count, since_id)
@@ -572,10 +573,13 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
 
-    def search(self, acc_id, query):
+    def search(self, acc_id, query, count=STATUSPP, since_id=None):
         try:
             account = self.accman.get(str(acc_id), False)
-            return Response(account.search(str(query)))
+            # The unquote is to ensure that the query is not url-encoded. The
+            # encoding will be done automatically by the http module
+            unquoted_query = urllib2.unquote(str(query))
+            return Response(account.search(unquoted_query, count, since_id))
         except Exception, exc:
             return self.__handle_exception(exc)
 
