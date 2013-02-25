@@ -42,6 +42,7 @@ class Protocol(TurpialHTTP):
     # ------------------------------------------------------------
     # Time related methods. Overwrite if necesary
     # ------------------------------------------------------------
+    # libturpial handles all timestamps in GMT-0
     def convert_time(self, str_datetime):
         ''' Take the date/time and convert it into Unix time'''
         # Tue Mar 13 00:12:41 +0000 2007 -> Tweets normales
@@ -67,20 +68,15 @@ class Protocol(TurpialHTTP):
         second = int(time_info[2])
 
         d = datetime.datetime(year, month, day, hour, minute, second)
-
-        i_hate_timezones = time.timezone
-        if (time.localtime().tm_isdst):
-            i_hate_timezones = time.altzone
-
-        dt = datetime.datetime(*d.timetuple()[:-3]) -\
-            datetime.timedelta(seconds=i_hate_timezones)
-        return dt.timetuple()
+        return d.timetuple()
 
     def get_str_time(self, strdate):
+        # GMT 0
         t = self.convert_time(strdate)
         return time.strftime('%b %d, %I:%M %p', t)
 
     def get_int_time(self, strdate):
+        # GMT 0
         t = self.convert_time(strdate)
         return time.mktime(t)
 
