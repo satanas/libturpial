@@ -115,8 +115,8 @@ class TurpialHTTP:
 
     def start_oauth(self, account_id):
         if self.auth_args['key'] != '' and self.auth_args['secret'] != '' and self.auth_args['verifier'] != '':
-            token = self.build_token(self.auth_args)
-            return AuthObject('done', account_id, token=token)
+            self.build_token(self.auth_args)
+            return AuthObject('done', account_id, token=self.token)
         else:
             url = self.request_token()
             return AuthObject('auth', account_id, url=url)
@@ -124,7 +124,6 @@ class TurpialHTTP:
     def build_token(self, auth):
         self.token = oauth.OAuthToken(auth['key'], auth['secret'])
         self.token.set_verifier(auth['verifier'])
-        return self.token
 
     def request_token(self):
         self.log.debug('Obtain a request token')
@@ -209,7 +208,7 @@ class TurpialHTTP:
             return AuthObject('basic', account_id, token=None)
 
     def set_proxy(self, proxy):
-        self.log.debug('Proxies detected: %s' % proxies)
+        self.log.debug('Proxies detected: %s' % proxy)
         proxy_url = {}
 
         if proxy.secure:

@@ -7,7 +7,7 @@
 
 import logging
 
-from libturpial.common import *
+from libturpial.common import LoginStatus
 from libturpial.config import AccountConfig
 from libturpial.api.models.account import Account
 
