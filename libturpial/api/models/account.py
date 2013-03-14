@@ -30,7 +30,7 @@ class Account:
         self.friends = None
         self.columns = []
         self.lists = None
-        self.token = None
+        #self.token = None
         self.logged_in = LoginStatus.NONE
         if config:
             self.config = config
@@ -73,13 +73,13 @@ class Account:
             self.config.dismiss()
 
     def authorize_oauth_token(self, pin):
-        self.token = self.authorize_token(pin)
-        self.store_token()
+        token = self.authorize_token(pin)
+        self.store_token(token)
 
-    def store_token(self):
-        self.config.write('OAuth', 'key', self.token.key)
-        self.config.write('OAuth', 'secret', self.token.secret)
-        self.config.write('OAuth', 'verifier', self.token.verifier)
+    def store_token(self, token):
+        self.config.write('OAuth', 'key', token.key)
+        self.config.write('OAuth', 'secret', token.secret)
+        self.config.write('OAuth', 'verifier', token.verifier)
 
     def delete_cache(self):
         self.config.delete_cache()

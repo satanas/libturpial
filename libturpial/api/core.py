@@ -7,7 +7,6 @@
 
 import os
 import ssl
-#import Queue
 import urllib2
 import logging
 import tempfile
@@ -69,7 +68,6 @@ class Core:
     def __init__(self, log_level=logging.DEBUG):
         logging.basicConfig(level=log_level)
 
-        #self.queue = Queue.Queue()
         self.log = logging.getLogger('Core')
         self.log.debug('Started')
         self.config = AppConfig()
