@@ -21,7 +21,6 @@ from libturpial.api.models.auth_object import AuthObject
 
 
 def _py26_or_greater():
-    import sys
     return sys.hexversion > 0x20600f0
 
 try:
@@ -227,7 +226,6 @@ class TurpialHTTP:
         '''Construir la petición HTTP'''
         argStr = ''
         headers = {}
-        response = ''
         argData = None
         encoded_args = ''
         method = "GET"
@@ -292,8 +290,10 @@ class TurpialHTTP:
         else:
             return response
 
-    def request(self, url, args={}, fmt=DEFAULT_FORMAT, base_url=None,
+    def request(self, url, args=None, fmt=DEFAULT_FORMAT, base_url=None,
                 secure=False, redirect=True):
+        if args is None:
+            args = {}
         if not base_url:
             base_url = self.urls['api']
         if secure:
@@ -307,16 +307,16 @@ class TurpialHTTP:
 
 
 class TurpialHTTPRequest:
-    def __init__(self, argStr='', headers={}, argData=None, encoded_args='',
-                 method="GET", strReq='', uri='', params={}):
+    def __init__(self, argStr='', headers=None, argData=None, encoded_args='',
+                 method="GET", strReq='', uri='', params=None):
 
         self.argStr = argStr
-        self.headers = headers
+        self.headers = {} if headers is None else headers
         self.argData = argData
         self.encoded_args = encoded_args
         self.method = method
         self.strReq = strReq
-        self.params = params
+        self.params = {} if params is None else params
         self.uri = uri
 
     def __str__(self):
@@ -330,7 +330,8 @@ class ProxyHTTPConnection(httplib.HTTPConnection):
 
     _ports = {'http': 80, 'https': 443}
 
-    def request(self, method, url, body=None, headers={}):
+    def request(self, method, url, body=None, headers=None):
+        headers = {} if headers is None else headers
         #request is called before connect, so can interpret url and get
         #real host/port to be used to make CONNECT request to proxy
         proto, rest = urllib.splittype(url)
@@ -358,7 +359,7 @@ class ProxyHTTPConnection(httplib.HTTPConnection):
         #expect a HTTP/1.0 200 Connection established
         response = self.response_class(self.sock, strict=self.strict,
                                        method=self._method)
-        (version, code, message) = response._read_status()
+        (_, code, message) = response._read_status()
         #probably here we can handle auth requests...
         if code != 200:
             #proxy returned and error, abort connection, and raise exception
@@ -386,8 +387,8 @@ class ProxyHTTPSConnection(ProxyHTTPConnection):
     def connect(self):
         ProxyHTTPConnection.connect(self)
         #make the sock ssl-aware
-        ssl = socket.ssl(self.sock, self.key_file, self.cert_file)
-        self.sock = httplib.FakeSocket(self.sock, ssl)
+        _ssl = socket.ssl(self.sock, self.key_file, self.cert_file)
+        self.sock = httplib.FakeSocket(self.sock, _ssl)
 
 
 class ConnectHTTPHandler(urllib2.HTTPHandler):
