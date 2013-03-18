@@ -22,7 +22,7 @@ class Protocol(TurpialHTTP):
     implementation '''
 
     def __init__(self, account_id, name, api_url, search_url, tags_url=None,
-                 groups_url=None, profiles_url=None, post_actions=[]):
+                 groups_url=None, profiles_url=None, post_actions=None):
         TurpialHTTP.__init__(self, post_actions)
 
         self.account_id = account_id
