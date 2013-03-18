@@ -23,7 +23,7 @@ class Main(Protocol):
     def __init__(self, username, account_id, auth):
         p_name = 'Twitter(%s)' % username
         Protocol.__init__(self, account_id, p_name,
-                          'http://api.twitter.com/1',
+                          'http://api.twitter.com/1.1',
                           'http://search.twitter.com',
                           'http://twitter.com/search?q=%23',
                           None,
@@ -302,7 +302,7 @@ class Main(Protocol):
 
     def get_lists(self, username):
         self.log.debug('Getting user lists')
-        rtn = self.request('/lists/all', {'screen_name': username})
+        rtn = self.request('/lists/list', {'screen_name': username})
         lists = self.json_to_list(rtn)
         self.log.debug('--Downloaded %i lists' % len(lists))
         return lists
