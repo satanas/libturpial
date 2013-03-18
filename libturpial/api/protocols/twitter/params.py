@@ -2,7 +2,7 @@
 List of twitter method names that require the use of POST
 '''
 
-POST_ACTIONS = [
+POST_ACTIONS = (
 
     # Status Methods
     'update',
@@ -27,7 +27,7 @@ POST_ACTIONS = [
     'retweet',
     'report_spam',
 
-]
+)
 
 CK = 'W2wNN0zVTOTCZuvCx87fpg'
 CS = 'S3JnWnhlNkxtU2JZRjBUZFN4UnZHR2xvUjdXSnlpZz'
