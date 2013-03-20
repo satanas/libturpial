@@ -401,6 +401,7 @@ class Core:
             else:
                 list_id = account.get_list_id(col_id)
                 if list_id is None:
+                    # TODO: Raise a Turpial exception
                     raise IndexError
                 rtn = account.get_list_statuses(list_id, count, since_id)
             return Response(rtn)

@@ -61,7 +61,7 @@ class TurpialHTTP:
                                                                'certs',
                                                                'cacert.pem'))
 
-    def __oauth_sign_http_request(self, httpreq, args):
+    def __oauth_sign_http_request(self, httpreq):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
                                                              token=self.token,
                                                              http_method=httpreq.method,
@@ -70,7 +70,6 @@ class TurpialHTTP:
         request.sign_request(self.sign_method_hmac_sha1,
                              self.consumer, self.token)
         httpreq.headers.update(request.to_header())
-        return httpreq
 
     def __basic_sign_http_request(self, httpreq, args):
         username = args['username']
@@ -78,7 +77,6 @@ class TurpialHTTP:
         if username:
             auth_info = b64encode("%s:%s" % (username, password))
             httpreq.headers["Authorization"] = "Basic " + auth_info
-        return httpreq
 
     def __validate_ssl_cert(self, request):
         req = request.split('://')[1]
@@ -271,10 +269,9 @@ class TurpialHTTP:
 
     def auth_http_request(self, httpreq, args):
         if self.oauth_support:
-            signed_httpreq = self.__oauth_sign_http_request(httpreq, args)
+            self.__oauth_sign_http_request(httpreq)
         else:
-            signed_httpreq = self.__basic_sign_http_request(httpreq, args)
-        return signed_httpreq
+            self.__basic_sign_http_request(httpreq, args)
 
     def fetch_http_resource(self, httpreq, fmt, redirect):
         req = urllib2.Request(httpreq.strReq, httpreq.argData, httpreq.headers)
@@ -302,8 +299,8 @@ class TurpialHTTP:
 
         request_url = "%s%s" % (base_url, url)
         httpreq = self.build_http_request(request_url, args, fmt)
-        authreq = self.auth_http_request(httpreq, self.auth_args)
-        return self.fetch_http_resource(authreq, fmt, redirect)
+        self.auth_http_request(httpreq, self.auth_args)
+        return self.fetch_http_resource(httpreq, fmt, redirect)
 
 
 class TurpialHTTPRequest:
@@ -311,12 +308,12 @@ class TurpialHTTPRequest:
                  method="GET", strReq='', uri='', params=None):
 
         self.argStr = argStr
-        self.headers = {} if headers is None else headers
+        self.headers = headers if headers is not None else {}
         self.argData = argData
         self.encoded_args = encoded_args
         self.method = method
         self.strReq = strReq
-        self.params = {} if params is None else params
+        self.params = params if params is not None else {}
         self.uri = uri
 
     def __str__(self):
@@ -331,9 +328,10 @@ class ProxyHTTPConnection(httplib.HTTPConnection):
     _ports = {'http': 80, 'https': 443}
 
     def request(self, method, url, body=None, headers=None):
-        headers = {} if headers is None else headers
         #request is called before connect, so can interpret url and get
         #real host/port to be used to make CONNECT request to proxy
+        if headers is None:
+            headers = {}
         proto, rest = urllib.splittype(url)
         if proto is None:
             raise ValueError("unknown URL type: %s" % url)
