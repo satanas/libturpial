@@ -2,7 +2,7 @@
 List of twitter method names that require the use of POST
 '''
 
-POST_ACTIONS = [
+POST_ACTIONS = (
 
     # Status Methods
     'update',
@@ -26,7 +26,7 @@ POST_ACTIONS = [
     'create',
 
     'retweet',
-]
+)
 
 #a582137ead001f08b58a2b47c5fae9e3
 

@@ -301,7 +301,7 @@ class Main(Protocol):
 
     def get_lists(self, username):
         self.log.debug('Getting user lists')
-        rtn = self.request('/lists/all', {'screen_name': username})
+        rtn = self.request('/lists/list', {'screen_name': username})
         lists = self.json_to_list(rtn)
         self.log.debug('--Downloaded %i lists' % len(lists))
         return lists
