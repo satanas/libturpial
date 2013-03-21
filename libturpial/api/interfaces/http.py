@@ -38,7 +38,9 @@ class TurpialHTTP:
     DEFAULT_FORMAT = 'json'
     TIMEOUT = 20
 
-    def __init__(self, base_url):
+    def __init__(self, base_url, username=None, password=None,
+                 consumer_key=None, consumer_secret=None, user_key=None,
+                 user_secret=None, verifier=None):
         self.base_url = base_url
 
         self.log = logging.getLogger('TurpialHTTP')
@@ -55,14 +57,10 @@ class TurpialHTTP:
             self.ca_certs_file = os.path.realpath(os.path.join(basedir,
                 '..', '..', 'certs', 'cacert.pem'))
 
-        self.key = None
-        self.secret = None
-        self.verifier = None
-        self.token = None
-        self.secret = None
-        self.username = None
-        self.password = None
-        self.ready = False
+        if consumer_key and consumer_secret and user_key and user_secret and verifier:
+            self.setup_for_oauth(consumer_key, consumer_secret, user_key, user_secret, verifier)
+        elif username and password:
+            self.setup_for_basic_auth(username, password)
 
     def __oauth_sign_http_request(self, httpreq):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
@@ -100,27 +98,20 @@ class TurpialHTTP:
 
         self.log.debug('Validated SSL cert for host: %s' % host)
 
-    def setup_for_oauth(self, key, secret, verifier):
-        self.key = key
-        self.secret = secret
-        self.verifier = verifier
-        self.build_token()
-
-
-        #if self.key is not None and self.secret is not None and self.verifier is not None:
+    def setup_for_oauth(self, consumer_key, consumer_secret, user_key, user_secret, verifier):
+        self.token = oauth.OAuthToken(user_key, user_secret)
+        self.token.set_verifier(verifier)
+        self.consumer = oauth.OAuthConsumer(consumer_key, consumer_secret)
 
     def setup_for_basic_auth(self, username, password):
+        self.token = None
+        self.consumer = None
         self.username = username
         self.password = password
 
     # ------------------------------------------------------------
     # OAuth Methods
     # ------------------------------------------------------------
-
-    def build_token(self):
-        self.token = oauth.OAuthToken(self.key, self.secret)
-        self.token.set_verifier(self.verifier)
-        self.consumer = oauth.OAuthConsumer(self.key, self.secret)
 
     def request_token(self):
         self.log.debug('Obtain a request token')
@@ -220,7 +211,7 @@ class TurpialHTTP:
             opener = urllib2.build_opener(ConnectHTTPSHandler(proxy=proxy_url))
         urllib2.install_opener(opener)
 
-    def build_http_request(self, uri, method, args, fmt):
+    def build_http_request(self, uri, method, args, _format):
         '''Construir la petición HTTP'''
         argStr = ''
         headers = {}
@@ -231,10 +222,10 @@ class TurpialHTTP:
             uri = "%s/%s" % (uri, args['id'])
             del args['id']
 
-        if fmt is None:
+        if _format is None:
             uri = "%s" % (uri)
         else:
-            uri = "%s.%s" % (uri, fmt)
+            uri = "%s.%s" % (uri, _format)
 
         if len(args) > 0:
             s_args = []
@@ -267,22 +258,23 @@ class TurpialHTTP:
         else:
             self.__basic_sign_http_request(httpreq)
 
-    def fetch_http_resource(self, httpreq, fmt, redirect):
+    def fetch_http_resource(self, httpreq, _format, redirect):
+        print httpreq.strReq, httpreq.argData, httpreq.headers
         req = urllib2.Request(httpreq.strReq, httpreq.argData, httpreq.headers)
         handle = None
         if redirect:
-            handle = urllib2.urlopen(req)
-        else:
             opener = urllib2.build_opener(RedirectHandler())
             handle = opener.open(req)
+        else:
+            handle = urllib2.urlopen(req)
         response = handle.read()
-        if fmt == 'json':
+        if _format == 'json':
             return json.loads(response)
         else:
             return response
 
-    def request(self, url, method='GET', args=None, fmt=DEFAULT_FORMAT, base_url=None,
-                secure=False, redirect=True):
+    def request(self, url, method='GET', args=None, _format=DEFAULT_FORMAT, base_url=None,
+                secure=False, redirect=False):
         if args is None:
             args = {}
         if not base_url:
@@ -292,11 +284,11 @@ class TurpialHTTP:
             self.__validate_ssl_cert(base_url)
 
         request_url = "%s%s" % (base_url, url)
-        httpreq = self.build_http_request(request_url, method, args, fmt)
+        httpreq = self.build_http_request(request_url, method, args, _format)
         print httpreq.headers
         self.auth_http_request(httpreq)
         print httpreq.headers
-        return self.fetch_http_resource(httpreq, fmt, redirect)
+        return self.fetch_http_resource(httpreq, _format, redirect)
 
 
 class TurpialHTTPRequest:
