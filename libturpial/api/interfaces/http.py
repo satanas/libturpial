@@ -273,7 +273,7 @@ class TurpialHTTP:
         else:
             return response
 
-    def request(self, url, method='GET', args=None, _format=DEFAULT_FORMAT, base_url=None,
+    def request(self, uri, method='GET', args=None, _format=DEFAULT_FORMAT, base_url=None,
                 secure=False, redirect=False):
         if args is None:
             args = {}
@@ -283,7 +283,7 @@ class TurpialHTTP:
             base_url = base_url.replace('http://', 'https://')
             self.__validate_ssl_cert(base_url)
 
-        request_url = "%s%s" % (base_url, url)
+        request_url = "%s%s" % (base_url, uri)
         httpreq = self.build_http_request(request_url, method, args, _format)
         print httpreq.headers
         self.auth_http_request(httpreq)
