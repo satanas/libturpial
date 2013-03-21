@@ -36,16 +36,17 @@ except ImportError:
 
 class TurpialHTTP:
     DEFAULT_FORMAT = 'json'
-    timeout = 20
+    TIMEOUT = 20
 
-    def __init__(self, post_actions, oauth_support=True):
-        self.urls = {}
-        self.auth_args = {'key': '', 'secret': '', 'verifier': ''}
+    def __init__(self, base_url, post_actions, oauth_support=True):
+        self.base_url = base_url
         self.post_actions = post_actions
+        self.oauth_support = oauth_support
+        self.auth_args = {'key': '', 'secret': '', 'verifier': ''}
+
         self.log = logging.getLogger('TurpialHTTP')
         # timeout in seconds
-        socket.setdefaulttimeout(self.timeout)
-        self.oauth_support = oauth_support
+        socket.setdefaulttimeout(self.TIMEOUT)
         self.token = None
         self.consumer = None
         self.sign_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
@@ -290,17 +291,17 @@ class TurpialHTTP:
         else:
             return response
 
-    def request(self, url, args=None, fmt=DEFAULT_FORMAT, base_url=None,
+    def request(self, uri, args=None, fmt=DEFAULT_FORMAT, base_url=None,
                 secure=False, redirect=True):
         if args is None:
             args = {}
         if not base_url:
-            base_url = self.urls['api']
+            base_url = self.base_url
         if secure:
             base_url = base_url.replace('http://', 'https://')
             self.__validate_ssl_cert(base_url)
 
-        request_url = "%s%s" % (base_url, url)
+        request_url = "%s%s" % (base_url, uri)
         httpreq = self.build_http_request(request_url, args, fmt)
         authreq = self.auth_http_request(httpreq, self.auth_args)
         return self.fetch_http_resource(authreq, fmt, redirect)

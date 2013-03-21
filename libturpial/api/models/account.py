@@ -14,15 +14,15 @@ from libturpial.api.protocols.identica import identica
 
 class Account:
     def __init__(self, username, account_id, protocol_id,
-                 password, auth, config=None):
+                 password, auth_info, config=None):
         self.id_ = account_id  # username-protocol_id
         self.username = username
         self.protocol_id = protocol_id
 
         if protocol_id == ProtocolType.TWITTER:
-            self.protocol = twitter.Main(username, self.id_, auth)
+            self.protocol = twitter.Main(username, self.id_, auth_info)
         elif protocol_id == ProtocolType.IDENTICA:
-            self.protocol = identica.Main(username, self.id_, auth)
+            self.protocol = identica.Main(username, self.id_, auth_info)
 
         self.profile = Profile()
         self.profile.username = username

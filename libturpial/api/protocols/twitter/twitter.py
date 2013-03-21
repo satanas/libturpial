@@ -23,11 +23,10 @@ class Main(Protocol):
     def __init__(self, username, account_id, auth):
         p_name = 'Twitter(%s)' % username
         Protocol.__init__(self, account_id, p_name,
-                          'http://api.twitter.com/1.1',
-                          'http://search.twitter.com',
-                          'http://twitter.com/search?q=%23',
-                          None,
-                          'http://www.twitter.com',
+                          api_url='http://api.twitter.com/1.1',
+                          search_url='http://search.twitter.com',
+                          hashtags_url='http://twitter.com/search?q=%23',
+                          profiles_url='http://www.twitter.com',
                           POST_ACTIONS)
 
         self.REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
