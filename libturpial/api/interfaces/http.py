@@ -14,6 +14,8 @@ import urllib2
 import httplib
 import logging
 
+import pdb
+
 from base64 import b64encode
 from urllib import urlencode
 
@@ -284,10 +286,11 @@ class TurpialHTTP:
             self.__validate_ssl_cert(base_url)
 
         request_url = "%s%s" % (base_url, uri)
+        pdb.set_trace()
         httpreq = self.build_http_request(request_url, method, args, _format)
-        print httpreq.headers
+        pdb.set_trace()
         self.auth_http_request(httpreq)
-        print httpreq.headers
+        pdb.set_trace()
         return self.fetch_http_resource(httpreq, _format, redirect)
 
 
