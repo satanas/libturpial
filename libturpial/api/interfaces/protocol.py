@@ -17,20 +17,20 @@ from libturpial.api.models.entity import Entity
 from libturpial.api.interfaces.http import TurpialHTTP
 
 
-class Protocol(TurpialHTTP):
+class Protocol:
     ''' Base class to define basic functions that must have any protocol
     implementation '''
 
-    def __init__(self, account_id, name, api_url, search_url, tags_url=None,
-                 groups_url=None, profiles_url=None, post_actions=[]):
-        TurpialHTTP.__init__(self, post_actions)
+    def __init__(self, account_id, name, api_url, search_url, hashtags_url=None,
+                 groups_url=None, profiles_url=None):
+        self.http = TurpialHTTP()
 
         self.account_id = account_id
 
         self.urls['api'] = api_url
         self.urls['search'] = search_url
-        if tags_url:
-            self.urls['hashtags'] = tags_url
+        if hashtags_url:
+            self.urls['hashtags'] = hashtags_url
         if tags_url:
             self.urls['groups'] = groups_url
         if tags_url:
