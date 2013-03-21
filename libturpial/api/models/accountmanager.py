@@ -92,6 +92,7 @@ class AccountManager:
         if (validate_login and account.logged_in == LoginStatus.DONE) or not validate_login:
             return account
         else:
+            # TODO: Raise a Turpial exception
             raise ZeroDivisionError
 
     def list(self):

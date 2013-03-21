@@ -21,9 +21,9 @@ class Protocol:
     ''' Base class to define basic functions that must have any protocol
     implementation '''
 
-    def __init__(self, account_id, name, api_url, search_url=None, hashtags_url=None,
-                 groups_url=None, profiles_url=None, post_actions=None):
-        self.http = TurpialHTTP(self, api_url, post_actions)
+    def __init__(self, account_id, name, api_url, search_url, hashtags_url=None,
+                 groups_url=None, profiles_url=None):
+        self.http = TurpialHTTP()
 
         self.account_id = account_id
 
