@@ -9,43 +9,29 @@ import os
 import ssl
 import sys
 import socket
-import urllib
 import urllib2
-import httplib
 import logging
-
-import pdb
-
-from base64 import b64encode
-from urllib import urlencode
-
-from libturpial.api.models.auth_object import AuthObject
-
-
-def _py26_or_greater():
-    return sys.hexversion > 0x20600f0
+import requests
 
 try:
     import oauth.oauth as oauth
 except:
     import oauth
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
 
 class TurpialHTTP:
-    DEFAULT_FORMAT = 'json'
     TIMEOUT = 20
+    FORMAT_XML = 'xml'
+    FORMAT_JSON = 'json'
 
     def __init__(self, base_url, username=None, password=None,
                  consumer_key=None, consumer_secret=None, user_key=None,
                  user_secret=None, verifier=None):
         self.base_url = base_url
+        self.proxies = {}
 
         self.log = logging.getLogger('TurpialHTTP')
+
         # timeout in seconds
         socket.setdefaulttimeout(self.TIMEOUT)
 
@@ -64,7 +50,7 @@ class TurpialHTTP:
         elif username and password:
             self.setup_for_basic_auth(username, password)
 
-    def __oauth_sign_http_request(self, httpreq):
+    def __sign_request_for_oauth(self, httpreq):
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
                                                              token=self.token,
                                                              http_method=httpreq.method,
@@ -74,7 +60,7 @@ class TurpialHTTP:
                              self.consumer, self.token)
         httpreq.headers.update(request.to_header())
 
-    def __basic_sign_http_request(self, httpreq):
+    def __sign_request_for_basic_auth(self, httpreq):
         auth_info = b64encode("%s:%s" % (self.username, self.password))
         httpreq.headers["Authorization"] = ''.join(["Basic ", auth_info])
 
@@ -188,38 +174,18 @@ class TurpialHTTP:
     '''
 
     # ------------------------------------------------------------
-    # Common Methods
+    # Main Methods
     # ------------------------------------------------------------
 
-    def start_login(self, account_id):
-        if self.oauth_support:
-            return self.start_oauth(account_id)
-        else:
-            return AuthObject('basic', account_id, token=None)
+    def set_proxy(self, host, port, username='', password='', https=False):
+        proxy_auth = ''
+        if username and password:
+            proxy_auth = "%s:%s@" % (username, password)
 
-    def set_proxy(self, proxy):
-        self.log.debug('Proxies detected: %s' % proxy)
-        proxy_url = {}
+        protocol = 'https' if https else 'http'
+        self.proxies[protocol] = "%s://%s%s:%s" % (protocol, proxy_auth, host, port)
 
-        if proxy.secure:
-            proxy_url['https'] = "%s:%d" % (proxy.server, proxy.port)
-        else:
-            proxy_url['http'] = "%s:%d" % (proxy.server, proxy.port)
-
-        if _py26_or_greater():
-            opener = urllib2.build_opener(urllib2.ProxyHandler(proxy_url),
-                                          urllib2.HTTPHandler)
-        else:
-            opener = urllib2.build_opener(ConnectHTTPSHandler(proxy=proxy_url))
-        urllib2.install_opener(opener)
-
-    def build_http_request(self, uri, method, args, _format):
-        '''Construir la petición HTTP'''
-        argStr = ''
-        headers = {}
-        argData = None
-        encoded_args = ''
-
+    def build_request(self, method, uri, args, _format, secure):
         if 'id' in args:
             uri = "%s/%s" % (uri, args['id'])
             del args['id']
@@ -229,54 +195,38 @@ class TurpialHTTP:
         else:
             uri = "%s.%s" % (uri, _format)
 
-        if len(args) > 0:
-            s_args = []
-            for k, v in args.items():
-                s_args.append((k, v))
-            encoded_args = urlencode(s_args)
+        return TurpialHTTPRequest(method, uri, params=args, secure=secure)
 
-
-        if method == "GET":
-            if encoded_args:
-                argStr = "?%s" % (encoded_args)
-        else:
-            argData = encoded_args
-
-        strReq = "%s%s" % (uri, argStr)
-
-        if method == "GET":
-            self.log.debug('GET %s' % strReq)
-        else:
-            self.log.debug('POST %s with params: %s' % (uri, argData))
-
-        req = TurpialHTTPRequest(argStr, headers, argData, encoded_args,
-                                 method, strReq, uri, args)
-        #print req
-        return req
-
-    def auth_http_request(self, httpreq):
+    def auth_request(self, httpreq):
         if self.token:
-            self.__oauth_sign_http_request(httpreq)
+            self.__sign_request_for_oauth(httpreq)
         else:
-            self.__basic_sign_http_request(httpreq)
+            self.__sign_request_for_basic_auth(httpreq)
 
-    def fetch_http_resource(self, httpreq, _format, redirect):
-        print httpreq.strReq, httpreq.argData, httpreq.headers
-        req = urllib2.Request(httpreq.strReq, httpreq.argData, httpreq.headers)
-        handle = None
-        if redirect:
-            opener = urllib2.build_opener(RedirectHandler())
-            handle = opener.open(req)
-        else:
-            handle = urllib2.urlopen(req)
-        response = handle.read()
-        if _format == 'json':
-            return json.loads(response)
-        else:
-            return response
+    def fetch_resource(self, httpreq):
+        if httpreq.method == 'GET':
+            req = requests.get(httpreq.uri, params=httpreq.params,
+                    headers=httpreq.headers, verify=httpreq.secure,
+                    proxies=self.proxies)
+        elif httpreq.method == 'POST':
+            req = requests.post(httpreq.uri, params=httpreq.params,
+                    headers=httpreq.headers, verify=httpreq.secure,
+                    proxies=self.proxies)
 
-    def request(self, uri, method='GET', args=None, _format=DEFAULT_FORMAT, base_url=None,
-                secure=False, redirect=False):
+        print req.url
+        if httpreq._format == self.FORMAT_JSON:
+            return req.json()
+        else:
+            return req.text
+
+    def get(self, uri, args=None, _format=FORMAT_JSON, base_url=None, secure=False):
+        self.request('GET', uri, args, _format, base_url, secure)
+
+    def post(self, uri, args=None, _format=FORMAT_JSON, base_url=None, secure=False):
+        self.request('POST', uri, args, _format, base_url, secure)
+
+    def request(self, method, uri, args=None, _format=FORMAT_JSON,
+            base_url=None, secure=False):
         if args is None:
             args = {}
         if not base_url:
@@ -286,134 +236,19 @@ class TurpialHTTP:
             self.__validate_ssl_cert(base_url)
 
         request_url = "%s%s" % (base_url, uri)
-        pdb.set_trace()
-        httpreq = self.build_http_request(request_url, method, args, _format)
-        pdb.set_trace()
-        self.auth_http_request(httpreq)
-        pdb.set_trace()
-        return self.fetch_http_resource(httpreq, _format, redirect)
+
+        httpreq = self.build_request(method, request_url, args, _format, secure)
+        self.auth_request(httpreq)
+        return self.fetch_resource(httpreq)
 
 
 class TurpialHTTPRequest:
-    def __init__(self, argStr='', headers=None, argData=None, encoded_args='',
-                 method="GET", strReq='', uri='', params=None):
+    def __init__(self, method, uri, headers=None, params=None,
+            _format=TurpialHTTP.FORMAT_JSON, secure=False):
 
-        self.argStr = argStr
-        self.headers = headers if headers is not None else {}
-        self.argData = argData
-        self.encoded_args = encoded_args
-        self.method = method
-        self.strReq = strReq
-        self.params = params if params is not None else {}
         self.uri = uri
-
-    def __str__(self):
-        return " method: %s\n encoded_args: %s\n argStr: %s\n argData: %s\n \
-headers: %s\n strReq: %s\n***" % (self.method, self.encoded_args,
-                                  self.argStr, self.argData,
-                                  self.headers, self.strReq)
-
-
-class ProxyHTTPConnection(httplib.HTTPConnection):
-
-    _ports = {'http': 80, 'https': 443}
-
-    def request(self, method, url, body=None, headers=None):
-        #request is called before connect, so can interpret url and get
-        #real host/port to be used to make CONNECT request to proxy
-        if headers is None:
-            headers = {}
-        proto, rest = urllib.splittype(url)
-        if proto is None:
-            raise ValueError("unknown URL type: %s" % url)
-        #get host
-        host, rest = urllib.splithost(rest)
-        #try to get port
-        host, port = urllib.splitport(host)
-        #if port is not defined try to get from proto
-        if port is None:
-            try:
-                port = self._ports[proto]
-            except KeyError:
-                raise ValueError("unknown protocol for: %s" % url)
-        self._real_host = host
-        self._real_port = port
-        httplib.HTTPConnection.request(self, method, url, body, headers)
-
-    def connect(self):
-        httplib.HTTPConnection.connect(self)
-        #send proxy CONNECT request
-        self.send("CONNECT %s:%d HTTP/1.0\r\n\r\n" % (self._real_host,
-                                                      self._real_port))
-        #expect a HTTP/1.0 200 Connection established
-        response = self.response_class(self.sock, strict=self.strict,
-                                       method=self._method)
-        (_, code, message) = response._read_status()
-        #probably here we can handle auth requests...
-        if code != 200:
-            #proxy returned and error, abort connection, and raise exception
-            self.close()
-            raise socket.error("Proxy connection failed: %d %s" %
-                               (code, message.strip()))
-        #eat up header block from proxy....
-        while True:
-            #should not use directly fp probablu
-            line = response.fp.readline()
-            if line == '\r\n':
-                break
-
-
-class ProxyHTTPSConnection(ProxyHTTPConnection):
-
-    default_port = 443
-
-    def __init__(self, host, port=None, key_file=None,
-                 cert_file=None, strict=None):
-        ProxyHTTPConnection.__init__(self, host, port)
-        self.key_file = key_file
-        self.cert_file = cert_file
-
-    def connect(self):
-        ProxyHTTPConnection.connect(self)
-        #make the sock ssl-aware
-        _ssl = socket.ssl(self.sock, self.key_file, self.cert_file)
-        self.sock = httplib.FakeSocket(self.sock, _ssl)
-
-
-class ConnectHTTPHandler(urllib2.HTTPHandler):
-
-    def __init__(self, proxy=None, debuglevel=0):
-        self.proxy = proxy
-        urllib2.HTTPHandler.__init__(self, debuglevel)
-
-    def do_open(self, http_class, req):
-        if self.proxy is not None:
-            req.set_proxy(self.proxy, 'http')
-        return urllib2.HTTPHandler.do_open(self, ProxyHTTPConnection, req)
-
-
-class ConnectHTTPSHandler(urllib2.HTTPSHandler):
-
-    def __init__(self, proxy=None, debuglevel=0):
-        self.proxy = proxy
-        urllib2.HTTPSHandler.__init__(self, debuglevel)
-
-    def do_open(self, http_class, req):
-        if self.proxy is not None:
-            req.set_proxy(self.proxy, 'https')
-        return urllib2.HTTPSHandler.do_open(self, ProxyHTTPSConnection, req)
-
-
-class RedirectHandler(urllib2.HTTPRedirectHandler):
-    def __handle_redirect(self, url):
-        req = urllib2.Request(url)
-        handle = urllib2.urlopen(req)
-        return handle
-
-    def http_error_301(self, req, fp, code, msg, headers):
-        #print headers['Location']
-        return self.__handle_redirect(headers['Location'])
-
-    def http_error_302(self, req, fp, code, msg, headers):
-        #print headers['Location']
-        return self.__handle_redirect(headers['Location'])
+        self.method = method
+        self._format = _format
+        self.secure = secure
+        self.params = params if params is not None else {}
+        self.headers = headers if headers is not None else {}
