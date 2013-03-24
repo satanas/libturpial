@@ -36,7 +36,7 @@ class TurpialHTTP:
         socket.setdefaulttimeout(self.TIMEOUT)
 
         self.sign_method_hmac_sha1 = oauth.OAuthSignatureMethod_HMAC_SHA1()
-        if  getattr(sys, 'frozen', None):
+        if getattr(sys, 'frozen', None):
             basedir = sys._MEIPASS
             self.ca_certs_file = os.path.realpath(os.path.join(basedir,
                                                                'cacert.pem'))
@@ -61,8 +61,7 @@ class TurpialHTTP:
         httpreq.headers.update(request.to_header())
 
     def __sign_request_for_basic_auth(self, httpreq):
-        auth_info = b64encode("%s:%s" % (self.username, self.password))
-        httpreq.headers["Authorization"] = ''.join(["Basic ", auth_info])
+        httpreq.headers["Authorization"] = self.basic_auth_info
 
     def __validate_ssl_cert(self, request):
         req = request.split('://')[1]
@@ -87,6 +86,7 @@ class TurpialHTTP:
         self.log.debug('Validated SSL cert for host: %s' % host)
 
     def setup_for_oauth(self, consumer_key, consumer_secret, user_key, user_secret, verifier):
+        self.basic_auth_info = None
         self.token = oauth.OAuthToken(user_key, user_secret)
         self.token.set_verifier(verifier)
         self.consumer = oauth.OAuthConsumer(consumer_key, consumer_secret)
@@ -94,8 +94,8 @@ class TurpialHTTP:
     def setup_for_basic_auth(self, username, password):
         self.token = None
         self.consumer = None
-        self.username = username
-        self.password = password
+        auth_info = b64encode("%s:%s" % (username, password))
+        self.basic_auth_info = ''.join(["Basic ", auth_info])
 
     # ------------------------------------------------------------
     # OAuth Methods
