@@ -8,6 +8,7 @@
 import os
 import ssl
 import sys
+import socket
 import urllib2
 import logging
 import requests
@@ -156,7 +157,6 @@ class TurpialHTTPOAuth(TurpialHTTPGeneric):
     oauth_options = {
         'consumer_key'
         'consumer_secret'
-        'base_url'
         'request_token_url'
         'authorize_token_url'
         'access_token_url'
@@ -188,6 +188,10 @@ class TurpialHTTPOAuth(TurpialHTTPGeneric):
         request.sign_request(self.sign_method_hmac_sha1, self.consumer,
                 self.token)
         httpreq.headers.update(request.to_header())
+
+    def set_user_info(self, user_key, user_secret, verifier):
+        self.token = oauth.OAuthToken(user_key, user_secret)
+        self.token.set_verifier(verifier)
 
     def request_token(self):
         self.log.debug('Obtain a request token')
