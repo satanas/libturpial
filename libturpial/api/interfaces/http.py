@@ -101,7 +101,6 @@ class TurpialHTTPGeneric:
                     headers=httpreq.headers, verify=httpreq.secure,
                     proxies=self.proxies, timeout=self.timeout)
 
-        print req.url
         if httpreq._format == FORMAT_JSON:
             return req.json()
         else:
@@ -109,10 +108,6 @@ class TurpialHTTPGeneric:
 
     def _sign_request(self, httpreq):
         raise NotImplementedError
-
-    # ------------------------------------------------------------
-    # OAuth Methods
-    # -----------------------------------------------------------
 
     # ------------------------------------------------------------
     # Main Methods
@@ -213,7 +208,7 @@ class TurpialHTTPOAuth(TurpialHTTPGeneric):
 
         self.log.debug('Authorize the request token')
         oauth_request = oauth.OAuthRequest.from_token_and_callback(token=self.token,
-                http_url=self.authorization_token_url)
+                http_url=self.authorize_token_url)
 
         #self.log.debug('REQUEST (via url query string)')
         #self.log.debug('parameters: %s' % str(oauth_request.parameters))
