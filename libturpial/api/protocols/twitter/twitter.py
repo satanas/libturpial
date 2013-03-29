@@ -26,8 +26,7 @@ class Main(Protocol):
                           api_url='http://api.twitter.com/1.1',
                           search_url='http://search.twitter.com',
                           hashtags_url='http://twitter.com/search?q=%23',
-                          profiles_url='http://www.twitter.com',
-                          POST_ACTIONS)
+                          profiles_url='http://www.twitter.com')
 
         self.REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
         self.ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'

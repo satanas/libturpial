@@ -14,7 +14,7 @@ from libturpial.common import *
 from libturpial.common.tools import *
 from libturpial.api.models.client import Client
 from libturpial.api.models.entity import Entity
-from libturpial.api.interfaces.http import TurpialHTTP
+from libturpial.api.interfaces.http import TurpialHTTPBase
 
 
 class Protocol:
