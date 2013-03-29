@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """Generic module to handle HTTP request in Turpial"""
-#
-# Author: Wil Alvarez (aka Satanas)
-# May 20, 2010
 
 import os
 import ssl
 import sys
 import socket
-import urllib2
+import base64
 import logging
 import requests
 
@@ -23,7 +20,7 @@ FORMAT_XML = 'xml'
 FORMAT_JSON = 'json'
 
 
-class TurpialHTTPGeneric:
+class TurpialHTTPBase:
     """TurpialHTTP is abstraction of the HTTP protocol for libturpial. It handles all the http
     requests, taking care of the OAuth/Basic authentication, SSL and all that
     stuff.
@@ -88,9 +85,6 @@ class TurpialHTTPGeneric:
 
         return TurpialHTTPRequest(method, uri, params=args, secure=secure)
 
-    def __auth_request(self, httpreq):
-        self._sign_request(httpreq)
-
     def __fetch_resource(self, httpreq):
         if httpreq.method == 'GET':
             req = requests.get(httpreq.uri, params=httpreq.params,
@@ -100,7 +94,6 @@ class TurpialHTTPGeneric:
             req = requests.post(httpreq.uri, params=httpreq.params,
                     headers=httpreq.headers, verify=httpreq.secure,
                     proxies=self.proxies, timeout=self.timeout)
-
         if httpreq._format == FORMAT_JSON:
             return req.json()
         else:
@@ -125,10 +118,10 @@ class TurpialHTTPGeneric:
         self.proxies[protocol] = "%s://%s%s:%s" % (protocol, proxy_auth, host, port)
 
     def get(self, uri, args=None, _format=FORMAT_JSON, base_url=None, secure=False):
-        self.request('GET', uri, args, _format, base_url, secure)
+        return self.request('GET', uri, args, _format, base_url, secure)
 
     def post(self, uri, args=None, _format=FORMAT_JSON, base_url=None, secure=False):
-        self.request('POST', uri, args, _format, base_url, secure)
+        return self.request('POST', uri, args, _format, base_url, secure)
 
     def request(self, method, uri, args=None, _format=FORMAT_JSON,
             alt_base_url=None, secure=False):
@@ -142,12 +135,12 @@ class TurpialHTTPGeneric:
 
         request_url = "%s%s" % (base_url, uri)
 
-        httpreq = self.__build_request(method, request_url, args, _format, secure)
-        self.__auth_request(httpreq)
+        httpreq = self.__build_request(method, request_url, args, _format, False)
+        self._sign_request(httpreq)
         return self.__fetch_resource(httpreq)
 
 
-class TurpialHTTPOAuth(TurpialHTTPGeneric):
+class TurpialHTTPOAuth(TurpialHTTPBase):
     """
     oauth_options = {
         'consumer_key'
@@ -159,7 +152,7 @@ class TurpialHTTPOAuth(TurpialHTTPGeneric):
     """
     def __init__(self, base_url, oauth_options, user_key=None, user_secret=None,
             verifier=None, proxies=None, timeout=None):
-        TurpialHTTPGeneric.__init__(self, base_url, proxies, timeout)
+        TurpialHTTPBase.__init__(self, base_url, proxies, timeout)
 
         self.request_token_url = oauth_options['request_token_url']
         self.authorize_token_url = oauth_options['authorize_token_url']
@@ -189,53 +182,32 @@ class TurpialHTTPOAuth(TurpialHTTPGeneric):
         self.token.set_verifier(verifier)
 
     def request_token(self):
-        self.log.debug('Obtain a request token')
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
                 http_url=self.request_token_url)
 
         oauth_request.sign_request(self.sign_method_hmac_sha1, self.consumer, None)
 
-        #self.log.debug('REQUEST (via headers)')
-        #self.log.debug('parameters: %s' % str(oauth_request.parameters))
+        req = requests.get(self.request_token_url, headers=oauth_request.to_header())
+        self.token = oauth.OAuthToken.from_string(req.text)
 
-        req = urllib2.Request(self.request_token_url, headers=oauth_request.to_header())
-        response = urllib2.urlopen(req)
-        self.token = oauth.OAuthToken.from_string(response.read())
-        #self.log.debug('GOT')
-        #self.log.debug('key: %s' % str(self.token.key))
-        #self.log.debug('secret: %s' % str(self.token.secret))
-        #self.log.debug('callback confirmed? %s' % str(self.token.callback_confirmed))
-
-        self.log.debug('Authorize the request token')
         oauth_request = oauth.OAuthRequest.from_token_and_callback(token=self.token,
                 http_url=self.authorize_token_url)
 
-        #self.log.debug('REQUEST (via url query string)')
-        #self.log.debug('parameters: %s' % str(oauth_request.parameters))
         return oauth_request.to_url()
 
     def authorize_token(self, pin):
-        self.log.debug('Obtain an access token')
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
                 token=self.token, verifier=pin, http_url=self.access_token_url)
 
         oauth_request.sign_request(self.sign_method_hmac_sha1, self.consumer,
                 self.token)
 
-        self.log.debug('REQUEST (via headers)')
-        self.log.debug('parameters: %s' % str(oauth_request.parameters))
+        req = requests.get(self.access_token_url, headers=oauth_request.to_header())
+        self.token = oauth.OAuthToken.from_string(req.text)
 
-        req = urllib2.Request(self.access_token_url, headers=oauth_request.to_header())
-        response = urllib2.urlopen(req)
-        self.token = oauth.OAuthToken.from_string(response.read())
-
-        self.log.debug('GOT')
-        self.log.debug('key: %s' % str(self.token.key))
-        self.log.debug('secret: %s' % str(self.token.secret))
-        self.token.verifier = pin
         return self.token
 
-    def fetch_xauth_access_token(self, username, password):
+    def request_xauth_token(self, username, password):
         request = oauth.OAuthRequest.from_consumer_and_token(
             oauth_consumer=self.consumer,
             http_method='POST', http_url=self.access_token_url,
@@ -247,16 +219,17 @@ class TurpialHTTPOAuth(TurpialHTTPGeneric):
         )
         request.sign_request(self.sign_method_hmac_sha1, self.consumer, None)
 
-        req = urllib2.Request(self.access_token_url, data=request.to_postdata())
-        response = urllib2.urlopen(req)
-        self.token = oauth.OAuthToken.from_string(response.read())
+        req = requests.post(self.access_token_url, data=request.to_postdata())
+        self.token = oauth.OAuthToken.from_string(req.text)
+
+        return self.token
 
 
-class TurpialHTTPBasicAuth(TurpialHTTPGeneric):
+class TurpialHTTPBasicAuth(TurpialHTTPBase):
     def __init__(self, base_url, username, password, proxies=None, timeout=None):
-        TurpialHTTPGeneric.__init__(self, base_url, proxies, timeout)
+        TurpialHTTPBase.__init__(self, base_url, proxies, timeout)
 
-        auth_info = b64encode("%s:%s" % (username, password))
+        auth_info = base64.b64encode("%s:%s" % (username, password))
         self.basic_auth_info = ''.join(["Basic ", auth_info])
 
     def _sign_request(self, httpreq):
