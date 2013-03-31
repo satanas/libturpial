@@ -1,8 +1,7 @@
 libturpial
 ==========
 
-**Summary:** A microblogging client written in Python. Lightweight, functional 
-and beautiful
+**Summary:** A powerful microblogging library written in Python
 
 *libturpial* is a library that handles multiple microblogging protocols. It 
 implements a lot of features and aims to support all the features for each 
@@ -54,10 +53,15 @@ or using ``sudo``::
     $ sudo python setup.py install
 
 
-Usage
------
+Documentation
+-------------
 
-asdasd
+To generate the documentation and learn how to use libturpial install sphinx
+and run::
+
+    $ sphinx-build -a -b html docs/ my_output_folder/
+
+Then check index.html in **my_output_folder**
 
 
 Further Information

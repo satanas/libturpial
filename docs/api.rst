@@ -41,6 +41,54 @@ Identi.ca
 	:private-members:
 	:special-members:
 
+HTTP
+----
+
+.. automodule:: libturpial.api.interfaces.http
+
+Constants
++++++++++
+
+.. data:: DEFAULT_TIMEOUT
+
+    Default time that TurpialHTTPBase waits until killing a request. Value: 20 (seconds)
+
+.. data:: FORMAT_XML
+
+    Constant to identify XML requests
+
+.. data:: FORMAT_JSON
+
+    Constant to identify JSON requests
+
+TurpialHTTPBase
++++++++++++++++
+.. autoclass:: libturpial.api.interfaces.http.TurpialHTTPBase
+	:members:
+	:undoc-members:
+	:special-members:
+
+TurpialHTTPOAuth
+++++++++++++++++
+.. autoclass:: libturpial.api.interfaces.http.TurpialHTTPOAuth
+	:members:
+	:undoc-members:
+	:private-members:
+	:special-members:
+
+TurpialHTTPBasicAuth
+++++++++++++++++++++
+.. autoclass:: libturpial.api.interfaces.http.TurpialHTTPBasicAuth
+	:members:
+	:undoc-members:
+	:private-members:
+	:special-members:
+
+TurpialHTTPRequest
+++++++++++++++++++
+.. autoclass:: libturpial.api.interfaces.http.TurpialHTTPRequest
+	:members:
+
 Constants
 ---------
 
