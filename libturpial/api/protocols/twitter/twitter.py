@@ -141,7 +141,6 @@ class Main(Protocol):
             status.retweeted_id = retweeted_id
             status.username = username
             status.avatar = avatar
-            status.source = self.get_source(source)
             status.text = post['text']
             status.in_reply_to_id = in_reply_to_id
             status.in_reply_to_user = in_reply_to_user
@@ -157,6 +156,7 @@ class Main(Protocol):
             status.is_own = (username.lower() == self.uname.lower())
             status.retweeted = retweeted
             status.set_display_id(column_id)
+            status.get_source(source)
             return status
 
     def json_to_ratelimit(self, response):

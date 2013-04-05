@@ -8,11 +8,9 @@
 import time
 import logging
 import datetime
-import xml.sax.saxutils as saxutils
 
 from libturpial.common import *
 from libturpial.common.tools import *
-from libturpial.api.models.client import Client
 from libturpial.api.models.entity import Entity
 from libturpial.api.interfaces.http import TurpialHTTPBase
 
@@ -41,8 +39,8 @@ class Protocol:
 
     # ------------------------------------------------------------
     # Time related methods. Overwrite if necesary
-    # ------------------------------------------------------------
     # libturpial handles all timestamps in GMT-0
+    # ------------------------------------------------------------
     def convert_time(self, str_datetime):
         ''' Take the date/time and convert it into Unix time'''
         # Tue Mar 13 00:12:41 +0000 2007 -> Tweets normales
@@ -100,20 +98,7 @@ class Protocol:
             entities['mentions'].append(Entity(self.account_id, item[1:], item, item))
         return entities
 
-    def get_source(self, source):
-        if not source:
-            return None
-
-        text = saxutils.unescape(source)
-        text = text.replace('&quot;', '"')
-        if text == 'web':
-            return Client(text, "http://twitter.com")
-
-        rtn = CLIENT_PATTERN.search(text)
-        if rtn:
-            return Client(rtn.groups()[1], rtn.groups()[0])
-
-        return Client(source, None)
+    
 
     # ------------------------------------------------------------
     # Methods to be overwritten
