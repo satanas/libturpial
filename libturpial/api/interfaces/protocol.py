@@ -16,12 +16,13 @@ from libturpial.api.interfaces.http import TurpialHTTPBase
 
 
 class Protocol:
-    ''' Base class to define basic functions that must have any protocol
-    implementation '''
+    """
+    Bridge class to define abstract functions that must have any protocol
+    implementation
+    """
 
     def __init__(self, account_id, name, api_url, search_url, hashtags_url=None,
                  groups_url=None, profiles_url=None):
-        self.http = TurpialHTTP()
 
         self.account_id = account_id
 
@@ -33,6 +34,8 @@ class Protocol:
             self.urls['groups'] = groups_url
         if tags_url:
             self.urls['profiles'] = profiles_url
+
+        self.initialize_http()
 
         self.log = logging.getLogger(name)
         self.log.debug('Started')
@@ -98,11 +101,16 @@ class Protocol:
             entities['mentions'].append(Entity(self.account_id, item[1:], item, item))
         return entities
 
-    
-
     # ------------------------------------------------------------
     # Methods to be overwritten
     # ------------------------------------------------------------
+
+    def initialize_http(self):
+        """
+        Creates a new TurpialHTTP instance (for OAuth or BasicAuth) stored in
+        self.http
+        """
+        raise NotImplementedError
 
     def json_to_profile(self, response):
         ''' Returns a Profile object from a JSON response '''
@@ -118,16 +126,6 @@ class Protocol:
 
     def json_to_list(self, response):
         ''' Returns a List object from a JSON response '''
-        raise NotImplementedError
-
-    def response_to_statuses(self, response, mute=False):
-        ''' Take the server response and transform into an array of Status
-        objects inside a Response object '''
-        raise NotImplementedError
-
-    def response_to_profiles(self, response):
-        ''' Take the server response and transform into an array of Profile
-        objects inside a Response object '''
         raise NotImplementedError
 
     def auth(self, username, password):
@@ -187,7 +185,7 @@ class Protocol:
         '''
         raise NotImplementedError
 
-    def get_conversation(self, id_):
+    def get_conversation(self, status_id):
         '''
         Fetch the whole conversation related to a single status
         '''
@@ -241,25 +239,25 @@ class Protocol:
         '''
         raise NotImplementedError
 
-    def destroy_status(self, id_):
+    def destroy_status(self, status_id):
         '''
         Destroy a posted update
         '''
         raise NotImplementedError
 
-    def repeat(self, id_):
+    def repeat_status(self, status_id):
         '''
         Repeat to all your friends an update posted by somebody
         '''
         raise NotImplementedError
 
-    def mark_favorite(self, id_):
+    def mark_favorite(self, status_id):
         '''
         Mark an update as favorite
         '''
         raise NotImplementedError
 
-    def unmark_favorite(self, id_):
+    def unmark_favorite(self, status_id):
         '''
         Unmark an update as favorite
         '''
@@ -282,7 +280,7 @@ class Protocol:
         #raise NotImplementedError
         pass
 
-    def destroy_direct(self, id_):
+    def destroy_direct(self, direct_message_id):
         '''
         Destroy a direct message
         '''
