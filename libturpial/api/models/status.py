@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """ Module to handle statuses information """
-#
-# Author: Wil Alvarez (aka Satanas)
-# May 20, 2010
 
-from libturpial.common import StatusType
+import xml.sax.saxutils as saxutils
+
+from libturpial.api.models.client import Client
+from libturpial.common import StatusType, CLIENT_PATTERN
 
 
 class Status:
@@ -50,3 +50,18 @@ class Status:
 
     def get_protocol_id(self):
         return self.account_id.split('-')[1]
+
+    def get_source(self, source):
+        if not source:
+            self.source = None
+        else:
+            text = saxutils.unescape(source)
+            text = text.replace('&quot;', '"')
+            if text == 'web':
+                self.source = Client(text, "http://twitter.com")
+            else:
+                rtn = CLIENT_PATTERN.search(text)
+                if rtn:
+                    self.source = Client(rtn.groups()[1], rtn.groups()[0])
+                else:
+                    self.source = Client(source, None)

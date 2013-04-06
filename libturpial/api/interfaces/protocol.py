@@ -8,24 +8,21 @@
 import time
 import logging
 import datetime
-import xml.sax.saxutils as saxutils
 
 from libturpial.common import *
 from libturpial.common.tools import *
-from libturpial.api.models.client import Client
 from libturpial.api.models.entity import Entity
 from libturpial.api.interfaces.http import TurpialHTTPBase
 
 
 class Protocol:
     """
-    Base class to define basic functions that must have any protocol
+    Bridge class to define abstract functions that must have any protocol
     implementation
     """
 
     def __init__(self, account_id, name, api_url, search_url, hashtags_url=None,
                  groups_url=None, profiles_url=None):
-        self.http = TurpialHTTP()
 
         self.account_id = account_id
 
@@ -38,13 +35,15 @@ class Protocol:
         if tags_url:
             self.urls['profiles'] = profiles_url
 
+        self.initialize_http()
+
         self.log = logging.getLogger(name)
         self.log.debug('Started')
 
     # ------------------------------------------------------------
     # Time related methods. Overwrite if necesary
-    # ------------------------------------------------------------
     # libturpial handles all timestamps in GMT-0
+    # ------------------------------------------------------------
     def convert_time(self, str_datetime):
         """
         Takes the *str_datetime* and convert it into Unix time
@@ -112,28 +111,16 @@ class Protocol:
             entities['mentions'].append(Entity(self.account_id, item[1:], item, item))
         return entities
 
-    def get_source(self, source):
-        """
-        Returns the name of the client from the *source* parameter. None if
-        there is no name to extract
-        """
-        if not source:
-            return None
-
-        text = saxutils.unescape(source)
-        text = text.replace('&quot;', '"')
-        if text == 'web':
-            return Client(text, "http://twitter.com")
-
-        rtn = CLIENT_PATTERN.search(text)
-        if rtn:
-            return Client(rtn.groups()[1], rtn.groups()[0])
-
-        return Client(source, None)
-
     # ------------------------------------------------------------
     # Methods to be overwritten
     # ------------------------------------------------------------
+
+    def initialize_http(self):
+        """
+        Creates a new TurpialHTTP instance (for OAuth or BasicAuth) stored in
+        self.http
+        """
+        raise NotImplementedError
 
     def json_to_profile(self, response):
         """
@@ -172,28 +159,6 @@ class Protocol:
         """
         Takes a JSON *response* and returns a
         :class:`libturpial.api.models.list.List` object
-
-        .. warning::
-            This is an empty method and must be reimplemented on child class,
-            otherwise it will raise a **NotImplementedError** exception
-        """
-        raise NotImplementedError
-
-    def response_to_statuses(self, response, mute=False):
-        """
-        Take the server response and transform into an array of Status
-        objects inside a Response object
-
-        .. warning::
-            This is an empty method and must be reimplemented on child class,
-            otherwise it will raise a **NotImplementedError** exception
-        """
-        raise NotImplementedError
-
-    def response_to_profiles(self, response):
-        """
-        Take the server response and transform into an array of Profile
-        objects inside a Response object
 
         .. warning::
             This is an empty method and must be reimplemented on child class,
@@ -392,7 +357,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def destroy_status(self, id_):
+    def destroy_status(self, status_id):
         """
         Destroy a posted update
 
@@ -402,7 +367,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def repeat(self, id_):
+    def repeat_status(self, status_id):
         """
         Repeat to all your friends an update posted by somebody
 
@@ -412,7 +377,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def mark_favorite(self, id_):
+    def mark_favorite(self, status_id):
         """
         Mark an update as favorite
 
@@ -422,7 +387,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def unmark_favorite(self, id_):
+    def unmark_favorite(self, status_id):
         """
         Unmark an update as favorite
 
@@ -457,7 +422,7 @@ class Protocol:
         #raise NotImplementedError
         pass
 
-    def destroy_direct(self, id_):
+    def destroy_direct(self, direct_message_id):
         """
         Destroy a direct message
 
