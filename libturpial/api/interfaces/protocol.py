@@ -18,8 +18,10 @@ from libturpial.api.interfaces.http import TurpialHTTPBase
 
 
 class Protocol:
-    ''' Base class to define basic functions that must have any protocol
-    implementation '''
+    """
+    Base class to define basic functions that must have any protocol
+    implementation
+    """
 
     def __init__(self, account_id, name, api_url, search_url, hashtags_url=None,
                  groups_url=None, profiles_url=None):
@@ -44,7 +46,9 @@ class Protocol:
     # ------------------------------------------------------------
     # libturpial handles all timestamps in GMT-0
     def convert_time(self, str_datetime):
-        ''' Take the date/time and convert it into Unix time'''
+        """
+        Takes the *str_datetime* and convert it into Unix time
+        """
         # Tue Mar 13 00:12:41 +0000 2007 -> Tweets normales
         # Wed, 08 Apr 2009 19:22:10 +0000 -> Busquedas
         month_names = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
@@ -71,16 +75,24 @@ class Protocol:
         return d.timetuple()
 
     def get_str_time(self, strdate):
-        # GMT 0
+        """
+        Converts the *strdate* into a formatted string (GMT 0)
+        """
         t = self.convert_time(strdate)
         return time.strftime('%b %d, %I:%M %p', t)
 
     def get_int_time(self, strdate):
-        # GMT 0
+        """
+        Converts the *strdate* into a Unix time long integer (GMT 0)
+        """
         t = self.convert_time(strdate)
         return time.mktime(t)
 
     def get_entities(self, status):
+        """
+        Returns a dict with all the extracted URLs, hashtags, mentions and
+        groups from *status*
+        """
         entities = {
             'urls': [],
             'hashtags': [],
@@ -101,6 +113,10 @@ class Protocol:
         return entities
 
     def get_source(self, source):
+        """
+        Returns the name of the client from the *source* parameter. None if
+        there is no name to extract
+        """
         if not source:
             return None
 
@@ -120,176 +136,320 @@ class Protocol:
     # ------------------------------------------------------------
 
     def json_to_profile(self, response):
-        ''' Returns a Profile object from a JSON response '''
+        """
+        Takes a JSON *response* and returns a
+        :class:`libturpial.api.models.profile.Profile` object
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def json_to_status(self, response):
-        ''' Returns a Status object from a JSON response '''
+        """
+        Takes a JSON *response* and returns a
+        :class:`libturpial.api.models.status.Status` object
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def json_to_ratelimit(self, response):
-        ''' Returns a RateLimit object from a JSON response '''
+        """
+        Takes a JSON *response* and returns a
+        :class:`libturpial.api.models.ratelimit.RateLimit` object
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def json_to_list(self, response):
-        ''' Returns a List object from a JSON response '''
+        """
+        Takes a JSON *response* and returns a
+        :class:`libturpial.api.models.list.List` object
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def response_to_statuses(self, response, mute=False):
-        ''' Take the server response and transform into an array of Status
-        objects inside a Response object '''
+        """
+        Take the server response and transform into an array of Status
+        objects inside a Response object
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def response_to_profiles(self, response):
-        ''' Take the server response and transform into an array of Profile
-        objects inside a Response object '''
+        """
+        Take the server response and transform into an array of Profile
+        objects inside a Response object
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def auth(self, username, password):
         raise NotImplementedError
 
     def get_timeline(self, count, since_id):
-        '''
-        Fetch the timeline from the server
-        '''
+        """
+        Fetch *count* statuses from timeline starting from *since_id*. If
+        *since_id* is None it will fetch the last *count* statuses
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_replies(self, count, since_id):
-        '''
-        Fetch the mentions from the server
-        '''
+        """
+        Fetch *count* mentions starting from *since_id*. If *since_id* is None
+        it will fetch the last *count* statuses
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_directs(self, count, since_id):
-        '''
-        Fetch the directs from the server
-        '''
+        """
+        Fetch *count* direct messages received starting from *since_id*. If
+        *since_id* is None it will fetch the last *count* statuses
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_directs_sent(self, count, since_id):
-        '''
-        Fetch the directs sent from the server
-        '''
+        """
+        Fetch *count* direct messages sent starting from *since_id*. If
+        *since_id* is None it will fetch the last *count* statuses
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_sent(self, count, since_id):
-        '''
-        Fetch the sent messages from the server
-        '''
+        """
+        Fetch *count* sent statuses starting from *since_id*. If *since_id* is
+        None it will fetch the last *count* statuses
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_favorites(self, count):
-        '''
-        Fetch the favorites from the server
-        '''
+        """
+        Fetch *count* favorite statuses starting from *since_id*. If *since_id*
+        is None it will fetch the last *count* statuses
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_public_timeline(self, count, since_id):
-        '''
-        Fetch the public timeline from the server
-        '''
+        """
+        Fetch *count* statuses from public timeline starting from *since_id*.
+        If *since_id* is None it will fetch the last *count* statuses
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_lists(self, username):
-        '''
-        Fetch all user lists for service
-        '''
+        """
+        Fetch all the lists where *username* is part of
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_list_statuses(self, list_id, since_id):
-        '''
-        Fetch all statuses for a specific list
-        '''
+        """
+        Fetch all statuses from *list_id* starting from *since_id*. If
+        *since_id* is None it will fetch the last available statuses
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
-    def get_conversation(self, id_):
-        '''
-        Fetch the whole conversation related to a single status
-        '''
+    def get_conversation(self, status_id):
+        """
+        Fetch a whole conversation starting from *status_id*
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_status(self, status_id):
-        '''
-        Fetch only one status
-        '''
+        """
+        Fetch the status identified by *status_id*
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_followers(self, only_id=False):
-        '''
-        Fetch the list of followers
-        '''
+        """
+        Fetch an array of :class list of followers
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_following(self, only_id=False):
-        '''
+        """
         Fetch the list of following
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_profile(self, user):
-        '''
+        """
         Fetch an especific user profile
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_blocked(self):
-        '''
+        """
         Fetch the list of blocked users
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_rate_limits(self):
-        '''
+        """
         Fetch the rate limits for the service
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def update_profile(self, profile_args):
-        '''
+        """
         Update the user profile
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def update_status(self, text, in_reply_to_id=None):
-        '''
+        """
         Post an update
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def destroy_status(self, id_):
-        '''
+        """
         Destroy a posted update
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def repeat(self, id_):
-        '''
+        """
         Repeat to all your friends an update posted by somebody
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def mark_favorite(self, id_):
-        '''
+        """
         Mark an update as favorite
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def unmark_favorite(self, id_):
-        '''
+        """
         Unmark an update as favorite
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def follow(self, user, by_id):
-        '''
+        """
         Follow somebody
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def unfollow(self, user):
-        '''
+        """
         Unfollow somebody
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def send_direct(self, user, text):
@@ -298,49 +458,81 @@ class Protocol:
         pass
 
     def destroy_direct(self, id_):
-        '''
+        """
         Destroy a direct message
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def block(self, user):
-        '''
+        """
         Blocks the specified user
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def unblock(self, user):
-        '''
+        """
         Unblocks the specified user
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def report_spam(self, user):
-        '''
+        """
         Blocks and report the specified user as spammer
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def search(self, query, count, since_id=None):
-        '''
+        """
         Execute a search query in server
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def trends(self):
-        '''
+        """
         Search for trends
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def is_friend(self, user):
-        '''
+        """
         Returns True is user follows current account, False otherwise
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError
 
     def get_profile_image(self, user):
-        '''
+        """
         Returns the URL for the profile image of the given user
-        '''
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
         raise NotImplementedError

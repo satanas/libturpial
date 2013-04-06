@@ -21,7 +21,8 @@ FORMAT_JSON = 'json'
 
 
 class TurpialHTTPBase:
-    """This class is the abstraction of the HTTP protocol for libturpial. It
+    """
+    This class is the abstraction of the HTTP protocol for libturpial. It
     handles all the magic behind http requests: building, authenticating and
     fetching resources, in other words, it standarize the way you interact
     with end points and services.
@@ -118,7 +119,8 @@ class TurpialHTTPBase:
             return req.text
 
     def sign_request(self, httpreq):
-        """This is the method you need to overwrite if you subclass
+        """
+        This is the method you need to overwrite if you subclass
         :class:`libturpial.api.interfaces.http.TurpialHTTPBase`.
 
         *httpreq* is the current request (a :class:`libturpial.api.interfaces.http.TurpialHTTPRequest`
@@ -136,13 +138,15 @@ class TurpialHTTPBase:
     # ------------------------------------------------------------
 
     def set_timeout(self, timeout):
-        """Configure the maximum time (in seconds) to wait before killing the
+        """
+        Configure the maximum time (in seconds) to wait before killing the
         current request.
         """
         self.timeout = timeout
 
     def set_proxy(self, host, port, username='', password='', https=False):
-        """Set an HTTP/HTTPS proxy for all requests. You must pass the *host*
+        """
+        Set an HTTP/HTTPS proxy for all requests. You must pass the *host*
         and *port*. If your proxy uses HTTP authentication you can pass the
         *username* and *password* too. If *https* is True your proxy will
         use HTTPS, otherwise HTTP.
@@ -155,7 +159,8 @@ class TurpialHTTPBase:
         self.proxies[protocol] = "%s://%s%s:%s" % (protocol, proxy_auth, host, port)
 
     def get(self, uri, args=None, _format=FORMAT_JSON, base_url=None, secure=False):
-        """Performs a GET request against the *uri* resource with *args*. You
+        """
+        Performs a GET request against the *uri* resource with *args*. You
         can specify the *_format* ('json' or 'xml') and can specify a different
         *base_url*. If *secure* is True the request will be perform as HTTPS,
         otherwise it will be performed as HTTP.
@@ -165,7 +170,8 @@ class TurpialHTTPBase:
         return self.request('GET', uri, args, _format, base_url, secure)
 
     def post(self, uri, args=None, _format=FORMAT_JSON, base_url=None, secure=False):
-        """Performs a POST request against the *uri* resource with *args*. You
+        """
+        Performs a POST request against the *uri* resource with *args*. You
         can specify the *_format* ('json' or 'xml') and can specify a different
         *base_url*. If *secure* is True the request will be perform as HTTPS,
         otherwise it will be performed as HTTP.
@@ -176,7 +182,8 @@ class TurpialHTTPBase:
 
     def request(self, method, uri, args=None, _format=FORMAT_JSON,
             alt_base_url=None, secure=False):
-        """Performs a GET or POST request against the *uri* resource with
+        """
+        Performs a GET or POST request against the *uri* resource with
         *args*. You can specify the *_format* ('json' or 'xml') and can specify
         a different *base_url*. If *secure* is True the request will be perform
         as HTTPS, otherwise it will be performed as HTTP
@@ -197,7 +204,8 @@ class TurpialHTTPBase:
 
 
 class TurpialHTTPOAuth(TurpialHTTPBase):
-    """Implementation of TurpialHTTPBase for OAuth. *base_url* is the part of
+    """
+    Implementation of TurpialHTTPBase for OAuth. *base_url* is the part of
     the URL common for all your requests
     (http://api.twitter.com/1.1 for example). *oauth_options* is a dict with
     all the OAuth configuration parameters. It must looks like:
@@ -271,7 +279,8 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
             self.token = None
 
     def sign_request(self, httpreq):
-        """Signs the *httpreq* for OAuth using the previously defined user token
+        """
+        Signs the *httpreq* for OAuth using the previously defined user token
         """
         request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
                 token=self.token, http_method=httpreq.method,
@@ -282,14 +291,16 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
         httpreq.headers.update(request.to_header())
 
     def set_token_info(self, user_key, user_secret, verifier):
-        """Creates a new token using the existing *user_key*, *user_secret* and
+        """
+        Creates a new token using the existing *user_key*, *user_secret* and
         *verifier*. Use this method 
         """
         self.token = oauth.OAuthToken(user_key, user_secret)
         self.token.set_verifier(verifier)
 
     def request_token(self):
-        """Ask to the service for a fresh new token. Returns an URL that the
+        """
+        Ask to the service for a fresh new token. Returns an URL that the
         user must access in order to authorize the client.
         """
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
@@ -306,7 +317,8 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
         return oauth_request.to_url()
 
     def authorize_token(self, pin):
-        """Uses the *pin* returned by the service to authorize the current token.
+        """
+        Uses the *pin* returned by the service to authorize the current token.
         Returns an :class:`oauth.OAuthToken` object.
         """
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
@@ -321,7 +333,8 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
         return self.token
 
     def request_xauth_token(self, username, password):
-        """Request a limited token without using the whole OAuth flow, it just
+        """
+        Request a limited token without using the whole OAuth flow, it just
         uses the username and password through xAuth
         """
         request = oauth.OAuthRequest.from_consumer_and_token(
@@ -342,7 +355,8 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
 
 
 class TurpialHTTPBasicAuth(TurpialHTTPBase):
-    """Implementation of TurpialHTTPBase for the HTTP Basic Authentication.
+    """
+    Implementation of TurpialHTTPBase for the HTTP Basic Authentication.
     *base_url* is the part of the URL common for all your requests
     (http://identi.ca/api for example). *username* and *password* are the username
     credentials. *proxies* and *timeout* work in the same way that in
@@ -369,7 +383,8 @@ class TurpialHTTPBasicAuth(TurpialHTTPBase):
         self.basic_auth_info = ''.join(["Basic ", auth_info])
 
     def sign_request(self, httpreq):
-        """The *httpreq* is signed using the Authorization header as
+        """
+        The *httpreq* is signed using the Authorization header as
         documented in the `Basic Access Authentication Wiki
         <http://en.wikipedia.org/wiki/Basic_access_authentication>`_
         """
@@ -378,7 +393,9 @@ class TurpialHTTPBasicAuth(TurpialHTTPBase):
 
 
 class TurpialHTTPRequest:
-    """Encapsulate an URL request into a python object"""
+    """
+    Encapsulate an URL request into a python object
+    """
     def __init__(self, method, uri, headers=None, params=None,
             _format=FORMAT_JSON, secure=False):
 
