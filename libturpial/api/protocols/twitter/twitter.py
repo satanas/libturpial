@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """ Twitter implementation for Turpial"""
-#
-# Author: Wil Alvarez (aka Satanas)
-# May 25, 2010
 
 import base64
 
@@ -15,27 +12,23 @@ from libturpial.api.models.profile import Profile
 from libturpial.api.models.ratelimit import RateLimit
 from libturpial.api.interfaces.protocol import Protocol
 from libturpial.api.models.trend import Trend, TrendsResults
-from libturpial.api.protocols.twitter.params import CK, CS, SALT, POST_ACTIONS
+from libturpial.api.protocols.twitter.params import POST_ACTIONS, OAUTH_OPTIONS
 
 
 class Main(Protocol):
     """Twitter implementation for libturpial"""
-    def __init__(self, username, account_id, auth):
-        p_name = 'Twitter(%s)' % username
-        Protocol.__init__(self, account_id, p_name,
-                          api_url='http://api.twitter.com/1.1',
-                          search_url='http://search.twitter.com',
-                          hashtags_url='http://twitter.com/search?q=%23',
-                          profiles_url='http://www.twitter.com')
+    def __init__(self, username, account_id):
+        protocol_name = 'Twitter(%s)' % username
 
-        self.REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
-        self.ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
-        self.AUTHORIZATION_URL = 'https://api.twitter.com/oauth/authorize'
+        Protocol.__init__(self, protocol_name, account_id, 'http://api.twitter.com/1.1')
+
+        self.search_url = 'http://search.twitter.com'
+        self.hashtags_url = 'http://twitter.com/search?q=%23'
+        self.profiles_url = 'http://www.twitter.com'
 
         self.uname = None
-        self.set_consumer(CK, base64.b64decode(CS + SALT))
-        if auth:
-            self.set_auth_info(auth)
+        #if auth:
+        #    self.set_auth_info(auth)
 
     def __build_basic_args(self, count, since_id):
         args = {'count': count, 'include_entities': True}

@@ -40,6 +40,31 @@ class Main(Protocol):
         if auth:
             self.set_auth_info(auth)
 
+    def get_entities(self, status):
+        """
+        Returns a dict with all the extracted URLs, hashtags, mentions and
+        groups from *status*
+        """
+        entities = {
+            'urls': [],
+            'hashtags': [],
+            'mentions': [],
+            'groups': [],
+        }
+        text = status['text']
+
+        for url in get_urls(text):
+            entities['urls'].append(Entity(self.account_id, url, url, url))
+
+        for item in HASHTAG_PATTERN.findall(text):
+            url = "%s/%s" % (self.urls['hashtags'], item[1:])
+            entities['hashtags'].append(Entity(self.account_id, url, item, item))
+
+        for item in MENTION_PATTERN.findall(text):
+            entities['mentions'].append(Entity(self.account_id, item[1:], item, item))
+        return entities
+
+
     def json_to_profile(self, response):
         if isinstance(response, list):
             profiles = []
