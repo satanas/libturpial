@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """Generic module to implement microblogging protocols in Turpial"""
-#
-# Author: Wil Alvarez (aka Satanas)
-# May 20, 2010
 
 import time
 import logging
@@ -21,9 +18,9 @@ class Protocol:
     implementation
     """
 
-    def __init__(self, protocol_name, account_id, api_url):
-        self.name = protocol_name
-        self.account_id = account_id
+    def __init__(self):
+        #self.name = protocol_name
+        #self.account_id = account_id
 
         #self.urls['api'] = api_url
         #self.urls['search'] = search_url
@@ -36,7 +33,7 @@ class Protocol:
 
         self.initialize_http()
 
-        self.log = logging.getLogger(name)
+        self.log = logging.getLogger('change me')
         self.log.debug('Started')
 
     # ------------------------------------------------------------
