@@ -145,7 +145,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def auth(self, username, password):
+    def verify_credentials(self):
         raise NotImplementedError
 
     def get_timeline(self, count, since_id):
@@ -316,6 +316,16 @@ class Protocol:
         """
         raise NotImplementedError
 
+    def get_repeaters(self, status_id, only_username=False):
+        """
+        Fetch all the users that repeated *status_id*
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
+        raise NotImplementedError
+
     def update_profile(self, profile_args):
         """
         Update the user profile
@@ -356,7 +366,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def mark_favorite(self, status_id):
+    def mark_as_favorite(self, status_id):
         """
         Mark an update as favorite
 
@@ -366,7 +376,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def unmark_favorite(self, status_id):
+    def unmark_as_favorite(self, status_id):
         """
         Unmark an update as favorite
 
@@ -396,12 +406,12 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def send_direct(self, user, text):
+    def send_direct_message(self, user, text):
         # FIXME: Implementar
         #raise NotImplementedError
         pass
 
-    def destroy_direct(self, direct_message_id):
+    def destroy_direct_message(self, direct_message_id):
         """
         Destroy a direct message
 
@@ -431,7 +441,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def report_spam(self, user):
+    def report_as_spam(self, user):
         """
         Blocks and report the specified user as spammer
 

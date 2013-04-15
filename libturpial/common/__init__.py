@@ -7,7 +7,7 @@
 
 import re
 
-STATUSPP = 20
+NUM_STATUSES = 20
 
 OS_LINUX = 'linux'
 OS_WINDOWS = 'windows'

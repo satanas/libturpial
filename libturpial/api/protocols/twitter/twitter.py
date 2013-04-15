@@ -2,20 +2,20 @@
 
 """ Twitter implementation for Turpial"""
 
-import base64
-
-from libturpial.common import *
 from libturpial.api.models.list import List
 from libturpial.api.models.status import Status
 from libturpial.api.models.entity import Entity
 from libturpial.api.models.profile import Profile
 from libturpial.api.models.ratelimit import RateLimit
 from libturpial.api.interfaces.protocol import Protocol
+from libturpial.api.interfaces.http import TurpialHTTPOAuth
 from libturpial.api.models.trend import Trend, TrendsResults
 from libturpial.api.protocols.twitter.params import OAUTH_OPTIONS
+from libturpial.common import NUM_STATUSES, StatusType, StatusColumn
 
-from libturpial.api.interfaces.http import TurpialHTTPOAuth
-
+# TODO:
+# * Use trim_user wherever we can to improve performance
+# * Implement trends
 
 class Main(Protocol):
     """Twitter implementation for libturpial"""
@@ -40,6 +40,7 @@ class Main(Protocol):
     def setup_user_account(self, account_id, key, secret, verifier):
         self.account_id = account_id
         self.http.set_token_info(key, secret, verifier)
+        self.uname = account_id.split('-')[0]
 
 
     #################################################################
@@ -47,68 +48,55 @@ class Main(Protocol):
     #################################################################
 
     def verify_credentials(self):
-        self.log.debug('Starting OAuth')
-
         rtn = self.http.get('/account/verify_credentials', secure=True)
         profile = self.json_to_profile(rtn)
         self.uname = profile.username
-        self.log.debug('Authenticated')
         return profile
 
-
-    def get_timeline(self, count=STATUSPP, since_id=None):
-        self.log.debug('Getting timeline')
+    def get_timeline(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/statuses/home_timeline', args)
         return self.json_to_status(rtn, StatusColumn.TIMELINE)
 
-    def get_replies(self, count=STATUSPP, since_id=None):
-        self.log.debug('Getting replies')
+    def get_replies(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
-        rtn = self.http.get('/statuses/mentions', args)
+        rtn = self.http.get('/statuses/mentions_timeline', args)
         return self.json_to_status(rtn, StatusColumn.REPLIES)
 
-    def get_directs(self, count=STATUSPP, since_id=None):
-        self.log.debug('Getting directs')
+    def get_directs(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/direct_messages', args)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
                                    _type=StatusType.DIRECT)
 
-    def get_direct_sent(self, count=STATUSPP, since_id=None):
-        self.log.debug('Getting directs sent')
+    def get_directs_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/direct_messages/sent', args)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
                                    _type=StatusType.DIRECT)
 
-    def get_sent(self, count=STATUSPP, since_id=None):
-        self.log.debug('Getting my statuses')
+    def get_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         args['include_rts'] = True
         rtn = self.http.get('/statuses/user_timeline', args)
         return self.json_to_status(rtn, StatusColumn.SENT)
 
-    def get_favorites(self, count=STATUSPP):
-        self.log.debug('Getting favorites')
-        rtn = self.http.get('/favorites', {'include_entities': True})
+    def get_favorites(self, count=NUM_STATUSES):
+        rtn = self.http.get('/favorites/list', {'include_entities': True})
         return self.json_to_status(rtn, StatusColumn.FAVORITES)
 
-    def get_public_timeline(self, count=STATUSPP, since_id=None):
-        self.log.debug('Getting public timeline')
+    def get_public_timeline(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
-        rtn = self.http.get('/statuses/public_timeline', args)
+        rtn = self.http.get('/statuses/firehose', args)
         return self.json_to_status(rtn, StatusColumn.PUBLIC)
 
     def get_lists(self, username):
-        self.log.debug('Getting user lists')
         rtn = self.http.get('/lists/list', {'screen_name': username})
         lists = self.json_to_list(rtn)
         self.log.debug('--Downloaded %i lists' % len(lists))
         return lists
 
-    def get_list_statuses(self, list_id, count=STATUSPP, since_id=None):
-        self.log.debug('Getting statuses from list %s' % list_id)
+    def get_list_statuses(self, list_id, count=NUM_STATUSES, since_id=None):
         args = {'list_id': list_id, 'per_page': count,
                 'include_entities': True}
         if since_id:
@@ -117,7 +105,6 @@ class Main(Protocol):
         return self.json_to_status(rtn, list_id)
 
     def get_conversation(self, status_id):
-        self.log.debug('Getting conversation for status %s' % status_id)
         conversation = []
 
         while 1:
@@ -139,7 +126,6 @@ class Main(Protocol):
         return self.json_to_status(rtn)
 
     def get_followers(self, only_id=False):
-        self.log.debug('Getting followers list')
         cursor = -1
         current = 0
         max_friends_req = 100
@@ -181,7 +167,6 @@ class Main(Protocol):
         return followers
 
     def get_following(self, only_id=False):
-        self.log.debug('Getting following list')
         cursor = -1
         current = 0
         max_friends_req = 100
@@ -223,10 +208,8 @@ class Main(Protocol):
         return following
 
     def get_profile(self, user):
-        self.log.debug('Getting profile of user %s' % user)
         rtn = self.http.get('/users/show', {'screen_name': user})
         profile = self.json_to_profile(rtn)
-        self.log.debug('Getting recent statuses of user %s' % user)
         rtn = self.http.get('/statuses/user_timeline',
                            {'screen_name': user, 'count': 10,
                            'include_entities': True})
@@ -234,33 +217,26 @@ class Main(Protocol):
         return profile
 
     def get_blocked(self):
-        self.log.debug('Getting list of blocked users')
-        rtn = self.http.get('/blocks/blocking')
-        return self.json_to_profile(rtn)
+        rtn = self.http.get('/blocks/list')
+        return self.json_to_profile(rtn['users'])
+    #
+    #def get_rate_limits(self):
+    #    rtn = self.http.get('/account/rate_limit_status')
+    #    print rtn
+    #    return self.json_to_ratelimit(rtn)
 
-    def get_rate_limits(self):
-        self.log.debug('Getting rate limits')
-        rtn = self.http.get('/account/rate_limit_status')
-        return self.json_to_ratelimit(rtn)
-
-    def get_retweet_users(self, status_id):
-        self.log.debug('Getting users of a retweet')
+    def get_repeaters(self, status_id, only_username=False):
         users = []
-        rtn = self.http.get('/statuses/%s/retweeted_by' % status_id)
+        rtn = self.http.get('/statuses/retweets/%s' % status_id)
         for item in rtn:
-            profile = self.json_to_profile(item)
-            users.append(profile.username)
+            if only_username:
+                users.append(item['user']['screen_name'])
+            else:
+                profile = self.json_to_profile(item['user'])
+                users.append(profile)
         return users
 
-    def get_retweet_count(self, status_id):
-        self.log.debug('Getting ids of a retweet')
-        users = []
-        rtn = self.http.get('/statuses/%s/retweeted_by/ids' % status_id)
-        return len(rtn)
-
     def update_profile(self, p_args):
-        self.log.debug('Updating profile')
-
         # We use if's instead update method to guarantee valid arguments
         args = {}
         if 'name' in p_args:
@@ -276,7 +252,6 @@ class Main(Protocol):
         return self.json_to_profile(rtn)
 
     def update_status(self, text, in_reply_id=None):
-        self.log.debug('Updating status: %s' % text)
         if in_reply_id:
             args = {'status': text, 'in_reply_to_status_id': in_reply_id}
         else:
@@ -286,55 +261,27 @@ class Main(Protocol):
         return self.json_to_status(rtn)
 
     def destroy_status(self, status_id):
-        self.log.debug('Destroying status: %s' % status_id)
         rtn = self.http.post('/statuses/destroy', {'id': status_id,
                            'include_entities': True})
         return self.json_to_status(rtn)
 
-    def send_direct(self, screen_name, text):
-        self.log.debug('Sending direct to %s' % screen_name)
-        args = {'screen_name': screen_name, 'text': text,
-                'include_entities': True}
-        rtn = self.http.post('/direct_messages/new', args)
-        return self.json_to_status(rtn)
-
-    def destroy_direct(self, status_id):
-        self.log.debug('Destroying direct %s' % status_id)
-        rtn = self.http.post('/direct_messages/destroy', {'id': status_id,
-                           'include_entities': True})
-        return self.json_to_status(rtn)
-
-    def repeat(self, status_id):
-        self.log.debug('Retweeting status %s' % status_id)
+    def repeat_status(self, status_id):
         rtn = self.http.post('/statuses/retweet', {'id': status_id})
         status = self.json_to_status(rtn)
-        status.reposted_by = self.get_retweet_users(status_id)
+        status.reposted_by = self.get_repeaters(status_id)
         return status
 
-    def unrepeat(self, status_id):
-        self.log.debug('Undoing retweet for status %s' % status_id)
-        my_statuses = self.get_sent(count=200)
-        id_target = None
-        for s in my_statuses:
-            if s.id_ == status_id:
-                id_target = s.retweeted_id
-                break
-        return self.destroy_status(id_target)
-
-    def mark_favorite(self, status_id):
-        self.log.debug('Marking status %s as favorite' % status_id)
+    def mark_as_favorite(self, status_id):
         rtn = self.http.post('/favorites/create', {'id': status_id,
-                           'include_entities': True})
+                           'include_entities': True}, id_in_url=False)
         return self.json_to_status(rtn)
 
-    def unmark_favorite(self, status_id):
-        self.log.debug('Unmarking status %s as favorite' % status_id)
+    def unmark_as_favorite(self, status_id):
         rtn = self.http.post('/favorites/destroy', {'id': status_id,
-                           'include_entities': True})
+                           'include_entities': True}, id_in_url=False)
         return self.json_to_status(rtn)
 
     def follow(self, screen_name, by_id=False):
-        self.log.debug('Follow to %s' % screen_name)
         if by_id:
             arg = {'user_id': screen_name}
         else:
@@ -343,70 +290,71 @@ class Main(Protocol):
         return self.json_to_profile(rtn)
 
     def unfollow(self, screen_name):
-        self.log.debug('Unfollow to %s' % screen_name)
         rtn = self.http.post('/friendships/destroy',
                            {'screen_name': screen_name})
         return self.json_to_profile(rtn)
 
+    def send_direct_message(self, screen_name, text):
+        args = {'screen_name': screen_name, 'text': text,
+                'include_entities': True}
+        rtn = self.http.post('/direct_messages/new', args)
+        return self.json_to_status(rtn)
+
+    def destroy_direct_message(self, direct_message_id):
+        rtn = self.http.post('/direct_messages/destroy', {'id': direct_message_id,
+                           'include_entities': True})
+        return self.json_to_status(rtn)
+
     def block(self, screen_name):
-        self.log.debug('Blocking user %s' % screen_name)
         rtn = self.http.post('/blocks/create', {'screen_name': screen_name})
         return self.json_to_profile(rtn)
 
     def unblock(self, screen_name):
-        self.log.debug('Unblocking user %s' % screen_name)
         rtn = self.http.post('/blocks/destroy', {'screen_name': screen_name})
         return self.json_to_profile(rtn)
 
-    def report_spam(self, screen_name):
-        self.log.debug('Reporting user %s as spammer' % screen_name)
-        rtn = self.http.post('/report_spam', {'screen_name': screen_name})
+    def report_as_spam(self, screen_name):
+        rtn = self.http.post('/users/report_spam', {'screen_name': screen_name})
         return self.json_to_profile(rtn)
 
-    def search(self, query, count=STATUSPP, since_id=None):
-        self.log.debug('Searching: %s' % query)
+    def search(self, query, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         args['q'] = query
-        rtn = self.http.get('/search', args, base_url=self.urls['search'])
+        rtn = self.http.get('/search', args, base_url=self.search_url)
         return self.json_to_status(rtn['results'])
 
-    def trends(self):
-        self.log.debug('Searching for current trends')
-        rtn = self.http.get('/trends/current')
-        results = rtn['trends'].popitem()
-        current = TrendsResults()
-        current.title = 'Current Trends'
-        current.timestamp = results[0]
-        current.items = self.json_to_trend(results[1])
+    #def trends(self):
+    #    rtn = self.http.get('/trends/current')
+    #    results = rtn['trends'].popitem()
+    #    current = TrendsResults()
+    #    current.title = 'Current Trends'
+    #    current.timestamp = results[0]
+    #    current.items = self.json_to_trend(results[1])
 
-        rtn = self.http.get('/trends/daily')
-        results = rtn['trends'].popitem()
-        daily = TrendsResults()
-        daily.title = 'Daily Trends'
-        daily.timestamp = results[0]
-        daily.items = self.json_to_trend(results[1])
+    #    rtn = self.http.get('/trends/daily')
+    #    results = rtn['trends'].popitem()
+    #    daily = TrendsResults()
+    #    daily.title = 'Daily Trends'
+    #    daily.timestamp = results[0]
+    #    daily.items = self.json_to_trend(results[1])
 
-        rtn = self.http.get('/trends/weekly')
-        results = rtn['trends'].popitem()
-        weekly = TrendsResults()
-        weekly.title = 'Weekly Trends'
-        weekly.timestamp = results[0]
-        weekly.items = self.json_to_trend(results[1])
-        return [current, daily, weekly]
+    #    rtn = self.http.get('/trends/weekly')
+    #    results = rtn['trends'].popitem()
+    #    weekly = TrendsResults()
+    #    weekly.title = 'Weekly Trends'
+    #    weekly.timestamp = results[0]
+    #    weekly.items = self.json_to_trend(results[1])
+    #    return [current, daily, weekly]
 
     def is_friend(self, user):
-        self.log.debug('Testing friendship of %s against %s' % (self.uname, user))
         result = self.http.get('/friendships/show',
                               {'source_screen_name': self.uname,
                               'target_screen_name': user})
         return result['relationship']['target']['following']
 
     def get_profile_image(self, user):
-        self.log.debug('Getting profile image for %s' % (user))
-        url = '/users/profile_image/%s' % user
-        result = self.http.get(url, {'size': 'original'},
-                              fmt='xml', redirect=False)
-        return result
+        rtn = self.http.get('/users/show', {'screen_name': user})
+        return rtn['profile_image_url'].replace('_normal', '')
 
     #################################################################
     # Methods to convert JSON responses into objects
