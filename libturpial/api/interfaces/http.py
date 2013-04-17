@@ -377,9 +377,13 @@ class TurpialHTTPBasicAuth(TurpialHTTPBase):
     >>> http.post('/my_second/end_point', args={'arg1': '2'}, _format='json')
 
     """
-    def __init__(self, base_url, username, password, proxies=None, timeout=None):
+    def __init__(self, base_url, proxies=None, timeout=None):
         TurpialHTTPBase.__init__(self, base_url, proxies, timeout)
 
+    def set_user_info(self, usernamem, password):
+        """
+        Set the *username* and *password* for the basic authentication
+        """
         auth_info = base64.b64encode("%s:%s" % (username, password))
         self.basic_auth_info = ''.join(["Basic ", auth_info])
 

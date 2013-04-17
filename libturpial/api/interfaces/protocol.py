@@ -97,7 +97,7 @@ class Protocol:
 
         For Basic Auth do:
 
-        >>> self.http = TurpialHTTPBasicAuth(base_url, username, password)
+        >>> self.http = TurpialHTTPBasicAuth(base_url)
         """
         raise NotImplementedError
 

@@ -6,7 +6,6 @@ from libturpial.api.models.list import List
 from libturpial.api.models.status import Status
 from libturpial.api.models.entity import Entity
 from libturpial.api.models.profile import Profile
-from libturpial.api.models.ratelimit import RateLimit
 from libturpial.api.interfaces.protocol import Protocol
 from libturpial.api.interfaces.http import TurpialHTTPOAuth
 from libturpial.api.models.trend import Trend, TrendsResults
@@ -478,14 +477,6 @@ class Main(Protocol):
             status.set_display_id(column_id)
             status.get_source(source)
             return status
-
-    def json_to_ratelimit(self, response):
-        rate = RateLimit()
-        rate.hourly_limit = response['hourly_limit']
-        rate.remaining_hits = response['remaining_hits']
-        rate.reset_time = response['reset_time']
-        rate.reset_time_in_seconds = response['reset_time_in_seconds']
-        return rate
 
     def json_to_list(self, response):
         if isinstance(response, list):

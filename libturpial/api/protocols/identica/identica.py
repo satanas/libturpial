@@ -1,179 +1,56 @@
 # -*- coding: utf-8 -*-
 
 """ Identi.ca implementation for Turpial"""
-#
-# Author: Wil Alvarez (aka Satanas)
-# Jun 08, 2010
 
 import re
-import base64
 
-from libturpial.common import *
-from libturpial.api.models.entity import Entity
 from libturpial.api.models.status import Status
+from libturpial.api.models.entity import Entity
 from libturpial.api.models.profile import Profile
 from libturpial.api.interfaces.protocol import Protocol
-from libturpial.api.protocols.identica.params import CK, CS, SALT, POST_ACTIONS
+from libturpial.api.interfaces.http import TurpialHTTPBasicAuth
+from libturpial.common import NUM_STATUSES, StatusType, StatusColumn
 
 
 class Main(Protocol):
     """Identi.ca implementation for libturpial"""
     GROUP_PATTERN = re.compile('(?<![\w])![\wáéíóúÁÉÍÓÚñÑçÇ]+')
 
-    def __init__(self, username, account_id, auth):
-        p_name = 'Identi.ca(%s)' % username
-        Protocol.__init__(self, account_id, p_name,
-                          'https://identi.ca/api',
-                          'http://identi.ca/api',
-                          'http://identi.ca/tag',
-                          'http://identi.ca/group',
-                          'http://identi.ca',
-                          POST_ACTIONS)
-
-        self.REQUEST_TOKEN_URL = 'https://identi.ca/api/oauth/request_token'
-        self.ACCESS_TOKEN_URL = 'https://identi.ca/api/oauth/access_token'
-        self.AUTHORIZATION_URL = 'https://identi.ca/api/oauth/authorize'
-
-        self.oauth_support = False
+    def __init__(self):
         self.uname = None
-        self.set_consumer(CK, base64.b64decode(CS + SALT))
-        if auth:
-            self.set_auth_info(auth)
+        self.base_url = 'https://identi.ca/api'
+        self.search_url = 'http://identi.ca/api'
+        self.hashtags_url = 'http://identi.ca/tag'
+        self.profiles_url = 'http://identi.ca'
+        self.groups_url = 'http://identi.ca/group'
 
-    def get_entities(self, status):
-        """
-        Returns a dict with all the extracted URLs, hashtags, mentions and
-        groups from *status*
-        """
-        entities = {
-            'urls': [],
-            'hashtags': [],
-            'mentions': [],
-            'groups': [],
-        }
-        text = status['text']
+        Protocol.__init__(self)
 
-        for url in get_urls(text):
-            entities['urls'].append(Entity(self.account_id, url, url, url))
+    def __build_basic_args(self, count, since_id):
+        args = {'count': count, 'include_entities': True}
+        if since_id:
+            args['since_id'] = since_id
+        return args
 
-        for item in HASHTAG_PATTERN.findall(text):
-            url = "%s/%s" % (self.urls['hashtags'], item[1:])
-            entities['hashtags'].append(Entity(self.account_id, url, item, item))
+    def initialize_http(self):
+        self.http = TurpialHTTPBasicAuth(self.base_url)
 
-        for item in MENTION_PATTERN.findall(text):
-            entities['mentions'].append(Entity(self.account_id, item[1:], item, item))
-        return entities
+    def setup_user_account(self, account_id, username, password):
+        self.account_id = account_id
+        self.http.set_user_info(username, password)
+        self.uname = account_id.split('-')[0]
 
 
-    def json_to_profile(self, response):
-        if isinstance(response, list):
-            profiles = []
-            for pf in response:
-                profile = self.json_to_profile(json_to_profile)
-                profiles.append(profile)
-            return profiles
-        else:
-            profile = Profile()
-            profile.id_ = str(response['id'])
-            profile.account_id = self.account_id
-            profile.fullname = response['name']
-            profile.username = response['screen_name']
-            profile.avatar = response['profile_image_url']
-            profile.location = response['location']
-            profile.url = response['url']
-            profile.bio = response['description']
-            profile.following = response['following']
-            profile.followers_count = response['followers_count']
-            profile.friends_count = response['friends_count']
-            profile.statuses_count = response['statuses_count']
-            profile.favorites_count = response['favourites_count']
-            profile.protected = response['protected']
-            if 'status' in response:
-                profile.last_update = response['status']['text']
-                profile.last_update_id = response['status']['id']
-            profile.link_color = Profile.DEFAULT_LINK_COLOR
-            return profile
+    #################################################################
+    # Methods related to Twitter service
+    #################################################################
 
-    def json_to_status(self, response, column_id='', _type=StatusType.NORMAL):
-        if isinstance(response, list):
-            statuses = []
-            for resp in response:
-                if not resp:
-                    continue
-                status = self.json_to_status(resp, column_id, _type)
-                statuses.append(status)
-            return statuses
-        else:
-            reposted_by = None
-            if 'retweeted_status' in response:
-                reposted_by = response['user']['screen_name']
-                post = response['retweeted_status']
-            else:
-                post = response
-
-            protected = False
-            if 'user' in post:
-                username = post['user']['screen_name']
-                avatar = post['user']['profile_image_url']
-                protected = post['user']['protected']
-            elif 'sender' in post:
-                username = post['sender']['screen_name']
-                avatar = post['sender']['profile_image_url']
-                protected = post['sender']['protected']
-            elif 'from_user' in post:
-                username = post['from_user']
-                avatar = post['profile_image_url']
-
-            in_reply_to_id = None
-            in_reply_to_user = None
-            if 'in_reply_to_status_id' in post and post['in_reply_to_status_id']:
-                in_reply_to_id = post['in_reply_to_status_id']
-                in_reply_to_user = post['in_reply_to_screen_name']
-
-            fav = False
-            if 'favorited' in post:
-                fav = post['favorited']
-
-            source = None
-            if 'source' in post:
-                source = post['source']
-
-            status = Status()
-            status.id_ = str(post['id'])
-            status.username = username
-            status.avatar = avatar
-            status.text = post['text']
-            status.in_reply_to_id = in_reply_to_id
-            status.in_reply_to_user = in_reply_to_user
-            status.is_favorite = fav
-            status.is_protected = protected
-            status.is_verified = False
-            status.reposted_by = reposted_by
-            status.datetime = self.get_str_time(post['created_at'])
-            status.timestamp = self.get_int_time(post['created_at'])
-            status.entities = self.get_entities(post)
-            status._type = _type
-            status.account_id = self.account_id
-            status.is_own = (username.lower() == self.uname.lower())
-            status.set_display_id(column_id)
-            status.get_source(source)
-            return status
-
-    def auth(self, username, password):
-        self.log.debug('Starting auth')
-        if not self.oauth_support:
-            self.set_auth_info({'username': username, 'password': password})
+    def verify_credentials(self):
         rtn = self.request('/account/verify_credentials', secure=True)
         profile = self.json_to_profile(rtn)
         self.uname = profile.username
         return profile
 
-    def get_entities(self, status):
-        entities = Protocol.get_entities(self, status)
-        for item in self.GROUP_PATTERN.findall(status['text']):
-            url = "%s/%s" % (self.urls['groups'], item[1:])
-            entities['groups'].append(Entity(self.account_id, url, item, item))
-        return entities
 
     def get_timeline(self, count=STATUSPP, since_id=None):
         self.log.debug('Getting timeline')
@@ -397,3 +274,106 @@ class Main(Protocol):
         #result = self.request('/users/profile_image',
         #    {'screen_name': user, 'size': 'original'}, fmt='xml')
         return result
+
+
+   def get_entities(self, status):
+        entities = Protocol.get_entities(self, status)
+        for item in self.GROUP_PATTERN.findall(status['text']):
+            url = "%s/%s" % (self.urls['groups'], item[1:])
+            entities['groups'].append(Entity(self.account_id, url, item, item))
+        return entities
+
+    def json_to_profile(self, response):
+        if isinstance(response, list):
+            profiles = []
+            for pf in response:
+                profile = self.json_to_profile(json_to_profile)
+                profiles.append(profile)
+            return profiles
+        else:
+            profile = Profile()
+            profile.id_ = str(response['id'])
+            profile.account_id = self.account_id
+            profile.fullname = response['name']
+            profile.username = response['screen_name']
+            profile.avatar = response['profile_image_url']
+            profile.location = response['location']
+            profile.url = response['url']
+            profile.bio = response['description']
+            profile.following = response['following']
+            profile.followers_count = response['followers_count']
+            profile.friends_count = response['friends_count']
+            profile.statuses_count = response['statuses_count']
+            profile.favorites_count = response['favourites_count']
+            profile.protected = response['protected']
+            if 'status' in response:
+                profile.last_update = response['status']['text']
+                profile.last_update_id = response['status']['id']
+            profile.link_color = Profile.DEFAULT_LINK_COLOR
+            return profile
+
+    def json_to_status(self, response, column_id='', _type=StatusType.NORMAL):
+        if isinstance(response, list):
+            statuses = []
+            for resp in response:
+                if not resp:
+                    continue
+                status = self.json_to_status(resp, column_id, _type)
+                statuses.append(status)
+            return statuses
+        else:
+            reposted_by = None
+            if 'retweeted_status' in response:
+                reposted_by = response['user']['screen_name']
+                post = response['retweeted_status']
+            else:
+                post = response
+
+            protected = False
+            if 'user' in post:
+                username = post['user']['screen_name']
+                avatar = post['user']['profile_image_url']
+                protected = post['user']['protected']
+            elif 'sender' in post:
+                username = post['sender']['screen_name']
+                avatar = post['sender']['profile_image_url']
+                protected = post['sender']['protected']
+            elif 'from_user' in post:
+                username = post['from_user']
+                avatar = post['profile_image_url']
+
+            in_reply_to_id = None
+            in_reply_to_user = None
+            if 'in_reply_to_status_id' in post and post['in_reply_to_status_id']:
+                in_reply_to_id = post['in_reply_to_status_id']
+                in_reply_to_user = post['in_reply_to_screen_name']
+
+            fav = False
+            if 'favorited' in post:
+                fav = post['favorited']
+
+            source = None
+            if 'source' in post:
+                source = post['source']
+
+            status = Status()
+            status.id_ = str(post['id'])
+            status.username = username
+            status.avatar = avatar
+            status.text = post['text']
+            status.in_reply_to_id = in_reply_to_id
+            status.in_reply_to_user = in_reply_to_user
+            status.is_favorite = fav
+            status.is_protected = protected
+            status.is_verified = False
+            status.reposted_by = reposted_by
+            status.datetime = self.get_str_time(post['created_at'])
+            status.timestamp = self.get_int_time(post['created_at'])
+            status.entities = self.get_entities(post)
+            status._type = _type
+            status.account_id = self.account_id
+            status.is_own = (username.lower() == self.uname.lower())
+            status.set_display_id(column_id)
+            status.get_source(source)
+            return status
+
