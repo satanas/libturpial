@@ -380,7 +380,7 @@ class TurpialHTTPBasicAuth(TurpialHTTPBase):
     def __init__(self, base_url, proxies=None, timeout=None):
         TurpialHTTPBase.__init__(self, base_url, proxies, timeout)
 
-    def set_user_info(self, usernamem, password):
+    def set_user_info(self, username, password):
         """
         Set the *username* and *password* for the basic authentication
         """

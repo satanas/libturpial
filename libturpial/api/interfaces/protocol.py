@@ -19,18 +19,6 @@ class Protocol:
     """
 
     def __init__(self):
-        #self.name = protocol_name
-        #self.account_id = account_id
-
-        #self.urls['api'] = api_url
-        #self.urls['search'] = search_url
-        #if hashtags_url:
-        #    self.urls['hashtags'] = hashtags_url
-        #if tags_url:
-        #    self.urls['groups'] = groups_url
-        #if tags_url:
-        #    self.urls['profiles'] = profiles_url
-
         self.initialize_http()
 
         self.log = logging.getLogger('change me')
@@ -82,6 +70,26 @@ class Protocol:
         """
         t = self.convert_time(strdate)
         return time.mktime(t)
+
+    def get_entities(self, status):
+        entities = {
+            'urls': [],
+            'hashtags': [],
+            'mentions': [],
+            'groups': [],
+        }
+        text = status['text']
+
+        for url in get_urls(text):
+            entities['urls'].append(Entity(self.account_id, url, url, url))
+
+        for item in HASHTAG_PATTERN.findall(text):
+            url = "%s/%s" % (self.hashtags_url, item[1:])
+            entities['hashtags'].append(Entity(self.account_id, url, item, item))
+
+        for item in MENTION_PATTERN.findall(text):
+            entities['mentions'].append(Entity(self.account_id, item[1:], item, item))
+        return entities
 
     # ------------------------------------------------------------
     # Methods to be overwritten
