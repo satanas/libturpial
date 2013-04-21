@@ -92,7 +92,6 @@ class Main(Protocol):
     def get_lists(self, username):
         rtn = self.http.get('/lists/list', {'screen_name': username})
         lists = self.json_to_list(rtn)
-        self.log.debug('--Downloaded %i lists' % len(lists))
         return lists
 
     def get_list_statuses(self, list_id, count=NUM_STATUSES, since_id=None):
@@ -109,7 +108,6 @@ class Main(Protocol):
         while 1:
             rtn = self.http.get('/statuses/show', {'id': status_id,
                                'include_entities': True})
-            self.log.debug('--Fetched status: %s' % status_id)
             conversation.append(self.json_to_status(rtn,
                                 StatusColumn.CONVERSATION))
 
@@ -162,7 +160,6 @@ class Main(Protocol):
             else:
                 break
 
-        self.log.debug('--Downloaded %i followers' % len(followers))
         return followers
 
     def get_following(self, only_id=False):
@@ -203,7 +200,6 @@ class Main(Protocol):
             else:
                 break
 
-        self.log.debug('--Downloaded %i following' % len(following))
         return following
 
     def get_profile(self, user):
