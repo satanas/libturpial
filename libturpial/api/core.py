@@ -13,12 +13,12 @@ import tempfile
 import traceback
 
 from libturpial.common import *
-from libturpial.config import AppConfig
+from libturpial.lib.config import AppConfig
 from libturpial.common.exceptions import *
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
-from libturpial.api.models.accountmanager import AccountManager
+from libturpial.lib.accountmanager import AccountManager
 from libturpial.api.services.shorturl import URL_SERVICES
 from libturpial.api.services.uploadpic import PIC_SERVICES
 from libturpial.api.services.showmedia import SHOWMEDIA_SERVICES

@@ -6,7 +6,7 @@
 # Mar 13, 2011
 
 from libturpial.common import *
-from libturpial.config import AccountConfig
+from libturpial.lib.config import AccountConfig
 from libturpial.api.models.profile import Profile
 from libturpial.api.protocols.twitter import twitter
 from libturpial.api.protocols.identica import identica
