@@ -374,7 +374,7 @@ class Core:
             return self.__handle_exception(exc)
 
     def get_column_statuses(self, acc_id, col_id,
-                            count=STATUSPP, since_id=None):
+                            count=NUM_STATUSES, since_id=None):
         """Fetch the statuses for the account *acc_id* and the column *col_id*.
         *count* let you specify how many statuses do you want to fetch, values
         range goes from 0-200. If *since_id* is not **None** libturpial will
@@ -408,7 +408,7 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
 
-    def get_public_timeline(self, acc_id, count=STATUSPP, since_id=None):
+    def get_public_timeline(self, acc_id, count=NUM_STATUSES, since_id=None):
         """Fetch the public timeline for the service associated to the
         account *acc_id*. *count* and *since_id* work in the same way
         that in :meth:`libturpial.api.core.Core.get_column_statuses`
@@ -572,7 +572,7 @@ class Core:
         except Exception, exc:
             return self.__handle_exception(exc)
 
-    def search(self, acc_id, query, count=STATUSPP, since_id=None):
+    def search(self, acc_id, query, count=NUM_STATUSES, since_id=None):
         try:
             account = self.accman.get(str(acc_id), False)
             # The unquote is to ensure that the query is not url-encoded. The
