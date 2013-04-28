@@ -12,6 +12,8 @@ import logging
 import ConfigParser
 
 from libturpial.api.models.column import Column
+from libturpial.common import get_username_from, get_protocol_from
+from libturpial.common.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials
 
 try:
     from xdg import BaseDirectory
@@ -289,7 +291,7 @@ class AppConfig(ConfigBase):
 
 class AccountConfig(ConfigBase):
 
-    def __init__(self, account_id, pw=None):
+    def __init__(self, account_id):
         ConfigBase.__init__(self, default=ACCOUNT_CFG)
         self.log = logging.getLogger('AccountConfig')
         self.basedir = os.path.join(BASEDIR, 'accounts', account_id)
@@ -305,32 +307,63 @@ class AccountConfig(ConfigBase):
         self.log.debug('CACHEDIR: %s' % self.imgdir)
         self.log.debug('CONFIGFILE: %s' % self.configpath)
 
-        exist = True
         if not os.path.isdir(self.basedir):
             os.makedirs(self.basedir)
         if not os.path.isdir(self.imgdir):
             os.makedirs(self.imgdir)
-        if not os.path.isfile(self.configpath):
+        if not self.exists(account_id):
             self.create()
-            exist = False
 
         try:
             self.load()
         except Except, exc:
             self.load_failsafe()
 
-        if not exist:
-            us = account_id.split('-')[0]
-            pt = account_id.split('-')[1]
-            self.write('Login', 'username', us)
-            self.write('Login', 'protocol', pt)
-            self.remember(pw, us)
+        if not self.exists(account_id):
+            self.write('Login', 'username', get_username_from(account_id))
+            self.write('Login', 'protocol', get_protocol_from(account_id))
 
-    def remember(self, pw, us):
-        self.write('Login', 'password', self.transform(pw, us))
+    @staticmethod
+    def exists(account_id):
+        basedir = os.path.join(BASEDIR, 'accounts', account_id)
+        configpath = os.path.join(basedir, 'config')
 
-    def forget(self):
+        if not os.path.isfile(configpath):
+            return False
+        return True
+
+
+    def save_oauth_credentials(self, key, secret, verifier):
+        self.write('OAuth', 'key', key)
+        self.write('OAuth', 'secret', secret)
+        self.write('OAuth', 'verifier', verifier)
+
+    def save_basic_credentials(self, username, password):
+        self.write('Login', 'username', username)
+        self.write('Login', 'password', self.transform(password, username))
+
+    def load_oauth_credentials(self):
+        key = self.read('OAuth', 'key')
+        secret = self.read('OAuth', 'secret')
+        verifier = self.read('OAuth', 'verifier')
+        if key and secret and verifier:
+            return key, secret, verifier
+        else:
+            raise EmptyOAuthCredentials
+
+    def load_basic_credentials(self):
+        username = self.read('Login', 'username')
+        password = self.revert(self.read('Login', 'password'), username)
+        if username and password:
+            return username, password
+        else:
+            raise EmptyBasicCredentials
+
+    def forget_credentials(self):
         self.write('Login', 'password', '')
+        self.write('OAuth', 'key', '')
+        self.write('OAuth', 'secret', '')
+        self.write('OAuth', 'verifier', '')
 
     def transform(self, pw, us):
         a = base64.b16encode(pw)
