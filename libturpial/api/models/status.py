@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-""" Module to handle statuses information """
-
 import xml.sax.saxutils as saxutils
 
 from libturpial.api.models.client import Client
@@ -33,7 +31,10 @@ class Status:
         self.display_id = None
 
     def get_mentions(self):
-        """Returns all usernames mentioned in status (even the author)"""
+        """
+        Returns all usernames mentioned in status (even the author of the 
+        status)
+        """
         account = self.account_id.split('-')[0]
         mentions = [self.username]
         if 'mentions' in self.entities:
@@ -52,6 +53,10 @@ class Status:
         return self.account_id.split('-')[1]
 
     def get_source(self, source):
+        """
+        Parse the source text in the status and store it in a 
+        :class:`libturpial.api.models.client.Client` object.
+        """
         if not source:
             self.source = None
         else:
