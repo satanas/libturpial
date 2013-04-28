@@ -28,6 +28,9 @@ def get_username_from(account_id):
 def get_protocol_from(account_id):
     return account_id.split('-')[1]
 
+def build_account_id(username, protocol_id):
+    return "%s-%s" % (username, protocol_id)
+
 class ProtocolType:
     TWITTER = 'twitter' #: Twitter
     IDENTICA = 'identica' #: Identica

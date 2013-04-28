@@ -14,6 +14,9 @@ class EmptyBasicCredentials(Exception):
 class AccountAlreadyExists(Exception):
     pass
 
+class ErrorCreatingAccount(Exception):
+    pass
+
 class ErrorLoadingAccount(Exception):
     def __init__(self):
         self.message = "Account has no stored credentials"

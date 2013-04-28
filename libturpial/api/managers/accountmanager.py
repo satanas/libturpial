@@ -7,9 +7,10 @@
 
 import logging
 
-from libturpial.common import LoginStatus
+from libturpial.common import LoginStatus, build_account_id
 from libturpial.lib.config import AccountConfig
 from libturpial.api.models.account import Account
+from libturpial.common.exceptions import ErrorCreatingAccount
 
 
 class AccountManager:
@@ -26,50 +27,32 @@ class AccountManager:
         return self.__accounts.iteritems()
 
     def load(self, account_id):
-        cfg = AccountConfig(account_id)
-        auth = cfg.read_section('OAuth')
-        username = cfg.read('Login', 'username')
-        protocol = cfg.read('Login', 'protocol')
-        p = cfg.revert(cfg.read('Login', 'password'), username)
-
-        if account_id in self.__accounts:
-            self.log.debug('Account %s is already registered' % account_id)
-        else:
-            account = Account(username, account_id, protocol, p, auth, cfg)
-            timeout = int(self.config.read('Advanced', 'socket-timeout'))
-            account.protocol.timeout = timeout
-            self.log.debug('Using %i sec for socket timeout in account %s' % (
-                account.protocol.timeout, account_id))
-            self.__accounts[account_id] = account
-            self.log.debug('Account %s loaded successfully' % account_id)
+        self.__accounts[account_id] = Account.load(account_id)
+        self.log.debug('Account %s loaded successfully' % account_id)
         return account_id
 
-    def change_id(self, original_id, destination_id):
-        account = self.get(original_id)
-        new_id = "%s-%s" % (destination_id, account.protocol_id)
-        self.unregister(original_id, True)
-        account.username = destination_id
-        account.profile.username = destination_id
-        account.config = AccountConfig(new_id, "")
-        account.store_token()
-        account.id_ = new_id
-        self.__accounts[new_id] = account
-        return new_id
-
-    def register(self, username, protocol_id, passwd, auth):
+    def register_oauth_account(self, protocol_id, username, key, secret, verifier):
         if username == '' or protocol_id == '':
-            return None
+            raise ErrorCreatingAccount
 
-        account_id = "%s-%s" % (username, protocol_id)
+        account_id = build_account_id(username, protocol_id)
         if account_id in self.__accounts:
             self.log.debug('Account %s is already registered' % account_id)
-            self.__accounts[account_id].update(passwd)
         else:
-            account = Account(username, account_id, protocol_id, passwd, auth)
-            timeout = int(self.config.read('Advanced', 'socket-timeout'))
-            account.protocol.timeout = timeout
-            self.log.debug('Using %i sec for socket timeout in account %s' % (
-                account.protocol.timeout, account_id))
+            account = Account.new_oauth(protocol_id, username, key, secret, verifier)
+            self.__accounts[account_id] = account
+            self.log.debug('Account %s registered successfully' % account_id)
+        return account_id
+
+    def register_basic_account(self, protocol_id, username, password):
+        if username == '' or protocol_id == '':
+            raise ErrorCreatingAccount
+
+        account_id = build_account_id(username, protocol_id)
+        if account_id in self.__accounts:
+            self.log.debug('Account %s is already registered' % account_id)
+        else:
+            account = Account.new_basic(protocol_id, username, password)
             self.__accounts[account_id] = account
             self.log.debug('Account %s registered successfully' % account_id)
         return account_id

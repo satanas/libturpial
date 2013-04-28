@@ -30,6 +30,7 @@ class Account(object):
 
         self.username = username
         self.protocol_id = protocol_id
+        self.logged_in = LoginStatus.NONE
 
         self.columns = []
         self.profile = None
@@ -42,7 +43,10 @@ class Account(object):
             self.protocol = identica.Main()
 
         self.config = AccountConfig(self.id_)
-        self.logged_in = LoginStatus.NONE
+
+        timeout = int(self.config.read('Advanced', 'socket-timeout'))
+        self.protocol.timeout = timeout
+
 
     @staticmethod
     def new_oauth(protocol_id, username, key, secret, verifier):
