@@ -8,8 +8,8 @@
 from libturpial.common import *
 from libturpial.lib.config import AccountConfig
 from libturpial.api.models.profile import Profile
-from libturpial.api.protocols.twitter import twitter
-from libturpial.api.protocols.identica import identica
+from libturpial.lib.protocols.twitter import twitter
+from libturpial.lib.protocols.identica import identica
 
 
 class Account:
@@ -20,9 +20,12 @@ class Account:
         self.protocol_id = protocol_id
 
         if protocol_id == ProtocolType.TWITTER:
-            self.protocol = twitter.Main(username, self.id_, auth_info)
+            self.protocol = twitter.Main()
         elif protocol_id == ProtocolType.IDENTICA:
-            self.protocol = identica.Main(username, self.id_, auth_info)
+            self.protocol = identica.Main()
+
+        self.protocol.setup_user_account(self.id_, auth_info['key'],
+                auth_info['secret'], auth_info['verifier'])
 
         self.profile = Profile()
         self.profile.username = username
@@ -30,7 +33,6 @@ class Account:
         self.friends = None
         self.columns = []
         self.lists = None
-        #self.token = None
         self.logged_in = LoginStatus.NONE
         if config:
             self.config = config

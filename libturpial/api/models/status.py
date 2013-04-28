@@ -2,11 +2,14 @@
 
 import xml.sax.saxutils as saxutils
 
+from libturpial.common import CLIENT_PATTERN
 from libturpial.api.models.client import Client
-from libturpial.common import StatusType, CLIENT_PATTERN
 
 
 class Status:
+    NORMAL = 0x1
+    DIRECT = 0x2
+
     def __init__(self):
         self.id_ = None
         self.text = None
@@ -47,9 +50,15 @@ class Status:
         self.display_id = "%s-%s-%s" % (self.account_id, self.id_, column_id)
 
     def is_direct(self):
-        return (self._type == StatusType.DIRECT)
+        """
+        Returns **True** if status is a direct message
+        """
+        return self._type == DIRECT
 
     def get_protocol_id(self):
+        """
+        Returns the *protocol_id* for this status
+        """
         return self.account_id.split('-')[1]
 
     def get_source(self, source):

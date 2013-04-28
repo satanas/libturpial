@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-""" Module to handle profiles information """
-#
-# Author: Wil Alvarez (aka Satanas)
-# Mar 12, 2011
-
 
 class Profile:
-    DEFAULT_LINK_COLOR = '#0F0F85'
+    """
+    This model handles a user profile.
+    """
 
     def __init__(self):
         self.id_ = None
@@ -40,6 +37,9 @@ class Profile:
         return False
 
     def get_protocol_id(self):
+        """
+        Returns the *protocol_id* for this profile
+        """
         if self.account_id:
             return self.account_id.split('-')[1]
         else:

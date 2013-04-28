@@ -39,11 +39,7 @@ class StatusColumn:
     SINGLE = 'single'
 
 
-class StatusType:
-    NORMAL = 0x1
-    DIRECT = 0x2
-
-
+# TODO: Migrate this values inside column module
 class ColumnType:
     TIMELINE = 'timeline'
     REPLIES = 'replies'
