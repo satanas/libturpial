@@ -27,6 +27,10 @@ class AccountManager:
         return self.__accounts.iteritems()
 
     def load(self, account_id):
+        # TODO: Set the timeout
+        #timeout = int(self.config.read('Advanced', 'socket-timeout'))
+        #self.protocol.timeout = timeout
+
         self.__accounts[account_id] = Account.load(account_id)
         self.log.debug('Account %s loaded successfully' % account_id)
         return account_id

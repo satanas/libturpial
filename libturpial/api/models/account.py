@@ -44,9 +44,6 @@ class Account(object):
 
         self.config = AccountConfig(self.id_)
 
-        timeout = int(self.config.read('Advanced', 'socket-timeout'))
-        self.protocol.timeout = timeout
-
 
     @staticmethod
     def new_oauth(protocol_id, username, key, secret, verifier):

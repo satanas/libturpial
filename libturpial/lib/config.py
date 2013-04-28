@@ -118,6 +118,7 @@ class ConfigBase:
                     self.__config[section][option] = self.cfg.get(section, option)
                 else:
                     self.write(section, option, value)
+
         self.log.debug('Loaded configuration')
 
     def load_failsafe(self):

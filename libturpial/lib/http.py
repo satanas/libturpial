@@ -68,7 +68,7 @@ class TurpialHTTPBase:
         else:
             basedir = os.path.dirname(__file__)
             self.ca_certs_file = os.path.realpath(os.path.join(basedir,
-                '..', '..', 'certs', 'cacert.pem'))
+                '..', 'certs', 'cacert.pem'))
 
     def __validate_ssl_cert(self, request):
         req = request.split('://')[1]
