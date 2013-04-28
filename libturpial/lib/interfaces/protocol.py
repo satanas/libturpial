@@ -9,7 +9,7 @@ import datetime
 from libturpial.common import *
 from libturpial.common.tools import *
 from libturpial.api.models.entity import Entity
-from libturpial.api.interfaces.http import TurpialHTTPBase
+from libturpial.lib.http import TurpialHTTPBase
 
 
 class Protocol:
@@ -108,6 +108,13 @@ class Protocol:
         >>> self.http = TurpialHTTPBasicAuth(base_url)
         """
         raise NotImplementedError
+
+    def setup_user_credentials(self):
+        """
+        Set the information related to user credentials. *key*, *secret* and
+        *verifier* for the OAuth case and *username*, *password* in the Basic
+        case
+        """
 
     def json_to_profile(self, response):
         """

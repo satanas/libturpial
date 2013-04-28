@@ -7,9 +7,10 @@ import re
 from libturpial.api.models.status import Status
 from libturpial.api.models.entity import Entity
 from libturpial.api.models.profile import Profile
-from libturpial.api.interfaces.protocol import Protocol
-from libturpial.api.interfaces.http import TurpialHTTPBasicAuth
-from libturpial.common import NUM_STATUSES, StatusType, StatusColumn
+
+from libturpial.lib.interfaces.protocol import Protocol
+from libturpial.lib.http import TurpialHTTPBasicAuth
+from libturpial.common import NUM_STATUSES, StatusColumn
 
 # TODO:
 # * Change for loops for list comprehension
@@ -37,7 +38,7 @@ class Main(Protocol):
     def initialize_http(self):
         self.http = TurpialHTTPBasicAuth(self.base_url)
 
-    def setup_user_account(self, account_id, username, password):
+    def setup_user_credentials(self, account_id, username, password):
         self.account_id = account_id
         self.http.set_user_info(username, password)
         self.uname = account_id.split('-')[0]
@@ -68,13 +69,13 @@ class Main(Protocol):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/direct_messages', args)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
-                                   _type=StatusType.DIRECT)
+                                   _type=Status.DIRECT)
 
     def get_directs_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/direct_messages/sent', args)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
-                                   _type=StatusType.DIRECT)
+                                   _type=Status.DIRECT)
 
     def get_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
@@ -282,7 +283,7 @@ class Main(Protocol):
             profile.link_color = Profile.DEFAULT_LINK_COLOR
             return profile
 
-    def json_to_status(self, response, column_id='', _type=StatusType.NORMAL):
+    def json_to_status(self, response, column_id='', _type=Status.NORMAL):
         if isinstance(response, list):
             statuses = []
             for resp in response:
