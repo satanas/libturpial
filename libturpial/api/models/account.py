@@ -1,54 +1,96 @@
 # -*- coding: utf-8 -*-
 
-""" Module to handle account information """
-#
-# Author: Wil Alvarez (aka Satanas)
-# Mar 13, 2011
-
-from libturpial.common import *
+#from libturpial.common import *
 from libturpial.lib.config import AccountConfig
 from libturpial.api.models.profile import Profile
 from libturpial.lib.protocols.twitter import twitter
 from libturpial.lib.protocols.identica import identica
 
+from libturpial.common import get_username_from, get_protocol_from, ProtocolType, LoginStatus
+from libturpial.common.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials, ErrorLoadingAccount
 
-class Account:
-    def __init__(self, username, account_id, protocol_id,
-                 password, auth_info, config=None):
-        self.id_ = account_id  # username-protocol_id
+
+class Account(object):
+    """
+    This class holds all related methods to an user account. It handles the
+    protocol associated to the user the profile model to store the user details.
+    This is the class you must instanciate if you want to handle a user account.
+
+    The typical way to instanciate a valid account for OAuth is:
+
+    >>> account = Account.new_oauth('twitter', 'my_user', 'key', 'secret', 'verifier')
+
+    And for a Basic account:
+
+    >>> account = Account.new_basic('identica', 'my_user', 'my_password')
+    """
+
+    def __init__(self, protocol_id, username):
+        self.id_ = "%s-%s" % (username, protocol_id)
+
         self.username = username
         self.protocol_id = protocol_id
+
+        self.columns = []
+        self.profile = None
+        self.friends = None
+        self.lists = None
 
         if protocol_id == ProtocolType.TWITTER:
             self.protocol = twitter.Main()
         elif protocol_id == ProtocolType.IDENTICA:
             self.protocol = identica.Main()
 
-        self.protocol.setup_user_account(self.id_, auth_info['key'],
-                auth_info['secret'], auth_info['verifier'])
-
-        self.profile = Profile()
-        self.profile.username = username
-        self.profile.password = password
-        self.friends = None
-        self.columns = []
-        self.lists = None
+        self.config = AccountConfig(self.id_)
         self.logged_in = LoginStatus.NONE
-        if config:
-            self.config = config
-        else:
-            self.config = AccountConfig(account_id, password)
 
-    def auth(self):
-        self.profile = self.protocol.auth(self.profile.username,
-                                          self.profile.password)
+    @staticmethod
+    def new_oauth(protocol_id, username, key, secret, verifier):
+        """
+        If the account exists this method overwrite the previous credentials
+        """
+        account = Account(protocol_id, username)
+        account.setup_user_credentials(account.id_, key, secret, verifier)
+        account.config.save_oauth_credentials(key, secret, verifier)
+        return account
+
+    @staticmethod
+    def new_basic(protocol_id, username, password):
+        """
+        If the account exists this method overwrite the previous credentials
+        """
+        account = Account(protocol_id, username)
+        account.setup_user_credentials(account.id_, username, password)
+        account.config.save_basic_credentials(username, password)
+        return account
+
+    @staticmethod
+    def load(account_id):
+        if not AccountConfig.exists(account_id):
+            raise ErrorLoadingAccount
+
+        username = get_username_from(account_id)
+        protocol_id = get_protocol_from(account_id)
+
+        account = Account(protocol_id, username)
+        try:
+            key, secret, verifier = account.config.load_oauth_credentials()
+            account.setup_user_credentials(account.id_, key, secret, verifier)
+        except EmptyOAuthCredentials:
+            try:
+                username, password = account.config.load_basic_credentials()
+                account.setup_user_credentials(account.id_, username, password)
+            except EmptyBasicCredentials:
+                raise ErrorLoadingAccount
+        return account
+
+    def authenticate(self):
+        self.profile = self.protocol.verify_credentials()
         self.lists = self.protocol.get_lists(self.profile.username)
 
         self.columns = [ColumnType.TIMELINE, ColumnType.REPLIES,
                         ColumnType.DIRECTS, ColumnType.SENT,
-                        ColumnType.FAVORITES]
-        for li in self.lists:
-            self.columns.append(li.name)
+                        ColumnType.FAVORITES] + self.lists
         return self.id_
 
     def get_friends(self):
