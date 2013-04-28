@@ -5,6 +5,18 @@
 # Author: Wil Alvarez (aka Satanas)
 # Jan 07, 2012
 
+class EmptyOAuthCredentials(Exception):
+    pass
+
+class EmptyBasicCredentials(Exception):
+    pass
+
+class AccountAlreadyExists(Exception):
+    pass
+
+class ErrorLoadingAccount(Exception):
+    def __init__(self):
+        self.message = "Account has no stored credentials"
 
 class URLShortenError(Exception):
     """An URL shorten error ocurred"""
