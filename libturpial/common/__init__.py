@@ -22,6 +22,12 @@ CLIENT_PATTERN = re.compile('<a href="(.*?)">(.*?)</a>')
 URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$%&\'()*+,;=]*)')
 
 
+def get_username_from(account_id):
+    return account_id.split('-')[0]
+
+def get_protocol_from(account_id):
+    return account_id.split('-')[1]
+
 class ProtocolType:
     TWITTER = 'twitter' #: Twitter
     IDENTICA = 'identica' #: Identica
