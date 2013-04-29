@@ -171,7 +171,7 @@ class Main(Protocol):
         if 'location' in p_args:
             args['location'] = p_args['location']
 
-        rtn = self.http.post('/account/update_profile', args)
+        rtn = self.http.post('/account/update_profile', args, secure=True)
         return self.json_to_profile(rtn)
 
     def update_status(self, text, in_reply_id=None):
@@ -180,24 +180,24 @@ class Main(Protocol):
         else:
             args = {'status': text}
 
-        rtn = self.http.post('/statuses/update', args)
+        rtn = self.http.post('/statuses/update', args, secure=True)
         return self.json_to_status(rtn)
 
     def destroy_status(self, status_id):
-        rtn = self.http.post('/statuses/destroy', {'id': status_id})
+        rtn = self.http.post('/statuses/destroy', {'id': status_id}, secure=True)
         return self.json_to_status(rtn)
 
     def repeat_status(self, status_id):
-        rtn = self.http.post('/statuses/retweet', {'id': status_id})
+        rtn = self.http.post('/statuses/retweet', {'id': status_id}, secure=True)
         status = self.json_to_status(rtn)
         return status
 
     def mark_as_favorite(self, status_id):
-        rtn = self.http.post('/favorites/create', {'id': status_id})
+        rtn = self.http.post('/favorites/create', {'id': status_id}, secure=True)
         return self.json_to_status(rtn)
 
     def unmark_as_favorite(self, status_id):
-        rtn = self.http.post('/favorites/destroy', {'id': status_id})
+        rtn = self.http.post('/favorites/destroy', {'id': status_id}, secure=True)
         return self.json_to_status(rtn)
 
     def follow(self, screen_name, by_id=False):
@@ -205,17 +205,17 @@ class Main(Protocol):
             arg = {'user_id': screen_name}
         else:
             arg = {'screen_name': screen_name}
-        rtn = self.http.post('/friendships/create', arg)
+        rtn = self.http.post('/friendships/create', arg, secure=True)
         return self.json_to_profile(rtn)
 
     def unfollow(self, screen_name):
         rtn = self.http.post('/friendships/destroy',
-                           {'screen_name': screen_name})
+                           {'screen_name': screen_name}, secure=True)
         return self.json_to_profile(rtn)
 
     def send_direct_message(self, screen_name, text):
         args = {'screen_name': screen_name, 'text': text}
-        rtn = self.http.post('/direct_messages/new', args)
+        rtn = self.http.post('/direct_messages/new', args, secure=True)
         return self.json_to_status(rtn)
 
     def destroy_direct_message(self, direct_message_id):
@@ -223,11 +223,11 @@ class Main(Protocol):
 
 
     def block(self, screen_name):
-        rtn = self.http.post('/blocks/create', {'screen_name': screen_name})
+        rtn = self.http.post('/blocks/create', {'screen_name': screen_name}, secure=True)
         return self.json_to_profile(rtn)
 
     def unblock(self, screen_name):
-        rtn = self.http.post('/blocks/destroy', {'screen_name': screen_name})
+        rtn = self.http.post('/blocks/destroy', {'screen_name': screen_name}, secure=True)
         return self.json_to_profile(rtn)
 
     def search(self, query, count=NUM_STATUSES, since_id=None):
