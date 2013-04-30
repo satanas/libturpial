@@ -5,27 +5,45 @@ from libturpial.api.models.profile import Profile
 from libturpial.lib.protocols.twitter import twitter
 from libturpial.lib.protocols.identica import identica
 
-from libturpial.common import get_username_from, get_protocol_from, ProtocolType, LoginStatus
-from libturpial.common.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials, ErrorLoadingAccount
+from libturpial.common import get_username_from, get_protocol_from, \
+        ProtocolType, LoginStatus, build_account_id
+from libturpial.common.exceptions import EmptyOAuthCredentials, \
+        EmptyBasicCredentials, ErrorLoadingAccount
 
 
 class Account(object):
     """
-    This class holds all related methods to an user account. It handles the
-    protocol associated to the user the profile model to store the user details.
-    This is the class you must instanciate if you want to handle a user account.
+    This class holds all related methods to an user account. It contains a
+    protocol instance associated to the user and the profile model to store the
+    user details. This is the class you must instanciate if you want to handle
+    a user account.
 
-    The typical way to instanciate a valid account for OAuth is:
+    Account let you perform two main actions: create a new account or load an
+    existing one. To create a new valid account based on OAuth authentication
+    do the following:
 
     >>> account = Account.new_oauth('twitter', 'my_user', 'key', 'secret', 'verifier')
 
-    And for a Basic account:
+    And to create a new one for Basic authentication:
 
     >>> account = Account.new_basic('identica', 'my_user', 'my_password')
+
+    Both commands will create a new entry in *~/.config/turpial/accounts/*
+    with all the information about configuration. An existing account can be
+    loaded later only with the account id. For example:
+
+    >>> account = Account.load('my_user-twitter')
+
+    Or
+
+    >>> account = Account.load('my_user-identica')
+
+    From this point you can use the method described here to handle the
+    *account* object.
     """
 
     def __init__(self, protocol_id, username):
-        self.id_ = "%s-%s" % (username, protocol_id)
+        self.id_ = build_account_id(username, protocol_id)
 
         self.username = username
         self.protocol_id = protocol_id
@@ -47,6 +65,11 @@ class Account(object):
     @staticmethod
     def new_oauth(protocol_id, username, key, secret, verifier):
         """
+        Return a new account object based on OAuth authentication. This will
+        create a new entry in *~/.config/turpial/accounts/* with all the
+        configuration stuff. It needs the *username*, the OAuth *key*, the OAuth
+        *secret* and the *verifier* (also known as PIN) given by the service.
+
         If the account exists this method overwrite the previous credentials
         """
         account = Account(protocol_id, username)
@@ -57,6 +80,10 @@ class Account(object):
     @staticmethod
     def new_basic(protocol_id, username, password):
         """
+        Return a new account object based on Basic authentication. This will
+        create a new entry in *~/.config/turpial/accounts/* with all the
+        configuration stuff. It needs the *username* and the *password*.
+
         If the account exists this method overwrite the previous credentials
         """
         account = Account(protocol_id, username)
@@ -66,6 +93,15 @@ class Account(object):
 
     @staticmethod
     def load(account_id):
+        """
+        Return the Account object associated to *account_id* loaded from
+        existing configuration. If the *account_id* does not correspond to a
+        valid account returns a
+        :class:`libturpial.common.exceptions.ErrorLoadingAccount` exception.
+        If credentials in configuration file are empty it returns a 
+        :class:`libturpial.common.exceptions.EmptyOAuthCredentials` or a
+        :class:`libturpial.common.exceptions.EmptyBasicCredentials` exception.
+        """
         if not AccountConfig.exists(account_id):
             raise ErrorLoadingAccount
 
@@ -105,9 +141,6 @@ class Account(object):
             if li.name == list_name:
                 return li.id_
         return None
-
-    def update(self, passwd):
-        self.profile.password = passwd
 
     def purge_config(self):
         """
