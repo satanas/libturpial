@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-#from libturpial.common import *
 from libturpial.lib.config import AccountConfig
 from libturpial.api.models.profile import Profile
 from libturpial.lib.protocols.twitter import twitter
@@ -95,7 +94,7 @@ class Account(object):
         return self.id_
 
     def get_friends(self):
-        self.friends = self.protocol.get_friends()
+        self.friends = self.protocol.get_following(only_id=True)
         return self.friends
 
     def get_columns(self):
@@ -110,26 +109,22 @@ class Account(object):
     def update(self, passwd):
         self.profile.password = passwd
 
-    def set_profile(self, profile):
-        self.profile = profile
-
-    def remove(self, delete_all):
-        if delete_all:
-            self.config.dismiss()
-
-    def authorize_oauth_token(self, pin):
-        token = self.authorize_token(pin)
-        self.store_token(token)
-
-    def store_token(self, token):
-        self.config.write('OAuth', 'key', token.key)
-        self.config.write('OAuth', 'secret', token.secret)
-        self.config.write('OAuth', 'verifier', token.verifier)
+    def purge_config(self):
+        """
+        Delete all config files related to this account
+        """
+        self.config.dismiss()
 
     def delete_cache(self):
+        """
+        Clean cache associated to this account
+        """
         self.config.delete_cache()
 
     def get_cache_size(self):
+        """
+        Return disk space used by cache in bytes
+        """
         return self.config.calculate_cache_size()
 
     def __getattr__(self, name):
