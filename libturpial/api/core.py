@@ -18,11 +18,11 @@ from libturpial.common.exceptions import *
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
-from libturpial.lib.accountmanager import AccountManager
-from libturpial.api.services.shorturl import URL_SERVICES
-from libturpial.api.services.uploadpic import PIC_SERVICES
-from libturpial.api.services.showmedia import SHOWMEDIA_SERVICES
-from libturpial.api.services.showmedia import utils as showmediautils
+from libturpial.lib.services.url import URL_SERVICES
+#from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
+#from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
+from libturpial.api.managers.accountmanager import AccountManager
+from libturpial.lib.services.media.preview import utils as previewutils
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -705,7 +705,7 @@ class Core:
             return response
 
     def get_media_content(self, url, acc_id):
-        service = showmediautils.get_service_from_url(str(url))
+        service = previewutils.get_service_from_url(str(url))
         try:
             return service.do_service(str(url))
         except Exception, exc:

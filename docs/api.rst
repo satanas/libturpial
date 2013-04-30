@@ -18,14 +18,14 @@ Core
 Configuration
 -------------
 
-.. automodule:: libturpial.config
+.. automodule:: libturpial.lib.config
 
 Protocols
 ---------
 
 Protocol.py
 +++++++++++
-.. autoclass:: libturpial.api.interfaces.protocol.Protocol
+.. autoclass:: libturpial.lib.interfaces.protocol.Protocol
 	:members:
 	:undoc-members:
 	:private-members:
@@ -35,7 +35,7 @@ Protocol.py
 Twitter
 +++++++
 
-.. autoclass:: libturpial.api.protocols.twitter.twitter.Main
+.. autoclass:: libturpial.lib.protocols.twitter.twitter.Main
 	:members:
 	:undoc-members:
 	:private-members:
@@ -44,7 +44,7 @@ Twitter
 Identi.ca
 +++++++++
 
-.. autoclass:: libturpial.api.protocols.identica.identica.Main
+.. autoclass:: libturpial.lib.protocols.identica.identica.Main
 	:members:
 	:undoc-members:
 	:private-members:
@@ -53,7 +53,7 @@ Identi.ca
 HTTP
 ----
 
-.. automodule:: libturpial.api.interfaces.http
+.. automodule:: libturpial.lib.http
 
 Constants
 +++++++++
@@ -72,14 +72,14 @@ Constants
 
 TurpialHTTPBase
 +++++++++++++++
-.. autoclass:: libturpial.api.interfaces.http.TurpialHTTPBase
+.. autoclass:: libturpial.lib.http.TurpialHTTPBase
 	:members:
 	:undoc-members:
 	:special-members:
 
 TurpialHTTPOAuth
 ++++++++++++++++
-.. autoclass:: libturpial.api.interfaces.http.TurpialHTTPOAuth
+.. autoclass:: libturpial.lib.http.TurpialHTTPOAuth
 	:members:
 	:undoc-members:
 	:private-members:
@@ -87,7 +87,7 @@ TurpialHTTPOAuth
 
 TurpialHTTPBasicAuth
 ++++++++++++++++++++
-.. autoclass:: libturpial.api.interfaces.http.TurpialHTTPBasicAuth
+.. autoclass:: libturpial.lib.http.TurpialHTTPBasicAuth
 	:members:
 	:undoc-members:
 	:private-members:
@@ -95,7 +95,7 @@ TurpialHTTPBasicAuth
 
 TurpialHTTPRequest
 ++++++++++++++++++
-.. autoclass:: libturpial.api.interfaces.http.TurpialHTTPRequest
+.. autoclass:: libturpial.lib.http.TurpialHTTPRequest
 	:members:
 
 Constants

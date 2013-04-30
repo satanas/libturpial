@@ -4,17 +4,17 @@
 #
 # Author: Andrea Stagi (4ndreaSt4gi)
 
-from libturpial.api.services.uploadpic.yfrog import YfrogUploader
-from libturpial.api.services.uploadpic.imgur import ImgurUploader
-from libturpial.api.services.uploadpic.imgly import ImglyUploader
-from libturpial.api.services.uploadpic.twitgoo import TwitgooUploader
-from libturpial.api.services.uploadpic.twitpic import TwitpicUploader
-from libturpial.api.services.uploadpic.lockerz import LockerzUploader
-from libturpial.api.services.uploadpic.posterous import PosterousUploader
-from libturpial.api.services.uploadpic.mobypicture import MobypictureUploader
+from libturpial.lib.services.media.upload.yfrog import YfrogUploader
+from libturpial.lib.services.media.upload.imgur import ImgurUploader
+from libturpial.lib.services.media.upload.imgly import ImglyUploader
+from libturpial.lib.services.media.upload.twitgoo import TwitgooUploader
+from libturpial.lib.services.media.upload.twitpic import TwitpicUploader
+from libturpial.lib.services.media.upload.lockerz import LockerzUploader
+from libturpial.lib.services.media.upload.posterous import PosterousUploader
+from libturpial.lib.services.media.upload.mobypicture import MobypictureUploader
 
 
-PIC_SERVICES = {
+UPLOAD_MEDIA_SERVICES = {
     'lockerz': LockerzUploader(),
     'yfrog': YfrogUploader(),
     'twitpic': TwitpicUploader(),

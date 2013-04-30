@@ -11,9 +11,9 @@ import httplib
 import urllib2
 import logging
 
-from libturpial.api.interfaces.service import GenericService
-from libturpial.api.interfaces.service import ServiceResponse
-from libturpial.api.interfaces.http import TurpialHTTPRequest
+from libturpial.lib.interfaces.service import GenericService
+from libturpial.lib.interfaces.service import ServiceResponse
+from libturpial.lib.http import TurpialHTTPRequest
 
 try:
     import mimetypes

@@ -8,9 +8,9 @@
 import json
 import traceback
 
-from libturpial.api.models.mediacontent import *
-from libturpial.api.services.showmedia.base import *
-from libturpial.api.interfaces.service import ServiceResponse
+from libturpial.api.models.media import *
+from libturpial.lib.services.media.preview.base import *
+from libturpial.lib.interfaces.service import ServiceResponse
 
 API_KEY = '7ea1d30de2992c783a567df86faa388e'
 

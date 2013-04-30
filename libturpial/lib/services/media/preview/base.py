@@ -11,7 +11,7 @@ import httplib
 import urllib2
 import logging
 
-from libturpial.api.interfaces.service import GenericService
+from libturpial.lib.interfaces.service import GenericService
 
 class ShowMediaService(GenericService):
     def __init__(self):

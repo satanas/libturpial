@@ -5,18 +5,18 @@
 # Author: Andrea Stagi (aka 4ndreaSt4gi)
 # 2012-08-01
 
-from libturpial.api.services.showmedia.imgur import ImgurMediaContent
-from libturpial.api.services.showmedia.lockerz import LockerzMediaContent
-from libturpial.api.services.showmedia.twitpic import TwitpicMediaContent
-from libturpial.api.services.showmedia.yfrog import YfrogMediaContent
-from libturpial.api.services.showmedia.instagram import InstagramMediaContent
-from libturpial.api.services.showmedia.pictwitter import PicTwitterMediaContent
-from libturpial.api.services.showmedia.viame import ViameMediaContent
-from libturpial.api.services.showmedia.flickr import FlickrMediaContent
-from libturpial.api.services.showmedia.youtube import YouTubeMediaContent
-from libturpial.api.services.showmedia.foursquare import FoursquareMediaContent
+from libturpial.lib.services.media.preview.imgur import ImgurMediaContent
+from libturpial.lib.services.media.preview.lockerz import LockerzMediaContent
+from libturpial.lib.services.media.preview.twitpic import TwitpicMediaContent
+from libturpial.lib.services.media.preview.yfrog import YfrogMediaContent
+from libturpial.lib.services.media.preview.instagram import InstagramMediaContent
+from libturpial.lib.services.media.preview.pictwitter import PicTwitterMediaContent
+from libturpial.lib.services.media.preview.viame import ViameMediaContent
+from libturpial.lib.services.media.preview.flickr import FlickrMediaContent
+from libturpial.lib.services.media.preview.youtube import YouTubeMediaContent
+from libturpial.lib.services.media.preview.foursquare import FoursquareMediaContent
 
-SHOWMEDIA_SERVICES = {
+PREVIEW_MEDIA_SERVICES = {
     'imgur': ImgurMediaContent(),
     'lockerz': LockerzMediaContent(),
     'twitpic': TwitpicMediaContent(),

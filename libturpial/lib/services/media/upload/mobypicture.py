@@ -6,8 +6,8 @@
 
 import traceback
 
-from libturpial.api.interfaces.service import ServiceResponse
-from libturpial.api.services.uploadpic.base import UploadService
+from libturpial.lib.interfaces.service import ServiceResponse
+from libturpial.lib.services.media.upload.base import UploadService
 
 MOBYPICTURE_KEY = 'uF6kIJuyGGKsol8i'
 

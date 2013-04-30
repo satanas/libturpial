@@ -9,9 +9,9 @@ import urlparse
 import traceback
 import mimetypes
 
-from libturpial.api.interfaces.http import TurpialHTTPRequest
-from libturpial.api.interfaces.service import ServiceResponse
-from libturpial.api.services.uploadpic.base import UploadService
+from libturpial.lib.http import TurpialHTTPRequest
+from libturpial.lib.interfaces.service import ServiceResponse
+from libturpial.lib.services.media.upload.base import UploadService
 
 LOCKERZ_KEY = '09e874f8-a7ed-4ae4-a810-3cf7040b9c40'
 

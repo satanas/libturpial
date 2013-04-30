@@ -6,8 +6,8 @@
 
 import traceback
 
-from libturpial.api.interfaces.service import ServiceResponse
-from libturpial.api.services.uploadpic.base import UploadService
+from libturpial.lib.interfaces.service import ServiceResponse
+from libturpial.lib.services.media.upload.base import UploadService
 
 TWITPIC_KEY = '57d17b42f1001ffc64bf22ceef98968d'
 

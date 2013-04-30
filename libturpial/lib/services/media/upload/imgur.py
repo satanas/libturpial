@@ -9,8 +9,8 @@ import base64
 import urllib
 import traceback
 
-from libturpial.api.interfaces.service import ServiceResponse
-from libturpial.api.services.uploadpic.base import UploadService
+from libturpial.lib.interfaces.service import ServiceResponse
+from libturpial.lib.services.media.upload.base import UploadService
 
 IMGUR_KEY = '710afc95df6a25864a9f7df6b6a0b103'
 

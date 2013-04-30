@@ -7,7 +7,7 @@
 
 import traceback
 
-from libturpial.api.interfaces.service import *
+from libturpial.lib.interfaces.service import *
 from libturpial.common.exceptions import URLShortenError
 
 

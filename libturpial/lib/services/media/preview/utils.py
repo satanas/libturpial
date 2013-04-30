@@ -5,12 +5,12 @@
 # Author: Andrea Stagi (aka 4ndreaSt4gi)
 # 2010-08-02
 
-from libturpial.api.services.showmedia import SHOWMEDIA_SERVICES
+from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
 
 def get_service_from_url(url):
-    for service in SHOWMEDIA_SERVICES:
-        if SHOWMEDIA_SERVICES[service].can_manage_url(url):
-            return SHOWMEDIA_SERVICES[service]
+    for service in PREVIEW_MEDIA_SERVICES:
+        if PREVIEW_MEDIA_SERVICES[service].can_manage_url(url):
+            return PREVIEW_MEDIA_SERVICES[service]
     return None
 
 def is_service_supported(url):
