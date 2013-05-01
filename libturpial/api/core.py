@@ -121,10 +121,10 @@ class Core:
                     response = Response(code=802)
                 elif msg.find("already requested to follow") > 0:
                     response = Response(code=802)
-                elif msg.find("cannot send messages to users who are not following you") > 0:
-                    response = Response(code=813)
-                elif msg.find("text of your tweet is too long") > 0:
-                    response = Response(code=814)
+                #elif msg.find("cannot send messages to users who are not following you") > 0:
+                #    response = Response(code=813)
+                #elif msg.find("text of your tweet is too long") > 0:
+                #    response = Response(code=814)
                 else:
                     response = Response(code=100)
                     response.errmsg = msg

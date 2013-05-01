@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""Module to handle custom exceptions for Turpial"""
-#
-# Author: Wil Alvarez (aka Satanas)
-# Jan 07, 2012
 
 class EmptyOAuthCredentials(Exception):
     pass
@@ -18,8 +14,52 @@ class ErrorCreatingAccount(Exception):
     pass
 
 class ErrorLoadingAccount(Exception):
-    def __init__(self):
-        self.message = "Account has no stored credentials"
+    def __init__(self, message):
+        self.message = message
+    def __str__(self):
+        return repr(self.message)
+
+class AccountNotLoggedIn(Exception):
+    pass
+
+class AccountSuspended(Exception):
+    pass
+
+class StatusMessageTooLong(Exception):
+    pass
+
+class StatusDuplicated(Exception):
+    pass
+
+class ResourceNotFound(Exception):
+    pass
+
+class ServiceOverCapacity(Exception):
+    pass
+
+class InternalServerError(Exception):
+    pass
+
+class ServiceDown(Exception):
+    pass
+
+class InvalidOrMissingCredentials(Exception):
+    pass
+
+class BadOAuthTimestamp(Exception):
+    pass
+
+class ErrorSendingDirectMessage(Exception):
+    def __init__(self, message):
+        self.message = message
+    def __str__(self):
+        return repr(self.message)
+
+class RateLimitExceeded(Exception):
+    pass
+
+class InvalidOAuthToken(Exception):
+    pass
 
 class URLShortenError(Exception):
     """An URL shorten error ocurred"""

@@ -103,7 +103,7 @@ class Account(object):
         :class:`libturpial.common.exceptions.EmptyBasicCredentials` exception.
         """
         if not AccountConfig.exists(account_id):
-            raise ErrorLoadingAccount
+            raise ErrorLoadingAccount("Account has no stored credentials")
 
         username = get_username_from(account_id)
         protocol_id = get_protocol_from(account_id)

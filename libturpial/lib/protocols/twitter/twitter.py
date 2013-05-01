@@ -11,6 +11,7 @@ from libturpial.lib.http import TurpialHTTPOAuth
 from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.protocols.twitter.params import OAUTH_OPTIONS
 from libturpial.common import NUM_STATUSES, StatusColumn
+from libturpial.common.exceptions import *
 
 # TODO:
 # * Use trim_user wherever we can to improve performance
@@ -33,6 +34,39 @@ class Main(Protocol):
             args['since_id'] = since_id
         return args
 
+    def check_for_errors(self, response):
+        """
+        Receives a json response and raise an exception if there are errors
+        """
+        if response.has_key('errors'):
+            print response
+            code = response['errors'][0]['code']
+            if code == 32 or code == 215 or code == 401:
+                raise InvalidOrMissingCredentials
+            elif code == 34 or code == 404:
+                raise ResourceNotFound
+            elif code == 64:
+                raise AccountSuspended
+            elif code == 88:
+                raise RateLimitExceeded
+            elif code == 89:
+                raise InvalidOAuthToken
+            elif code == 130 or code == 503 or code == 504:
+                raise ServiceOverCapacity
+            elif code = 131 or code == 500:
+                raise InternalServerError
+            elif code == 135:
+                raise BadOAuthTimestamp
+            elif code == 150:
+                raise ErrorSendingDirectMessage('User is not following you')
+            elif code == 186:
+                raise StatusMessageTooLong
+            elif code == 187:
+                raise StatusDuplicated
+            elif code == 502:
+                raise ServiceDown
+
+
     def initialize_http(self):
         self.http = TurpialHTTPOAuth(self.base_url, OAUTH_OPTIONS)
 
@@ -48,6 +82,7 @@ class Main(Protocol):
 
     def verify_credentials(self):
         rtn = self.http.get('/account/verify_credentials', secure=True)
+        self.check_for_errors(rtn)
         profile = self.json_to_profile(rtn)
         self.uname = profile.username
         return profile
@@ -55,22 +90,26 @@ class Main(Protocol):
     def get_timeline(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/statuses/home_timeline', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.TIMELINE)
 
     def get_replies(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/statuses/mentions_timeline', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.REPLIES)
 
     def get_directs(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/direct_messages', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
                                    _type=Status.DIRECT)
 
     def get_directs_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/direct_messages/sent', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
                                    _type=Status.DIRECT)
 
@@ -78,19 +117,23 @@ class Main(Protocol):
         args = self.__build_basic_args(count, since_id)
         args['include_rts'] = True
         rtn = self.http.get('/statuses/user_timeline', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.SENT)
 
     def get_favorites(self, count=NUM_STATUSES):
         rtn = self.http.get('/favorites/list', {'include_entities': True})
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.FAVORITES)
 
     def get_public_timeline(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/statuses/firehose', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.PUBLIC)
 
     def get_lists(self, username):
         rtn = self.http.get('/lists/list', {'screen_name': username})
+        self.check_for_errors(rtn)
         lists = self.json_to_list(rtn)
         return lists
 
@@ -100,6 +143,7 @@ class Main(Protocol):
         if since_id:
             args['since_id'] = since_id
         rtn = self.http.get('/lists/statuses', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, list_id)
 
     def get_conversation(self, status_id):
@@ -120,6 +164,7 @@ class Main(Protocol):
     def get_status(self, status_id):
         rtn = self.http.get('/statuses/show', {'id': status_id,
                            'include_entities': True})
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def get_followers(self, only_id=False):
@@ -213,11 +258,13 @@ class Main(Protocol):
 
     def get_blocked(self):
         rtn = self.http.get('/blocks/list')
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn['users'])
 
     def get_repeaters(self, status_id, only_username=False):
         users = []
         rtn = self.http.get('/statuses/retweets/%s' % status_id)
+        self.check_for_errors(rtn)
         for item in rtn:
             if only_username:
                 users.append(item['user']['screen_name'])
@@ -239,6 +286,7 @@ class Main(Protocol):
             args['location'] = p_args['location']
 
         rtn = self.http.post('/account/update_profile', args)
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def update_status(self, text, in_reply_id=None):
@@ -248,15 +296,18 @@ class Main(Protocol):
             args = {'status': text}
         args['include_entities'] = True
         rtn = self.http.post('/statuses/update', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def destroy_status(self, status_id):
         rtn = self.http.post('/statuses/destroy', {'id': status_id,
                            'include_entities': True})
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def repeat_status(self, status_id):
         rtn = self.http.post('/statuses/retweet', {'id': status_id})
+        self.check_for_errors(rtn)
         status = self.json_to_status(rtn)
         status.reposted_by = self.get_repeaters(status_id)
         return status
@@ -264,11 +315,13 @@ class Main(Protocol):
     def mark_as_favorite(self, status_id):
         rtn = self.http.post('/favorites/create', {'id': status_id,
                            'include_entities': True}, id_in_url=False)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def unmark_as_favorite(self, status_id):
         rtn = self.http.post('/favorites/destroy', {'id': status_id,
                            'include_entities': True}, id_in_url=False)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def follow(self, screen_name, by_id=False):
@@ -277,64 +330,49 @@ class Main(Protocol):
         else:
             arg = {'screen_name': screen_name}
         rtn = self.http.post('/friendships/create', arg)
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def unfollow(self, screen_name):
         rtn = self.http.post('/friendships/destroy',
                            {'screen_name': screen_name})
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def send_direct_message(self, screen_name, text):
         args = {'screen_name': screen_name, 'text': text,
                 'include_entities': True}
         rtn = self.http.post('/direct_messages/new', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def destroy_direct_message(self, direct_message_id):
         rtn = self.http.post('/direct_messages/destroy', {'id': direct_message_id,
                            'include_entities': True})
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def block(self, screen_name):
         rtn = self.http.post('/blocks/create', {'screen_name': screen_name})
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def unblock(self, screen_name):
         rtn = self.http.post('/blocks/destroy', {'screen_name': screen_name})
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def report_as_spam(self, screen_name):
         rtn = self.http.post('/users/report_spam', {'screen_name': screen_name})
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def search(self, query, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         args['q'] = query
         rtn = self.http.get('/search', args, base_url=self.search_url)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn['results'])
-
-    #def trends(self):
-    #    rtn = self.http.get('/trends/current')
-    #    results = rtn['trends'].popitem()
-    #    current = TrendsResults()
-    #    current.title = 'Current Trends'
-    #    current.timestamp = results[0]
-    #    current.items = self.json_to_trend(results[1])
-
-    #    rtn = self.http.get('/trends/daily')
-    #    results = rtn['trends'].popitem()
-    #    daily = TrendsResults()
-    #    daily.title = 'Daily Trends'
-    #    daily.timestamp = results[0]
-    #    daily.items = self.json_to_trend(results[1])
-
-    #    rtn = self.http.get('/trends/weekly')
-    #    results = rtn['trends'].popitem()
-    #    weekly = TrendsResults()
-    #    weekly.title = 'Weekly Trends'
-    #    weekly.timestamp = results[0]
-    #    weekly.items = self.json_to_trend(results[1])
-    #    return [current, daily, weekly]
 
     def is_friend(self, user):
         result = self.http.get('/friendships/show',
