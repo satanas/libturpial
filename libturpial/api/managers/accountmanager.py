@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 
-""" Module to handle multiples accounts """
-#
-# Author: Wil Alvarez (aka Satanas)
-# Mar 13, 2011
 
 import logging
 
 from libturpial.common import LoginStatus, build_account_id
 from libturpial.lib.config import AccountConfig
 from libturpial.api.models.account import Account
-from libturpial.common.exceptions import ErrorCreatingAccount
+from libturpial.common.exceptions import ErrorCreatingAccount, \
+        ErrorLoadingAccount, AccountNotLoggedIn
 
 
 class AccountManager:
@@ -74,18 +71,33 @@ class AccountManager:
         else:
             self.log.debug('Account %s is not registered' % account_id)
 
-    def get(self, account_id, validate_login=True):
-        account = self.__accounts[account_id]
-        if (validate_login and account.logged_in == LoginStatus.DONE) or not validate_login:
-            return account
-        else:
-            # TODO: Raise a Turpial exception
-            raise ZeroDivisionError
+    def get(self, account_id, validate_login=False):
+        """
+        Return the :class:`libturpial.api.models.account.Account` object
+        associated to *account_id* if it has been loaded or try to load the
+        account otherwise. If any of the previous method fails it raise an
+        :class:`libturpial.common.exceptions.ErrorLoadingAccount` exception.
+        """
+        try:
+            account = self.__accounts[account_id]
+        except KeyError:
+            self.load(account_id)
+            account = self.__accounts[account_id]
+
+        if validate_login and account.logged_in != LoginStatus.DONE:
+            raise AccountNotLoggedIn
+
+        return account
 
     def list(self):
-        temp = self.__accounts.keys()
-        temp.sort()
-        return temp
+        """
+        Return an alphabetically sorted list with all account ids registered
+        """
+        return sorted(self.__accounts.keys())
 
     def get_all(self):
+        """
+        Return all :class:`libturpial.api.models.account.Account` objects
+        registered
+        """
         return self.__accounts.values()
