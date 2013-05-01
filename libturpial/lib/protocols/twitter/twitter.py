@@ -53,7 +53,7 @@ class Main(Protocol):
                 raise InvalidOAuthToken
             elif code == 130 or code == 503 or code == 504:
                 raise ServiceOverCapacity
-            elif code = 131 or code == 500:
+            elif code == 131 or code == 500:
                 raise InternalServerError
             elif code == 135:
                 raise BadOAuthTimestamp

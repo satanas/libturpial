@@ -11,6 +11,7 @@ from libturpial.api.models.profile import Profile
 from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.http import TurpialHTTPBasicAuth
 from libturpial.common import NUM_STATUSES, StatusColumn
+from libturpial.common.exceptions import *
 
 # TODO:
 # * Change for loops for list comprehension
@@ -35,6 +36,39 @@ class Main(Protocol):
             args['since_id'] = since_id
         return args
 
+    def check_for_errors(self, response):
+        """
+        Receives a json response and raise an exception if there are errors
+        """
+        if response.has_key('error'):
+            print response
+            message = response['error']
+            if message.find('Could not authenticate you') >= 0:
+                raise InvalidOrMissingCredentials
+            elif message.find('duplicated messages') > 0:
+                raise StatusDuplicated
+            elif message.find("to users who aren't your friend") > 0:
+                raise ErrorSendingDirectMessage('User is not following you')
+            elif message.find('Maximum notice size is 140 characters') > 0:
+                raise StatusMessageTooLong
+
+            #elif code == 34 or code == 404:
+            #    raise ResourceNotFound
+            #elif code == 64:
+            #    raise AccountSuspended
+            #elif code == 88:
+            #    raise RateLimitExceeded
+            #elif code == 89:
+            #    raise InvalidOAuthToken
+            #elif code == 130 or code == 503 or code == 504:
+            #    raise ServiceOverCapacity
+            #elif code == 131 or code == 500:
+            #    raise InternalServerError
+            #elif code == 135:
+            #    raise BadOAuthTimestamp
+            #elif code == 502:
+            #    raise ServiceDown
+
     def initialize_http(self):
         self.http = TurpialHTTPBasicAuth(self.base_url)
 
@@ -50,6 +84,7 @@ class Main(Protocol):
 
     def verify_credentials(self):
         rtn = self.http.get('/account/verify_credentials', secure=True)
+        self.check_for_errors(rtn)
         profile = self.json_to_profile(rtn)
         self.uname = profile.username
         return profile
@@ -58,37 +93,44 @@ class Main(Protocol):
     def get_timeline(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/statuses/home_timeline', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.TIMELINE)
 
     def get_replies(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/statuses/mentions', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.REPLIES)
 
     def get_directs(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/direct_messages', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
                                    _type=Status.DIRECT)
 
     def get_directs_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/direct_messages/sent', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
                                    _type=Status.DIRECT)
 
     def get_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/statuses/user_timeline', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.SENT)
 
     def get_favorites(self, count=NUM_STATUSES):
         rtn = self.http.get('/favorites')
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.FAVORITES)
 
     def get_public_timeline(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/statuses/public_timeline', args)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.PUBLIC)
 
     def get_lists(self, username):
@@ -113,6 +155,7 @@ class Main(Protocol):
 
     def get_status(self, status_id):
         rtn = self.http.get('/statuses/show', {'id': status_id})
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def get_followers(self, only_id=False):
@@ -146,6 +189,7 @@ class Main(Protocol):
 
     def get_profile(self, user):
         rtn = self.http.get('/users/show', {'screen_name': user})
+        self.check_for_errors(rtn)
         profile = self.json_to_profile(rtn)
         rtn = self.http.get('/statuses/user_timeline',
                            {'screen_name': user, 'count': 10})
@@ -157,6 +201,7 @@ class Main(Protocol):
 
     def get_rate_limits(self):
         rtn = self.http.get('/account/rate_limit_status')
+        self.check_for_errors(rtn)
         return self.json_to_ratelimit(rtn)
 
     def update_profile(self, p_args):
@@ -172,6 +217,7 @@ class Main(Protocol):
             args['location'] = p_args['location']
 
         rtn = self.http.post('/account/update_profile', args, secure=True)
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def update_status(self, text, in_reply_id=None):
@@ -181,23 +227,28 @@ class Main(Protocol):
             args = {'status': text}
 
         rtn = self.http.post('/statuses/update', args, secure=True)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def destroy_status(self, status_id):
         rtn = self.http.post('/statuses/destroy', {'id': status_id}, secure=True)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def repeat_status(self, status_id):
         rtn = self.http.post('/statuses/retweet', {'id': status_id}, secure=True)
+        self.check_for_errors(rtn)
         status = self.json_to_status(rtn)
         return status
 
     def mark_as_favorite(self, status_id):
         rtn = self.http.post('/favorites/create', {'id': status_id}, secure=True)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def unmark_as_favorite(self, status_id):
         rtn = self.http.post('/favorites/destroy', {'id': status_id}, secure=True)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def follow(self, screen_name, by_id=False):
@@ -206,16 +257,19 @@ class Main(Protocol):
         else:
             arg = {'screen_name': screen_name}
         rtn = self.http.post('/friendships/create', arg, secure=True)
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def unfollow(self, screen_name):
         rtn = self.http.post('/friendships/destroy',
                            {'screen_name': screen_name}, secure=True)
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def send_direct_message(self, screen_name, text):
         args = {'screen_name': screen_name, 'text': text}
         rtn = self.http.post('/direct_messages/new', args, secure=True)
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def destroy_direct_message(self, direct_message_id):
@@ -224,15 +278,18 @@ class Main(Protocol):
 
     def block(self, screen_name):
         rtn = self.http.post('/blocks/create', {'screen_name': screen_name}, secure=True)
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def unblock(self, screen_name):
         rtn = self.http.post('/blocks/destroy', {'screen_name': screen_name}, secure=True)
+        self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
     def search(self, query, count=NUM_STATUSES, since_id=None):
         rtn = self.http.get('/search', {'q': query, 'rpp': count},
                            base_url=self.urls['search'])
+        self.check_for_errors(rtn)
         return self.json_to_status(rtn['results'])
 
     def is_friend(self, user):
