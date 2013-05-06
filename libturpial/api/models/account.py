@@ -170,6 +170,13 @@ class Account(object):
         """
         return self.status == self.LOGGED_IN
 
+    def is_not_logged_in(self):
+        """
+        Return `True` if the current account has not been logged in, `False`
+        otherwise
+        """
+        return not self.is_logged_in()
+
     def is_login_in_progress(self):
         """
         Return `True` if the login process is in progress for the current

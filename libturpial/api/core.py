@@ -65,6 +65,7 @@ class Core:
     >>> for v in value:
     >>>     print v
     """
+
     def __init__(self, log_level=logging.DEBUG):
         logging.basicConfig(level=log_level)
 
