@@ -42,12 +42,16 @@ class Account(object):
     *account* object.
     """
 
+    NOT_LOGGED_IN = 0
+    LOGGED_IN = 1
+    LOGIN_IN_PROGRESS = 2
+
     def __init__(self, protocol_id, username):
         self.id_ = build_account_id(username, protocol_id)
 
         self.username = username
         self.protocol_id = protocol_id
-        self.logged_in = LoginStatus.NONE
+        self.status = self.NOT_LOGGED_IN
 
         self.columns = []
         self.profile = None
@@ -60,7 +64,6 @@ class Account(object):
             self.protocol = identica.Main()
 
         self.config = AccountConfig(self.id_)
-
 
     @staticmethod
     def new_oauth(protocol_id, username, key, secret, verifier):
@@ -159,6 +162,20 @@ class Account(object):
         Return disk space used by cache in bytes
         """
         return self.config.calculate_cache_size()
+
+    def is_logged_in(self):
+        """
+        Return `True` if the current account has been logged in, `False`
+        otherwise
+        """
+        return self.status == self.LOGGED_IN
+
+    def is_login_in_progress(self):
+        """
+        Return `True` if the login process is in progress for the current
+        account, `False`otherwise
+        """
+        return self.status == self.LOGIN_IN_PROGRESS
 
     def __getattr__(self, name):
         try:
