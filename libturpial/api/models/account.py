@@ -7,7 +7,7 @@ from libturpial.lib.protocols.identica import identica
 
 from libturpial.common import get_username_from, get_protocol_from, \
         ProtocolType, LoginStatus, build_account_id
-from libturpial.common.exceptions import EmptyOAuthCredentials, \
+from libturpial.exceptions import EmptyOAuthCredentials, \
         EmptyBasicCredentials, ErrorLoadingAccount
 
 
@@ -97,10 +97,10 @@ class Account(object):
         Return the Account object associated to *account_id* loaded from
         existing configuration. If the *account_id* does not correspond to a
         valid account returns a
-        :class:`libturpial.common.exceptions.ErrorLoadingAccount` exception.
+        :class:`libturpial.exceptions.ErrorLoadingAccount` exception.
         If credentials in configuration file are empty it returns a 
-        :class:`libturpial.common.exceptions.EmptyOAuthCredentials` or a
-        :class:`libturpial.common.exceptions.EmptyBasicCredentials` exception.
+        :class:`libturpial.exceptions.EmptyOAuthCredentials` or a
+        :class:`libturpial.exceptions.EmptyBasicCredentials` exception.
         """
         if not AccountConfig.exists(account_id):
             raise ErrorLoadingAccount("Account has no stored credentials")

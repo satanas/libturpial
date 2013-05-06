@@ -11,7 +11,7 @@ from libturpial.api.models.profile import Profile
 from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.http import TurpialHTTPBasicAuth
 from libturpial.common import NUM_STATUSES, StatusColumn
-from libturpial.common.exceptions import *
+from libturpial.exceptions import *
 
 # TODO:
 # * Change for loops for list comprehension

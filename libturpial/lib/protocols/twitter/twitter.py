@@ -11,7 +11,7 @@ from libturpial.lib.http import TurpialHTTPOAuth
 from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.protocols.twitter.params import OAUTH_OPTIONS
 from libturpial.common import NUM_STATUSES, StatusColumn
-from libturpial.common.exceptions import *
+from libturpial.exceptions import *
 
 # TODO:
 # * Use trim_user wherever we can to improve performance
@@ -38,6 +38,9 @@ class Main(Protocol):
         """
         Receives a json response and raise an exception if there are errors
         """
+        if type(response) == list:
+            return
+
         if response.has_key('errors'):
             print response
             code = response['errors'][0]['code']

@@ -6,7 +6,7 @@ import logging
 from libturpial.common import LoginStatus, build_account_id
 from libturpial.lib.config import AccountConfig
 from libturpial.api.models.account import Account
-from libturpial.common.exceptions import ErrorCreatingAccount, \
+from libturpial.exceptions import ErrorCreatingAccount, \
         ErrorLoadingAccount, AccountNotLoggedIn
 
 
@@ -76,7 +76,7 @@ class AccountManager:
         Return the :class:`libturpial.api.models.account.Account` object
         associated to *account_id* if it has been loaded or try to load the
         account otherwise. If any of the previous method fails it raise an
-        :class:`libturpial.common.exceptions.ErrorLoadingAccount` exception.
+        :class:`libturpial.exceptions.ErrorLoadingAccount` exception.
         """
         try:
             account = self.__accounts[account_id]

@@ -14,7 +14,7 @@ import traceback
 
 from libturpial.common import *
 from libturpial.lib.config import AppConfig
-from libturpial.common.exceptions import *
+from libturpial.exceptions import *
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
