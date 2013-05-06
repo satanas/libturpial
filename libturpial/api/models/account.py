@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from libturpial.lib.config import AccountConfig
+from libturpial.config import AccountConfig
 from libturpial.api.models.profile import Profile
 from libturpial.lib.protocols.twitter import twitter
 from libturpial.lib.protocols.identica import identica

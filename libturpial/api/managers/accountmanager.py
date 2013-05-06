@@ -4,7 +4,7 @@
 import logging
 
 from libturpial.common import LoginStatus, build_account_id
-from libturpial.lib.config import AccountConfig
+from libturpial.config import AccountConfig
 from libturpial.api.models.account import Account
 from libturpial.exceptions import ErrorCreatingAccount, \
         ErrorLoadingAccount, AccountNotLoggedIn

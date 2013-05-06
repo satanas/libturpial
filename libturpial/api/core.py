@@ -13,7 +13,7 @@ import tempfile
 import traceback
 
 from libturpial.common import *
-from libturpial.lib.config import AppConfig
+from libturpial.config import AppConfig
 from libturpial.exceptions import *
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
