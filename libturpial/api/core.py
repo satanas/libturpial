@@ -8,9 +8,7 @@
 import os
 import ssl
 import urllib2
-import logging
 import tempfile
-import traceback
 
 from libturpial.common import *
 from libturpial.config import AppConfig
@@ -69,21 +67,13 @@ class Core:
     def __init__(self, log_level=logging.DEBUG):
         logging.basicConfig(level=log_level)
 
-        self.log = logging.getLogger('Core')
-        self.log.debug('Started')
         self.config = AppConfig()
 
         self.accman = AccountManager(self.config)
         self.load_registered_accounts()
         self.load_registered_columns()
 
-    def __print_traceback(self):
-        if self.log.getEffectiveLevel() == logging.DEBUG:
-            print traceback.print_exc()
-
     def __handle_exception(self, exc, extra_info=''):
-        self.__print_traceback()
-
         _type = type(exc)
         print "Exception type: %s" % (str(_type))
         response = None
@@ -101,13 +91,11 @@ class Core:
             if exc.code in ERROR_CODES:
                 response = Response(code=exc.code)
             elif (exc.code == 400):
-                self.log.debug("Error HTTP 400 detected: %s" % exc)
                 response = Response(code=100)
                 response.errmsg = "Sorry, server is limiting your API calls"
             elif (exc.code == 403):
                 msg = ''
                 errmsg = exc.read()
-                self.log.debug("Error HTTP 403 detected: %s" % errmsg)
                 if type(errmsg) == str:
                     msg = errmsg
                 elif type(errmsg) == dict:
@@ -142,7 +130,6 @@ class Core:
         else:
             response = Response(code=999)
 
-        self.log.debug(response.errmsg)
         return response
 
     def __apply_filters(self, statuses):
@@ -181,18 +168,13 @@ class Core:
 
         Returns a string with the id of the account registered.
         """
-        self.log.debug('Registering account %s' % username)
         acc = self.accman.register(username, protocol_id, password, auth)
-        if not acc:
-            self.log.debug('Invalid account %s in %s' % (username,
-                                                         protocol_id))
         return acc
 
     def unregister_account(self, account_id, delete_all=False):
         """Removes an account form config. If *delete_all* is **True** removes 
         all the config files asociated to that account.
         """
-        self.log.debug('Unregistering account %s' % account_id)
         return self.accman.unregister(account_id, delete_all)
 
     def load_registered_accounts(self):
@@ -200,7 +182,6 @@ class Core:
         """
         accounts = self.config.get_stored_accounts()
         for acc in accounts:
-            self.log.debug('Registering account: %s' % acc)
             self.accman.load(acc)
 
     def register_column(self, column_id):
@@ -327,7 +308,6 @@ class Core:
         >>> 
         >>> # Continue with the authentication process
         """
-        self.log.debug('Starting login sequence with %s' % acc_id)
         try:
             account = self.accman.get(acc_id, False)
             if account.logged_in == LoginStatus.DONE:
@@ -346,7 +326,6 @@ class Core:
         validate response code because on success response items will be
         **None**
         """
-        self.log.debug('Authorizating OAuth token for %s' % acc_id)
         try:
             account = self.accman.get(acc_id, False)
             if account.logged_in == LoginStatus.DONE:
@@ -642,7 +621,6 @@ class Core:
             basename = "%s-%s-profile-image" % (acc_id, user)
             img_path = os.path.join(account.config.imgdir, basename)
             if os.path.isfile(img_path):
-                self.log.debug('Getting profile image for %s from cache' % user)
             else:
                 fd = open(img_path, 'w')
                 fd.write(account.get_profile_image(str(user)))
