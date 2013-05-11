@@ -2,11 +2,10 @@
 
 from libturpial.config import AccountConfig
 from libturpial.api.models.profile import Profile
-from libturpial.lib.protocols.twitter import twitter
-from libturpial.lib.protocols.identica import identica
+from libturpial.lib.interfaces.protocol import Protocol
 
 from libturpial.common import get_username_from, get_protocol_from, \
-        ProtocolType, build_account_id
+        build_account_id
 from libturpial.exceptions import EmptyOAuthCredentials, \
         EmptyBasicCredentials, ErrorLoadingAccount
 
@@ -58,11 +57,7 @@ class Account(object):
         self.friends = None
         self.lists = None
 
-        if protocol_id == ProtocolType.TWITTER:
-            self.protocol = twitter.Main()
-        elif protocol_id == ProtocolType.IDENTICA:
-            self.protocol = identica.Main()
-
+        self.protocol = Protocol.from_string(protocol_id)
         self.config = AccountConfig(self.id_)
 
     @staticmethod

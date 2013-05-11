@@ -16,6 +16,7 @@ from libturpial.exceptions import *
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
+from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.services.url import URL_SERVICES
 #from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
 #from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
@@ -65,11 +66,9 @@ class Core:
     """
 
     def __init__(self, log_level=logging.DEBUG):
-        logging.basicConfig(level=log_level)
-
         self.config = AppConfig()
-
         self.accman = AccountManager(self.config)
+
         self.load_registered_accounts()
         self.load_registered_columns()
 
@@ -154,8 +153,9 @@ class Core:
                 filtered_statuses.append(status)
         return filtered_statuses
 
-    ''' Microblogging '''
-    def register_account(self, username, protocol_id,
+
+
+    def register_oauth_account(self, username, protocol_id,
                          password=None, auth=None):
         """Register an account for the user *username* and the protocol
         *protocol_id* (see :class:`libturpial.common.ProtocolType` for
@@ -227,10 +227,8 @@ class Core:
         """Returns an array of supported protocols. For example:
 
         >>> ['twitter', 'identica']
-
-        See :class:`libturpial.common.ProtocolType` for more information
         """
-        return [ProtocolType.TWITTER, ProtocolType.IDENTICA]
+        return Protocol.available()
 
     ''' all_* methods returns arrays of objects '''
     def all_accounts(self):
@@ -240,7 +238,7 @@ class Core:
         return self.accman.get_all()
 
     def name_as_id(self, acc_id):
-        if self.accman.get(acc_id).protocol_id == ProtocolType.TWITTER:
+        if self.accman.get(acc_id).protocol_id == Protocol.TWITTER:
             return self.accman.change_id(acc_id, self.accman.get(acc_id).profile.username)
         else:
             return acc_id

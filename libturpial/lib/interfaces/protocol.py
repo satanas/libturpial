@@ -10,6 +10,9 @@ from libturpial.common import *
 from libturpial.common.tools import *
 from libturpial.api.models.entity import Entity
 from libturpial.lib.http import TurpialHTTPBase
+from libturpial.lib.protocols.twitter import twitter
+from libturpial.lib.protocols.identica import identica
+
 
 
 class Protocol:
@@ -17,12 +20,27 @@ class Protocol:
     Bridge class to define abstract functions that must have any protocol
     implementation
     """
+    TWITTER = 'twitter'
+    IDENTICA = 'identica'
+
 
     def __init__(self):
         self.initialize_http()
 
         self.log = logging.getLogger('change me')
         self.log.debug('Started')
+
+    @staticmethod
+    def from_string(protocol_id):
+        if protocol_id == self.TWITTER:
+            return twitter.Main()
+        elif protocol_id == self.IDENTICA:
+            return identica.Main()
+
+    @staticmethod
+    def available():
+        return [self.TWITTER, self.IDENTICA]
+
 
     # ------------------------------------------------------------
     # Time related methods. Overwrite if necesary
