@@ -13,8 +13,8 @@ import tempfile
 import traceback
 
 from libturpial.common import *
-from libturpial.lib.config import AppConfig
-from libturpial.common.exceptions import *
+from libturpial.config import AppConfig
+from libturpial.exceptions import *
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
 from libturpial.api.models.response import Response
@@ -65,6 +65,7 @@ class Core:
     >>> for v in value:
     >>>     print v
     """
+
     def __init__(self, log_level=logging.DEBUG):
         logging.basicConfig(level=log_level)
 

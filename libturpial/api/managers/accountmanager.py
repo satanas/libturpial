@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-
 from libturpial.common import LoginStatus, build_account_id
-from libturpial.lib.config import AccountConfig
+from libturpial.config import AccountConfig
 from libturpial.api.models.account import Account
-from libturpial.common.exceptions import ErrorCreatingAccount, \
+from libturpial.exceptions import ErrorCreatingAccount, \
         ErrorLoadingAccount, AccountNotLoggedIn
 
 
@@ -71,16 +70,12 @@ class AccountManager:
             self.__accounts[account_id].remove(delete_all)
             del self.__accounts[account_id]
 
-    def set_login_status(self, account_id, status):
-        if account_id in self.__accounts:
-            self.__accounts[account_id].logged_in = status
-
     def get(self, account_id, validate_login=False):
         """
         Return the :class:`libturpial.api.models.account.Account` object
         associated to *account_id* if it has been loaded or try to load the
         account otherwise. If any of the previous method fails it raise an
-        :class:`libturpial.common.exceptions.ErrorLoadingAccount` exception.
+        :class:`libturpial.exceptions.ErrorLoadingAccount` exception.
         If *validate_login* is **True** and the account is not logged in a
         :class:`libturpial.common.exceptions.AccountNotLoggedIn` exception is
         raised.
@@ -91,7 +86,7 @@ class AccountManager:
             self.load(account_id)
             account = self.__accounts[account_id]
 
-        if validate_login and account.logged_in != LoginStatus.DONE:
+        if validate_login and account.is_not_logged_in():
             raise AccountNotLoggedIn
 
         return account

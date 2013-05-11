@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from libturpial.lib.config import AccountConfig
+from libturpial.config import AccountConfig
 from libturpial.api.models.profile import Profile
 from libturpial.lib.protocols.twitter import twitter
 from libturpial.lib.protocols.identica import identica
 
 from libturpial.common import get_username_from, get_protocol_from, \
         ProtocolType, build_account_id
-from libturpial.common.exceptions import EmptyOAuthCredentials, \
+from libturpial.exceptions import EmptyOAuthCredentials, \
         EmptyBasicCredentials, ErrorLoadingAccount
 
 
@@ -42,16 +42,16 @@ class Account(object):
     *account* object.
     """
 
-    STATUS_NEW = 0
-    STATUS_LOGGED = 1
-    STATUS_IN_PROGRESS = 2
+    NEW = 0
+    LOGGED_IN = 1
+    LOGIN_IN_PROGRESS = 2
 
     def __init__(self, protocol_id, username):
         self.id_ = build_account_id(username, protocol_id)
 
         self.username = username
         self.protocol_id = protocol_id
-        self.login_status = STATUS_NEW
+        self.login_status = NEW
 
         self.columns = []
         self.profile = None
@@ -64,7 +64,6 @@ class Account(object):
             self.protocol = identica.Main()
 
         self.config = AccountConfig(self.id_)
-
 
     @staticmethod
     def new_oauth(protocol_id, username, key, secret, verifier):
@@ -101,10 +100,10 @@ class Account(object):
         Return the Account object associated to *account_id* loaded from
         existing configuration. If the *account_id* does not correspond to a
         valid account returns a
-        :class:`libturpial.common.exceptions.ErrorLoadingAccount` exception.
+        :class:`libturpial.exceptions.ErrorLoadingAccount` exception.
         If credentials in configuration file are empty it returns a 
-        :class:`libturpial.common.exceptions.EmptyOAuthCredentials` or a
-        :class:`libturpial.common.exceptions.EmptyBasicCredentials` exception.
+        :class:`libturpial.exceptions.EmptyOAuthCredentials` or a
+        :class:`libturpial.exceptions.EmptyBasicCredentials` exception.
         """
         if not AccountConfig.exists(account_id):
             raise ErrorLoadingAccount("Account has no stored credentials")
@@ -165,10 +164,25 @@ class Account(object):
         return self.config.calculate_cache_size()
 
     def is_logged_in(self):
-        return self.login_status == STATUS_LOGGED
+        """
+        Return `True` if the current account has been logged in, `False`
+        otherwise
+        """
+        return self.status == self.LOGGED_IN
 
-    def is_in_progress(self):
-        return self.login_status == STATUS_IN_PROGRESS
+    def is_not_logged_in(self):
+        """
+        Return `True` if the current account has not been logged in, `False`
+        otherwise
+        """
+        return not self.is_logged_in()
+
+    def is_login_in_progress(self):
+        """
+        Return `True` if the login process is in progress for the current
+        account, `False`otherwise
+        """
+        return self.status == self.LOGIN_IN_PROGRESS
 
     def __getattr__(self, name):
         try:

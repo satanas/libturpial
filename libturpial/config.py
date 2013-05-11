@@ -13,7 +13,7 @@ import ConfigParser
 
 from libturpial.api.models.column import Column
 from libturpial.common import get_username_from, get_protocol_from
-from libturpial.common.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials
+from libturpial.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials
 
 try:
     from xdg import BaseDirectory
