@@ -6,7 +6,7 @@ from libturpial.lib.protocols.twitter import twitter
 from libturpial.lib.protocols.identica import identica
 
 from libturpial.common import get_username_from, get_protocol_from, \
-        ProtocolType, LoginStatus, build_account_id
+        ProtocolType, build_account_id
 from libturpial.common.exceptions import EmptyOAuthCredentials, \
         EmptyBasicCredentials, ErrorLoadingAccount
 
@@ -42,12 +42,16 @@ class Account(object):
     *account* object.
     """
 
+    STATUS_NEW = 0
+    STATUS_LOGGED = 1
+    STATUS_IN_PROGRESS = 2
+
     def __init__(self, protocol_id, username):
         self.id_ = build_account_id(username, protocol_id)
 
         self.username = username
         self.protocol_id = protocol_id
-        self.logged_in = LoginStatus.NONE
+        self.login_status = STATUS_NEW
 
         self.columns = []
         self.profile = None
@@ -159,6 +163,12 @@ class Account(object):
         Return disk space used by cache in bytes
         """
         return self.config.calculate_cache_size()
+
+    def is_logged_in(self):
+        return self.login_status == STATUS_LOGGED
+
+    def is_in_progress(self):
+        return self.login_status == STATUS_IN_PROGRESS
 
     def __getattr__(self, name):
         try:

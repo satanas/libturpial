@@ -59,11 +59,6 @@ class ColumnType:
     SEARCH = 'search'
 
 
-class LoginStatus:
-    NONE = 0
-    DONE = 1
-    IN_PROGRESS = 2
-
 ERROR_CODES = {
     100: "",
     304: "There was no new data to return",
