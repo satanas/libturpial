@@ -305,11 +305,22 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
         user must access in order to authorize the client.
         """
         oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
-                http_url=self.request_token_url)
+                http_url=self.request_token_url, callback='oob')
 
         oauth_request.sign_request(self.sign_method_hmac_sha1, self.consumer, None)
 
-        req = requests.get(self.request_token_url, headers=oauth_request.to_header())
+        #headers = oauth_request.to_header()
+        #headers['Authorization'] = headers['Authorization'].replace('realm=""', 'oauth_callback="oob"')
+        #print oauth_request.to_header()
+        #print headers
+        data = {'oauth_callback': 'oob'}
+
+        print self.request_token_url
+        print oauth_request.to_header()
+        req = requests.post(self.request_token_url, headers=oauth_request.to_header())
+        print "=" * 20
+        print req.headers
+        print req.text
         self.token = oauth.OAuthToken.from_string(req.text)
 
         oauth_request = oauth.OAuthRequest.from_token_and_callback(token=self.token,

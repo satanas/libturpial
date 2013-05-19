@@ -8,11 +8,9 @@ import datetime
 
 from libturpial.common import *
 from libturpial.common.tools import *
+from libturpial.exceptions import NotSupported
 from libturpial.api.models.entity import Entity
 from libturpial.lib.http import TurpialHTTPBase
-from libturpial.lib.protocols.twitter import twitter
-from libturpial.lib.protocols.identica import identica
-
 
 
 class Protocol:
@@ -23,7 +21,6 @@ class Protocol:
     TWITTER = 'twitter'
     IDENTICA = 'identica'
 
-
     def __init__(self):
         self.initialize_http()
 
@@ -31,16 +28,8 @@ class Protocol:
         self.log.debug('Started')
 
     @staticmethod
-    def from_string(protocol_id):
-        if protocol_id == self.TWITTER:
-            return twitter.Main()
-        elif protocol_id == self.IDENTICA:
-            return identica.Main()
-
-    @staticmethod
     def available():
         return [self.TWITTER, self.IDENTICA]
-
 
     # ------------------------------------------------------------
     # Time related methods. Overwrite if necesary
@@ -126,6 +115,14 @@ class Protocol:
         >>> self.http = TurpialHTTPBasicAuth(base_url)
         """
         raise NotImplementedError
+
+
+    def request_access(self):
+        """
+        Return an OAuth authorization URL. Do not overide if the protocol
+        does not support OAuth
+        """
+        raise NotSupported
 
     def setup_user_credentials(self):
         """

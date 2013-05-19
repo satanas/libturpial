@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from libturpial.common import LoginStatus, build_account_id
+from libturpial.common import build_account_id
 from libturpial.config import AccountConfig
 from libturpial.api.models.account import Account
 from libturpial.exceptions import ErrorCreatingAccount, \

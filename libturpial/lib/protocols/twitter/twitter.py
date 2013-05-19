@@ -78,6 +78,8 @@ class Main(Protocol):
         self.http.set_token_info(key, secret, verifier)
         self.uname = account_id.split('-')[0]
 
+    def request_access(self):
+        return self.http.request_token()
 
     #################################################################
     # Methods related to Twitter service

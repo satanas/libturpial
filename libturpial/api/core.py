@@ -15,8 +15,8 @@ from libturpial.config import AppConfig
 from libturpial.exceptions import *
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
+from libturpial.api.models.account import Account
 from libturpial.api.models.response import Response
-from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.services.url import URL_SERVICES
 #from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
 #from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
@@ -65,12 +65,12 @@ class Core:
     >>>     print v
     """
 
-    def __init__(self, log_level=logging.DEBUG):
+    def __init__(self):
         self.config = AppConfig()
         self.accman = AccountManager(self.config)
 
-        self.load_registered_accounts()
-        self.load_registered_columns()
+        #self.load_registered_accounts()
+        #self.load_registered_columns()
 
     def __handle_exception(self, exc, extra_info=''):
         _type = type(exc)
@@ -153,7 +153,14 @@ class Core:
                 filtered_statuses.append(status)
         return filtered_statuses
 
-
+    def request_oauth_access(self, protocol_id):
+        """
+        Return an OAuth authorization URL or raise a
+        :class:`libturpial.exceptions.NotSupported` exception of the protocol
+        does not support OAuth
+        """
+        protocol = Account.new_protocol_from_string(protocol_id)
+        return protocol.request_access()
 
     def register_oauth_account(self, username, protocol_id,
                          password=None, auth=None):
@@ -618,8 +625,7 @@ class Core:
             account = self.accman.get(str(acc_id))
             basename = "%s-%s-profile-image" % (acc_id, user)
             img_path = os.path.join(account.config.imgdir, basename)
-            if os.path.isfile(img_path):
-            else:
+            if not os.path.isfile(img_path):
                 fd = open(img_path, 'w')
                 fd.write(account.get_profile_image(str(user)))
                 fd.close()

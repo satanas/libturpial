@@ -83,3 +83,6 @@ class UploadImageError(Exception):
     """An upload image error ocurred"""
     def __init__(self, message):
         self.message = message
+
+class NotSupported(Exception):
+    pass

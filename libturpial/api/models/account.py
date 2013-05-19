@@ -2,6 +2,8 @@
 
 from libturpial.config import AccountConfig
 from libturpial.api.models.profile import Profile
+from libturpial.lib.protocols.twitter import twitter
+from libturpial.lib.protocols.identica import identica
 from libturpial.lib.interfaces.protocol import Protocol
 
 from libturpial.common import get_username_from, get_protocol_from, \
@@ -50,15 +52,22 @@ class Account(object):
 
         self.username = username
         self.protocol_id = protocol_id
-        self.login_status = NEW
+        self.login_status = self.NEW
 
         self.columns = []
         self.profile = None
         self.friends = None
         self.lists = None
 
-        self.protocol = Protocol.from_string(protocol_id)
+        self.protocol = self.new_protocol_from_string(protocol_id)
         self.config = AccountConfig(self.id_)
+
+    @staticmethod
+    def new_protocol_from_string(protocol_id):
+        if protocol_id == Protocol.TWITTER:
+            return twitter.Main()
+        elif protocol_id == Protocol.IDENTICA:
+            return identica.Main()
 
     @staticmethod
     def new_oauth(protocol_id, username, key, secret, verifier):
