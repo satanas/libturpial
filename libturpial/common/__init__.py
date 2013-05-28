@@ -31,6 +31,10 @@ def get_protocol_from(account_id):
 def build_account_id(username, protocol_id):
     return "%s-%s" % (username, protocol_id)
 
+def LoginStatus():
+    pass
+
+
 class ProtocolType:
     TWITTER = 'twitter' #: Twitter
     IDENTICA = 'identica' #: Identica

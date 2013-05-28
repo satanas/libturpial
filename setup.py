@@ -49,5 +49,12 @@ setup(name="libturpial",
     package_data={
         'libturpial': ['certs/*']
     },
+    install_requires=[
+          'setuptools',
+          # -*- Extra requirements: -*-
+          'oauth',
+          'simplejson',
+          'requests',
+    ],
     data_files=data_files,
 )
