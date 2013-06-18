@@ -20,7 +20,7 @@ from libturpial.exceptions import *
 class Main(Protocol):
     """Twitter implementation for libturpial"""
     def __init__(self):
-        self.uname = None
+        self.name = 'twitter'
         self.base_url = 'http://api.twitter.com/1.1'
         self.search_url = 'http://search.twitter.com'
         self.hashtags_url = 'http://twitter.com/search?q=%23'
@@ -78,8 +78,14 @@ class Main(Protocol):
         self.http.set_token_info(key, secret, verifier)
         self.uname = account_id.split('-')[0]
 
-    def request_access(self):
+    def request_token(self):
         return self.http.request_token()
+
+    def authorize_token(self, pin):
+        self.http.authorize_token(pin)
+
+    def get_token(self):
+        return self.http.token
 
     #################################################################
     # Methods related to Twitter service

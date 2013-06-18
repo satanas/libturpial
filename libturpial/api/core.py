@@ -68,6 +68,7 @@ class Core:
     def __init__(self):
         self.config = AppConfig()
         self.accman = AccountManager(self.config)
+        self.tmp_accounts = []
 
         #self.load_registered_accounts()
         #self.load_registered_columns()
@@ -153,29 +154,27 @@ class Core:
                 filtered_statuses.append(status)
         return filtered_statuses
 
-    def request_oauth_access(self, protocol_id):
+    def request_new_protocol(self, protocol_id):
+        # TODO: Update doc
         """
         Return an OAuth authorization URL or raise a
         :class:`libturpial.exceptions.NotSupported` exception of the protocol
         does not support OAuth
         """
-        protocol = Account.new_protocol_from_string(protocol_id)
-        return protocol.request_access()
+        return Account.new_protocol_from_string(protocol_id)
 
-    def register_oauth_account(self, username, protocol_id,
-                         password=None, auth=None):
+    def register_oauth_account(self, username, protocol):
+        # TODO: Update doc, protocol object
         """Register an account for the user *username* and the protocol
         *protocol_id* (see :class:`libturpial.common.ProtocolType` for
-        possible values). *password* is neccessary only for Identi.ca accounts,
-        Twitter accounts receive None because they use OAuth. **auth** is not
-        used anymore (left only for backward compatibility).
-
-        If the account doesn't exist it will create all the needed files to
-        store the config.
+        possible values).
 
         Returns a string with the id of the account registered.
         """
-        acc = self.accman.register(username, protocol_id, password, auth)
+        profile = protocol.verify_credentials()
+        token = protocol.get_token()
+        acc = self.accman.register_oauth_account(self, protocol.name,
+            profile.username, token.key, token.secret, token.pin)
         return acc
 
     def unregister_account(self, account_id, delete_all=False):
