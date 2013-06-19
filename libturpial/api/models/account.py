@@ -47,10 +47,14 @@ class Account(object):
     LOGGED_IN = 1
     LOGIN_IN_PROGRESS = 2
 
-    def __init__(self, protocol_id, username):
-        self.id_ = build_account_id(username, protocol_id)
+    def __init__(self, protocol_id, username=None):
+        self.empty = True
+        if username:
+            self.id_ = build_account_id(username, protocol_id)
+            self.username = username
+            self.config = AccountConfig(self.id_)
+            self.empty = False
 
-        self.username = username
         self.protocol_id = protocol_id
         self.login_status = self.NEW
 
@@ -59,18 +63,28 @@ class Account(object):
         self.friends = None
         self.lists = None
 
-        self.protocol = self.new_protocol_from_string(protocol_id)
-        self.config = AccountConfig(self.id_)
-
-    @staticmethod
-    def new_protocol_from_string(protocol_id):
         if protocol_id == Protocol.TWITTER:
-            return twitter.Main()
+            self.protocol = twitter.Main()
         elif protocol_id == Protocol.IDENTICA:
-            return identica.Main()
+            self.protocol = identica.Main()
 
     @staticmethod
-    def new_oauth(protocol_id, username, key, secret, verifier):
+    def new_oauth(protocol_id):
+        # TODO: Update doc
+        """
+        Return a new account object based on OAuth authentication. This will
+        create a new entry in *~/.config/turpial/accounts/* with all the
+        configuration stuff. It needs the *username*, the OAuth *key*, the OAuth
+        *secret* and the *verifier* (also known as PIN) given by the service.
+
+        If the account exists this method overwrite the previous credentials
+        """
+        account = Account(protocol_id)
+        return account
+
+    @staticmethod
+    def new_oauth_from_params(protocol_id, username, key, secret, verifier):
+        # TODO: Update doc
         """
         Return a new account object based on OAuth authentication. This will
         create a new entry in *~/.config/turpial/accounts/* with all the
@@ -81,11 +95,11 @@ class Account(object):
         """
         account = Account(protocol_id, username)
         account.setup_user_credentials(account.id_, key, secret, verifier)
-        account.config.save_oauth_credentials(key, secret, verifier)
         return account
 
     @staticmethod
     def new_basic(protocol_id, username, password):
+        # TODO: Update doc
         """
         Return a new account object based on Basic authentication. This will
         create a new entry in *~/.config/turpial/accounts/* with all the
@@ -95,7 +109,7 @@ class Account(object):
         """
         account = Account(protocol_id, username)
         account.setup_user_credentials(account.id_, username, password)
-        account.config.save_basic_credentials(username, password)
+        #account.config.save_basic_credentials(username, password)
         return account
 
     @staticmethod
