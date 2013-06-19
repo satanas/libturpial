@@ -49,24 +49,27 @@ class Account(object):
 
     def __init__(self, protocol_id, username=None):
         self.empty = True
-        if username:
-            self.id_ = build_account_id(username, protocol_id)
-            self.username = username
-            self.config = AccountConfig(self.id_)
-            self.empty = False
-
-        self.protocol_id = protocol_id
         self.login_status = self.NEW
+        self.protocol_id = protocol_id
+
+        if username:
+            self.__setup(username)
 
         self.columns = []
         self.profile = None
         self.friends = None
         self.lists = None
 
-        if protocol_id == Protocol.TWITTER:
+        if self.protocol_id == Protocol.TWITTER:
             self.protocol = twitter.Main()
-        elif protocol_id == Protocol.IDENTICA:
+        elif self.protocol_id == Protocol.IDENTICA:
             self.protocol = identica.Main()
+
+    def __setup(self, username):
+        self.id_ = build_account_id(username, self.protocol_id)
+        self.username = username
+        self.config = AccountConfig(self.id_)
+        self.empty = False
 
     @staticmethod
     def new_oauth(protocol_id):
@@ -140,6 +143,13 @@ class Account(object):
             except EmptyBasicCredentials:
                 raise ErrorLoadingAccount
         return account
+
+    def request_oauth_access(self):
+        return self.protocol.request_token()
+
+    def authorize_oauth_access(self, pin):
+        profile = self.protocol.authorize_token(pin)
+        self.__setup(profile.username)
 
     def authenticate(self):
         self.profile = self.protocol.verify_credentials()

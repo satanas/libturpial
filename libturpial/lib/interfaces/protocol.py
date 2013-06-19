@@ -22,6 +22,7 @@ class Protocol:
     IDENTICA = 'identica'
 
     def __init__(self):
+        self.account_id = None
         self.initialize_http()
 
         self.log = logging.getLogger('change me')

@@ -10,8 +10,9 @@ from libturpial.api.models.profile import Profile
 from libturpial.lib.http import TurpialHTTPOAuth
 from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.protocols.twitter.params import OAUTH_OPTIONS
-from libturpial.common import NUM_STATUSES, StatusColumn
+from libturpial.common import NUM_STATUSES, StatusColumn, build_account_id
 from libturpial.exceptions import *
+
 
 # TODO:
 # * Use trim_user wherever we can to improve performance
@@ -20,7 +21,7 @@ from libturpial.exceptions import *
 class Main(Protocol):
     """Twitter implementation for libturpial"""
     def __init__(self):
-        self.name = 'twitter'
+        self.id_ = 'twitter'
         self.base_url = 'http://api.twitter.com/1.1'
         self.search_url = 'http://search.twitter.com'
         self.hashtags_url = 'http://twitter.com/search?q=%23'
@@ -73,18 +74,24 @@ class Main(Protocol):
     def initialize_http(self):
         self.http = TurpialHTTPOAuth(self.base_url, OAUTH_OPTIONS)
 
-    def setup_user_credentials(self, account_id, key, secret, verifier):
+    def setup_user_info(account_id):
         self.account_id = account_id
-        self.http.set_token_info(key, secret, verifier)
         self.uname = account_id.split('-')[0]
+
+    def setup_user_credentials(self, account_id, key, secret, verifier):
+        self.setup_user_info(account_id)
+        self.http.set_token_info(key, secret, verifier)
 
     def request_token(self):
         return self.http.request_token()
 
     def authorize_token(self, pin):
         self.http.authorize_token(pin)
+        self.http.set_token_info(self.http.token.key, self.http.token.secret,
+            self.http.token.verifier)
+        return self.verify_credentials()
 
-    def get_token(self):
+    def get_oauth_token(self):
         return self.http.token
 
     #################################################################
@@ -96,6 +103,7 @@ class Main(Protocol):
         self.check_for_errors(rtn)
         profile = self.json_to_profile(rtn)
         self.uname = profile.username
+        self.account_id = build_account_id(self.uname, self.id_)
         return profile
 
     def get_timeline(self, count=NUM_STATUSES, since_id=None):
