@@ -26,7 +26,8 @@ class AccountManager:
         self.__accounts[account_id] = Account.load(account_id)
         return account_id
 
-    def register_oauth_account(self, protocol_id, username, key, secret, verifier):
+    def register(self, account):
+        # TODO: Update doc
         """
         Register a new OAuth based account in libturpial record for the protocol
         specified by *protocol_id*, *username* and OAuth params: *key*,
@@ -34,31 +35,10 @@ class AccountManager:
         registration process was successful, otherwise raise an
         :class:`libturpial.common.exceptions.ErrorCreatingAccount` exception.
         """
-        if username == '' or protocol_id == '':
-            raise ErrorCreatingAccount
-
-        account_id = build_account_id(username, protocol_id)
-        if account_id not in self.__accounts:
-            account = Account.new_oauth(protocol_id, username, key, secret, verifier)
-            self.__accounts[account_id] = account
-        return account_id
-
-    def register_basic_account(self, protocol_id, username, password):
-        """
-        Register a new Basic HTTP based account in libturpial record for the
-        protocol specified by *protocol_id*, *username* and OAuth params: *key*,
-        *secret* and *verifier*. Return the id of the new account if the
-        registration process was successful, otherwise raise an
-        :class:`libturpial.common.exceptions.ErrorCreatingAccount` exception.
-        """
-        if username == '' or protocol_id == '':
-            raise ErrorCreatingAccount
-
-        account_id = build_account_id(username, protocol_id)
-        if account_id not in self.__accounts:
-            account = Account.new_basic(protocol_id, username, password)
-            self.__accounts[account_id] = account
-        return account_id
+        if account.id_ not in self.__accounts:
+            self.__accounts[account.id_] = account
+            account.save()
+        return account.id_
 
     def unregister(self, account_id, delete_all):
         """
@@ -67,8 +47,11 @@ class AccountManager:
         because this operation can not be undone.
         """
         if account_id in self.__accounts:
-            self.__accounts[account_id].remove(delete_all)
+            if delete_all:
+                self.__accounts[account_id].purge_config()
             del self.__accounts[account_id]
+            return account_id
+        return None
 
     def get(self, account_id, validate_login=False):
         """

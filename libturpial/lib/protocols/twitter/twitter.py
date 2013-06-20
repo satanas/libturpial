@@ -74,7 +74,7 @@ class Main(Protocol):
     def initialize_http(self):
         self.http = TurpialHTTPOAuth(self.base_url, OAUTH_OPTIONS)
 
-    def setup_user_info(account_id):
+    def setup_user_info(self, account_id):
         self.account_id = account_id
         self.uname = account_id.split('-')[0]
 

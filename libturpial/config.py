@@ -72,7 +72,6 @@ ACCOUNT_CFG = {
     },
     'Login':{
         'username': '',
-        'password': '',
         'protocol': '',
     }
 }
@@ -339,10 +338,6 @@ class AccountConfig(ConfigBase):
         self.write('OAuth', 'secret', secret)
         self.write('OAuth', 'verifier', verifier)
 
-    def save_basic_credentials(self, username, password):
-        self.write('Login', 'username', username)
-        self.write('Login', 'password', self.transform(password, username))
-
     def load_oauth_credentials(self):
         key = self.read('OAuth', 'key')
         secret = self.read('OAuth', 'secret')
@@ -352,16 +347,7 @@ class AccountConfig(ConfigBase):
         else:
             raise EmptyOAuthCredentials
 
-    def load_basic_credentials(self):
-        username = self.read('Login', 'username')
-        password = self.revert(self.read('Login', 'password'), username)
-        if username and password:
-            return username, password
-        else:
-            raise EmptyBasicCredentials
-
-    def forget_credentials(self):
-        self.write('Login', 'password', '')
+    def forget_oauth_credentials(self):
         self.write('OAuth', 'key', '')
         self.write('OAuth', 'secret', '')
         self.write('OAuth', 'verifier', '')

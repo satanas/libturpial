@@ -13,6 +13,7 @@ from libturpial.exceptions import EmptyOAuthCredentials, \
 
 
 class Account(object):
+    # TODO: Update doc
     """
     This class holds all related methods to an user account. It contains a
     protocol instance associated to the user and the profile model to store the
@@ -68,11 +69,10 @@ class Account(object):
     def __setup(self, username):
         self.id_ = build_account_id(username, self.protocol_id)
         self.username = username
-        self.config = AccountConfig(self.id_)
         self.empty = False
 
     @staticmethod
-    def new_oauth(protocol_id):
+    def new(protocol_id):
         # TODO: Update doc
         """
         Return a new account object based on OAuth authentication. This will
@@ -86,7 +86,7 @@ class Account(object):
         return account
 
     @staticmethod
-    def new_oauth_from_params(protocol_id, username, key, secret, verifier):
+    def new_from_params(protocol_id, username, key, secret, verifier):
         # TODO: Update doc
         """
         Return a new account object based on OAuth authentication. This will
@@ -98,21 +98,6 @@ class Account(object):
         """
         account = Account(protocol_id, username)
         account.setup_user_credentials(account.id_, key, secret, verifier)
-        return account
-
-    @staticmethod
-    def new_basic(protocol_id, username, password):
-        # TODO: Update doc
-        """
-        Return a new account object based on Basic authentication. This will
-        create a new entry in *~/.config/turpial/accounts/* with all the
-        configuration stuff. It needs the *username* and the *password*.
-
-        If the account exists this method overwrite the previous credentials
-        """
-        account = Account(protocol_id, username)
-        account.setup_user_credentials(account.id_, username, password)
-        #account.config.save_basic_credentials(username, password)
         return account
 
     @staticmethod
@@ -129,19 +114,15 @@ class Account(object):
         if not AccountConfig.exists(account_id):
             raise ErrorLoadingAccount("Account has no stored credentials")
 
-        username = get_username_from(account_id)
         protocol_id = get_protocol_from(account_id)
 
-        account = Account(protocol_id, username)
+        account = Account.new(protocol_id)
+        account.config = AccountConfig(account_id)
         try:
             key, secret, verifier = account.config.load_oauth_credentials()
             account.setup_user_credentials(account.id_, key, secret, verifier)
         except EmptyOAuthCredentials:
-            try:
-                username, password = account.config.load_basic_credentials()
-                account.setup_user_credentials(account.id_, username, password)
-            except EmptyBasicCredentials:
-                raise ErrorLoadingAccount
+            raise ErrorLoadingAccount
         return account
 
     def request_oauth_access(self):
@@ -150,6 +131,12 @@ class Account(object):
     def authorize_oauth_access(self, pin):
         profile = self.protocol.authorize_token(pin)
         self.__setup(profile.username)
+
+    def save(self):
+        self.config = AccountConfig(self.id_)
+        token = self.get_oauth_token()
+        if token:
+            self.config.save_oauth_credentials(token.key, token.secret, token.verifier)
 
     def authenticate(self):
         self.profile = self.protocol.verify_credentials()

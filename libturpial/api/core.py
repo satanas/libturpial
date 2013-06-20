@@ -154,16 +154,7 @@ class Core:
                 filtered_statuses.append(status)
         return filtered_statuses
 
-    def request_new_protocol(self, protocol_id):
-        # TODO: Update doc
-        """
-        Return an OAuth authorization URL or raise a
-        :class:`libturpial.exceptions.NotSupported` exception of the protocol
-        does not support OAuth
-        """
-        return Account.new_protocol_from_string(protocol_id)
-
-    def register_oauth_account(self, username, protocol):
+    def register_account(self, account):
         # TODO: Update doc, protocol object
         """Register an account for the user *username* and the protocol
         *protocol_id* (see :class:`libturpial.common.ProtocolType` for
@@ -171,11 +162,7 @@ class Core:
 
         Returns a string with the id of the account registered.
         """
-        profile = protocol.verify_credentials()
-        token = protocol.get_token()
-        acc = self.accman.register_oauth_account(self, protocol.name,
-            profile.username, token.key, token.secret, token.pin)
-        return acc
+        return self.accman.register(account)
 
     def unregister_account(self, account_id, delete_all=False):
         """Removes an account form config. If *delete_all* is **True** removes 
@@ -183,12 +170,15 @@ class Core:
         """
         return self.accman.unregister(account_id, delete_all)
 
+    def load_account(self, account_id):
+        self.accman.load(account_id)
+
     def load_registered_accounts(self):
         """Loads all stored accounts
         """
         accounts = self.config.get_stored_accounts()
-        for acc in accounts:
-            self.accman.load(acc)
+        for account_id in accounts:
+            self.accman.load(account_id)
 
     def register_column(self, column_id):
         """Register the *column_id* column and returns a :class:`Column` object
@@ -216,6 +206,7 @@ class Core:
                 to_store[key] = col.id_
         self.config.write_section('Columns', to_store)
         self.load_registered_columns()
+        return column_id
 
     def load_registered_columns(self):
         """Reads the config to load all stored columns
