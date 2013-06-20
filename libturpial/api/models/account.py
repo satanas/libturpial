@@ -66,7 +66,7 @@ class Account(object):
         self.username = username
 
     @staticmethod
-    def new(protocol_id):
+    def new(protocol_id, username=None):
         # TODO: Update doc
         """
         Return a new account object based on OAuth authentication. This will
@@ -76,7 +76,7 @@ class Account(object):
 
         If the account exists this method overwrite the previous credentials
         """
-        account = Account(protocol_id)
+        account = Account(protocol_id, username)
         return account
 
     @staticmethod
@@ -108,9 +108,10 @@ class Account(object):
         if not AccountConfig.exists(account_id):
             raise ErrorLoadingAccount("Account has no stored credentials")
 
+        username = get_username_from(account_id)
         protocol_id = get_protocol_from(account_id)
 
-        account = Account.new(protocol_id)
+        account = Account.new(protocol_id, username)
         account.config = AccountConfig(account_id)
         key, secret, verifier = account.config.load_oauth_credentials()
         account.setup_user_credentials(account.id_, key, secret, verifier)

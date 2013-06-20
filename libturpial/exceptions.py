@@ -34,6 +34,9 @@ class StatusDuplicated(Exception):
 class ResourceNotFound(Exception):
     pass
 
+class UserListNotFound(Exception):
+    pass
+
 class ServiceOverCapacity(Exception):
     pass
 

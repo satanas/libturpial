@@ -266,40 +266,36 @@ class Core:
         """
         return self.reg_columns
 
-    def get_column_statuses(self, acc_id, col_id,
+    def get_column_statuses(self, account_id, column_id,
                             count=NUM_STATUSES, since_id=None):
-        """Fetch the statuses for the account *acc_id* and the column *col_id*.
+        """Fetch the statuses for the account *account_id* and the column *column_id*.
         *count* let you specify how many statuses do you want to fetch, values
         range goes from 0-200. If *since_id* is not **None** libturpial will
         only fetch statuses newer than that.
         """
-        try:
-            if col_id.find(ColumnType.SEARCH) == 0:
-                criteria = col_id[len(ColumnType.SEARCH) + 1:]
-                return self.search(acc_id, criteria, count, since_id)
+        if column_id.find(ColumnType.SEARCH) == 0:
+            criteria = column_id[len(ColumnType.SEARCH) + 1:]
+            return self.search(account_id, criteria, count, since_id)
 
-            account = self.accman.get(acc_id)
-            if col_id == ColumnType.TIMELINE:
-                rtn = self.__apply_filters(account.get_timeline(count, since_id))
-            elif col_id == ColumnType.REPLIES:
-                rtn = account.get_replies(count, since_id)
-            elif col_id == ColumnType.DIRECTS:
-                rtn = account.get_directs(count, since_id)
-            elif col_id == ColumnType.SENT:
-                rtn = account.get_sent(count, since_id)
-            elif col_id == ColumnType.FAVORITES:
-                rtn = account.get_favorites(count)
-            elif col_id == ColumnType.PUBLIC:
-                rtn = account.get_public_timeline(count, since_id)
-            else:
-                list_id = account.get_list_id(col_id)
-                if list_id is None:
-                    # TODO: Raise a Turpial exception
-                    raise IndexError
-                rtn = account.get_list_statuses(list_id, count, since_id)
-            return Response(rtn)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        account = self.accman.get(account_id)
+        if column_id == ColumnType.TIMELINE:
+            rtn = self.__apply_filters(account.get_timeline(count, since_id))
+        elif column_id == ColumnType.REPLIES:
+            rtn = account.get_replies(count, since_id)
+        elif column_id == ColumnType.DIRECTS:
+            rtn = account.get_directs(count, since_id)
+        elif column_id == ColumnType.SENT:
+            rtn = account.get_sent(count, since_id)
+        elif column_id == ColumnType.FAVORITES:
+            rtn = account.get_favorites(count)
+        elif column_id == ColumnType.PUBLIC:
+            rtn = account.get_public_timeline(count, since_id)
+        else:
+            list_id = account.get_list_id(column_id)
+            if list_id is None:
+                raise UserListNotFound
+            rtn = account.get_list_statuses(list_id, count, since_id)
+        return rtn
 
     def get_public_timeline(self, acc_id, count=NUM_STATUSES, since_id=None):
         """Fetch the public timeline for the service associated to the
