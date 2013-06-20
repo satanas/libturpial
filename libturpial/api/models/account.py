@@ -44,13 +44,8 @@ class Account(object):
     *account* object.
     """
 
-    NEW = 0
-    LOGGED_IN = 1
-    LOGIN_IN_PROGRESS = 2
-
     def __init__(self, protocol_id, username=None):
-        self.empty = True
-        self.login_status = self.NEW
+        self.config = None
         self.protocol_id = protocol_id
 
         if username:
@@ -69,7 +64,6 @@ class Account(object):
     def __setup(self, username):
         self.id_ = build_account_id(username, self.protocol_id)
         self.username = username
-        self.empty = False
 
     @staticmethod
     def new(protocol_id):
@@ -118,11 +112,8 @@ class Account(object):
 
         account = Account.new(protocol_id)
         account.config = AccountConfig(account_id)
-        try:
-            key, secret, verifier = account.config.load_oauth_credentials()
-            account.setup_user_credentials(account.id_, key, secret, verifier)
-        except EmptyOAuthCredentials:
-            raise ErrorLoadingAccount
+        key, secret, verifier = account.config.load_oauth_credentials()
+        account.setup_user_credentials(account.id_, key, secret, verifier)
         return account
 
     def request_oauth_access(self):
@@ -183,21 +174,7 @@ class Account(object):
         Return `True` if the current account has been logged in, `False`
         otherwise
         """
-        return self.status == self.LOGGED_IN
-
-    def is_not_logged_in(self):
-        """
-        Return `True` if the current account has not been logged in, `False`
-        otherwise
-        """
-        return not self.is_logged_in()
-
-    def is_login_in_progress(self):
-        """
-        Return `True` if the login process is in progress for the current
-        account, `False`otherwise
-        """
-        return self.status == self.LOGIN_IN_PROGRESS
+        return self.config != None
 
     def __getattr__(self, name):
         try:
