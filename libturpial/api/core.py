@@ -297,30 +297,21 @@ class Core:
             rtn = account.get_list_statuses(list_id, count, since_id)
         return rtn
 
-    def get_public_timeline(self, acc_id, count=NUM_STATUSES, since_id=None):
+    def get_public_timeline(self, account_id, count=NUM_STATUSES, since_id=None):
         """Fetch the public timeline for the service associated to the
-        account *acc_id*. *count* and *since_id* work in the same way
+        account *account_id*. *count* and *since_id* work in the same way
         that in :meth:`libturpial.api.core.Core.get_column_statuses`
         """
-        try:
-            account = self.accman.get(acc_id, False)
-            return Response(account.get_public_timeline(count, since_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        account = self.accman.get(account_id, False)
+        return account.get_public_timeline(count, since_id)
 
-    def get_followers(self, acc_id, only_id=False):
-        try:
-            account = self.accman.get(acc_id)
-            return Response(account.get_followers(only_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def get_followers(self, account_id, only_id=False):
+        account = self.accman.get(account_id)
+        return account.get_followers(only_id)
 
-    def get_following(self, acc_id, only_id=False):
-        try:
-            account = self.accman.get(acc_id)
-            return Response(account.get_following(only_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def get_following(self, account_id, only_id=False):
+        account = self.accman.get(account_id)
+        return account.get_following(only_id)
 
     def get_all_friends_list(self):
         friends = []
