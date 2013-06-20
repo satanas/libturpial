@@ -130,7 +130,7 @@ class Account(object):
         if token:
             self.config.save_oauth_credentials(token.key, token.secret, token.verifier)
 
-    def authenticate(self):
+    def login(self):
         self.profile = self.protocol.verify_credentials()
         self.lists = self.protocol.get_lists(self.profile.username)
 

@@ -234,11 +234,11 @@ class Core:
         """
         return self.accman.get_all()
 
-    def name_as_id(self, acc_id):
-        if self.accman.get(acc_id).protocol_id == Protocol.TWITTER:
-            return self.accman.change_id(acc_id, self.accman.get(acc_id).profile.username)
+    def name_as_id(self, account_id):
+        if self.accman.get(account_id).protocol_id == Protocol.TWITTER:
+            return self.accman.change_id(account_id, self.accman.get(account_id).profile.username)
         else:
-            return acc_id
+            return account_id
 
     def all_columns(self):
         """Returns a dictionary with all registered columns per account. Example:
@@ -265,6 +265,10 @@ class Core:
         per column registered
         """
         return self.reg_columns
+
+    def login(self, account_id):
+        account = self.accman.get(account_id)
+        return account.login()
 
     def get_column_statuses(self, account_id, column_id,
                             count=NUM_STATUSES, since_id=None):
@@ -315,35 +319,28 @@ class Core:
 
     def get_all_friends_list(self):
         friends = []
-        try:
-            for account in self.accman.get_all():
-                print account
-                for profile in account.get_following():
-                    if profile not in friends:
-                        friends.append(profile)
-            self.config.save_friends([f.username for f in friends])
-            return Response(friends)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        for account in self.accman.get_all():
+            print account
+            for profile in account.get_following():
+                if profile not in friends:
+                    friends.append(profile)
+        self.config.save_friends([f.username for f in friends])
+        return friends
 
     def load_all_friends_list(self):
         return self.config.load_friends()
 
-    def get_own_profile(self, acc_id):
-        try:
-            account = self.accman.get(acc_id)
-            return Response(account.profile)
-        except Exception, exc:
-            return self.__handle_exception(exc)
-
-    def get_user_profile(self, acc_id, user):
-        try:
-            account = self.accman.get(str(acc_id))
-            profile = account.get_profile(str(user))
+    def get_user_profile(self, account_id, user=None):
+        """
+        If user is None it fetch the profile for account_id
+        """
+        account = self.accman.get(account_id)
+        if user:
+            profile = account.get_profile(user)
             profile.muted = self.is_muted(profile.username)
-            return Response(profile)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        else:
+            profile = account.profile
+        return profile
 
     def get_conversation(self, acc_id, status_id):
         try:
