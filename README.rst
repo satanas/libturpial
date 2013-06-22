@@ -58,7 +58,7 @@ Usage Introduction
 
 In this example we will create an account, do the OAuth authentication and then 
 register the account in libturpial. First, let's create the account and request
-the OAuth access:
+the OAuth access::
 
     from libturpial.api.core import Core
     from libturpial.api.models.account import Account
@@ -68,7 +68,7 @@ the OAuth access:
     print url
 
 Visit the URL showed before and authorize Turpial, then copy the pin and continue 
-with this steps:
+with this steps::
 
     account.authorize_oauth_access(PIN)
     
@@ -76,7 +76,7 @@ with this steps:
     acc_id = c.register_account(account)
 
 Now you have an account registered. You can then use all the methods availables in 
-`core.py <https://github.com/satanas/libturpial/blob/development/libturpial/api/core.py>`_. For example:
+`core.py <https://github.com/satanas/libturpial/blob/development/libturpial/api/core.py>`_. For example::
 
     timeline = c.get_column_statuses(acc_id, 'timeline')
     for status in timeline:
