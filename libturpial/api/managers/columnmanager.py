@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from libturpial.api.models.column import Column
+from libturpial.exceptions import ColumnAlreadyRegistered
 from libturpial.common import get_account_id_from, get_column_type_from
 
 class ColumnManager:
@@ -35,7 +36,7 @@ class ColumnManager:
         for account_id, columns in self.__registered_columns.iteritems():
             for col in columns:
                 if col.id_ == column_id:
-                    return None
+                    raise ColumnAlreadyRegistered
 
         count = self.__count() + 1
         key = "column%s" % count

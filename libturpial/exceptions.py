@@ -7,9 +7,6 @@ class EmptyOAuthCredentials(Exception):
 class EmptyBasicCredentials(Exception):
     pass
 
-class AccountAlreadyExists(Exception):
-    pass
-
 class ErrorCreatingAccount(Exception):
     pass
 
@@ -23,6 +20,12 @@ class AccountNotAuthenticated(Exception):
     pass
 
 class AccountSuspended(Exception):
+    pass
+
+class AccountAlreadyRegistered(Exception):
+    pass
+
+class ColumnAlreadyRegistered(Exception):
     pass
 
 class StatusMessageTooLong(Exception):

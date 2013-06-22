@@ -3,7 +3,8 @@
 from libturpial.common import build_account_id
 from libturpial.api.models.account import Account
 from libturpial.exceptions import ErrorCreatingAccount, \
-        ErrorLoadingAccount, AccountNotAuthenticated
+        ErrorLoadingAccount, AccountNotAuthenticated, \
+        AccountAlreadyRegistered
 
 
 class AccountManager:
@@ -43,7 +44,9 @@ class AccountManager:
         if not account.is_authenticated():
             raise AccountNotAuthenticated
 
-        if account.id_ not in self.__accounts:
+        if account.id_ in self.__accounts:
+            raise AccountAlreadyRegistered
+        else:
             self.__accounts[account.id_] = account
             account.save()
         return account.id_
