@@ -19,7 +19,7 @@ class ErrorLoadingAccount(Exception):
     def __str__(self):
         return repr(self.message)
 
-class AccountNotLoggedIn(Exception):
+class AccountNotAuthenticated(Exception):
     pass
 
 class AccountSuspended(Exception):

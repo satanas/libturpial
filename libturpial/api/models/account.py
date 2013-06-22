@@ -174,12 +174,12 @@ class Account(object):
         """
         return self.config.calculate_cache_size()
 
-    def is_ready(self):
+    def is_authenticated(self):
         """
         Return `True` if the current account has been logged in, `False`
         otherwise
         """
-        return self.config != None
+        return self.config != None and self.profile != None
 
     def __getattr__(self, name):
         try:

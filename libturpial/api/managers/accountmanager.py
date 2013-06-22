@@ -3,7 +3,7 @@
 from libturpial.common import build_account_id
 from libturpial.api.models.account import Account
 from libturpial.exceptions import ErrorCreatingAccount, \
-        ErrorLoadingAccount, AccountNotLoggedIn
+        ErrorLoadingAccount, AccountNotAuthenticated
 
 
 class AccountManager:
@@ -40,6 +40,9 @@ class AccountManager:
         registration process was successful, otherwise raise an
         :class:`libturpial.common.exceptions.ErrorCreatingAccount` exception.
         """
+        if not account.is_authenticated():
+            raise AccountNotAuthenticated
+
         if account.id_ not in self.__accounts:
             self.__accounts[account.id_] = account
             account.save()

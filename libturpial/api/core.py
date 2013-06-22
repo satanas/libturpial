@@ -219,7 +219,8 @@ class Core:
         """
         return self.accman.accounts()
 
-    # DONE until here ================
+    # Microblogging features
+    ########################
 
     def get_column_statuses(self, account_id, column_id,
                             count=NUM_STATUSES, since_id=None):
@@ -292,6 +293,8 @@ class Core:
         else:
             profile = account.profile
         return profile
+
+    # DONE until here ================
 
     def get_conversation(self, acc_id, status_id):
         try:
