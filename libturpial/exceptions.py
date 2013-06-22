@@ -78,18 +78,14 @@ class URLShortenError(Exception):
     def __init__(self, message):
         self.message = message
 
+class NoURLToShorten(Exception):
+    pass
 
-class NoURLException(Exception):
-    """No URL to short"""
-    def __init__(self):
-        self.message = 'No URL to short'
+class URLAlreadyShort(Exception):
+    pass
 
-
-class AlreadyShortURLException(Exception):
-    """URL already short"""
-    def __init__(self):
-        self.message = 'URL already short'
-
+class PreviewServiceNotSupported(Exception):
+    pass
 
 class UploadImageError(Exception):
     """An upload image error ocurred"""

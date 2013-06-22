@@ -3,10 +3,6 @@
 import os
 import tempfile
 
-IMAGE = 0
-VIDEO = 1
-MAP = 2
-
 
 class Media(object):
     """
@@ -19,16 +15,35 @@ class Media(object):
     about the resource.
     """
 
+    IMAGE = 0
+    VIDEO = 1
+    MAP = 2
+
     def __init__(self, type_, name, content, path=None, info=None):
         self.type_ = type_
-        self.name = name.replace("/", "_")
-        self.name = self.name.replace(":", ".")
-        self.content = content
+        self.info = info
+        self.name = self.__sanitize_name(name)
         if path is None:
             self.path = os.path.join(tempfile.gettempdir(), self.name)
         else:
             self.path = path
-        self.info = info
+        if content:
+            self.content = content
+            self.save_content()
+
+    def __sanitize_name(self, name):
+        name = name.replace('http://', '')
+        name = name.replace('https://', '')
+        name = name.replace(':', '.')
+        name = name.replace('/', '_')
+        if name.find('.jpg') < 0 and name.find('.jpeg') < 0 and \
+                name.find('.png') < 0 and name.find('.gif') < 0:
+            name = "%s.jpg" % (name)
+        return name
+
+    @staticmethod
+    def new_image(name, content, path=None, info=None):
+        return Media(Media.IMAGE, name, content, path, info)
 
     def save_content(self):
         """
@@ -45,16 +60,16 @@ class Media(object):
         """
         Returns **True** if the media is a video
         """
-        return self.type_ == VIDEO
+        return self.type_ == self.VIDEO
 
     def is_image(self):
         """
         Returns **True** if the media is an image
         """
-        return self.type_ == IMAGE
+        return self.type_ == self.IMAGE
 
     def is_map(self):
         """
         Returns **True** if the media is a map
         """
-        return self.type_ == MAP
+        return self.type_ == self.MAP

@@ -12,18 +12,17 @@ import requests
 import tempfile
 
 from libturpial.common import *
-from libturpial.config import AppConfig
 from libturpial.exceptions import *
+from libturpial.config import AppConfig
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
 from libturpial.api.models.account import Account
 from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.services.url import URL_SERVICES
-#from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
-#from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
+from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
+from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
 from libturpial.api.managers.accountmanager import AccountManager
 from libturpial.api.managers.columnmanager import ColumnManager
-from libturpial.lib.services.media.preview import utils as previewutils
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -153,6 +152,10 @@ class Core:
                         continue
                 filtered_statuses.append(status)
         return filtered_statuses
+
+    def fetch_image(self, url):
+        response = requests.get(url)
+        return response.content
 
     ###########################################################################
     # Multi-account and multi-column API
@@ -414,75 +417,64 @@ class Core:
             fp.close()
         return img_destination_path
 
-    # DONE until here ================
-
     ###########################################################################
     # Services API
     ###########################################################################
 
-    def list_short_url_services(self):
+    def available_short_url_services(self):
         return URL_SERVICES.keys()
 
-    def short_url(self, url):
-        service = self.config.read('Services', 'shorten-url')
-        try:
-            # Validate already shorten URLs
-            if os.path.split(url)[0].find(service) >= 0:
-                raise AlreadyShortURLException
-            urlshorter = URL_SERVICES[service]
-            resp = urlshorter.do_service(str(url))
-            return Response(resp.response)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def short_single_url(self, long_url):
+        service = self.get_shorten_url_service()
+        if os.path.split(long_url)[0].find(service) >= 0:
+            raise URLAlreadyShort
+        urlshorter = URL_SERVICES[service]
+        return urlshorter.do_service(long_url)
 
-    def autoshort_url(self, message):
-        message = str(message)
-        try:
-            all_urls = get_urls(message)
-            if len(all_urls) == 0:
-                raise NoURLException
+    def short_url_in_message(self, message):
+        all_urls = get_urls(message)
+        if len(all_urls) == 0:
+            raise NoURLToShorten
 
-            code = 0
-            for url in all_urls:
-                response = self.short_url(url)
-                if response.code == 0:
-                    message = message.replace(url, response.items)
-                elif response.code > 0 and code == 0:
-                    code = response.code
-            response = Response(message)
-            response.code = code
-            return response
-        except Exception, exc:
-            response = self.__handle_exception(exc)
-            response.items = message
-            return response
+        for long_url in all_urls:
+            try:
+                short_url = self.short_single_url(long_url)
+            except URLAlreadyShort:
+                short_url = long_url
+            finally:
+                message = message.replace(long_url, short_url)
+        return message
 
-    def get_media_content(self, url, account_id):
-        service = previewutils.get_service_from_url(str(url))
-        try:
-            return service.do_service(str(url))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def available_preview_media_services(self):
+        return PREVIEW_MEDIA_SERVICES.keys()
 
-    def list_upload_pic_services(self):
-        return PIC_SERVICES.keys()
+    def preview_media(self, url):
+        if not is_preview_service_supported(url):
+            raise PreviewServiceNotSupported
 
-    def upload_pic(self, account_id, filepath, message):
-        service = self.config.read('Services', 'upload-pic')
-        try:
-            account = self.accman.get(account_id)
-            uploader = PIC_SERVICES[service].do_service(account, filepath, message)
-            return Response(uploader.response)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        service = get_preview_service_from_url(url)
+        return service.do_service(url)
 
-    def fetch_image(self, url):
-        response = requests.get(url)
-        return response.content
+    # DONE until here ================
+
+    def available_upload_media_services(self):
+        return UPLOAD_MEDIA_SERVICES.keys()
+
+    def upload_media(self, account_id, filepath, message):
+        service = self.get_upload_pic_service()
+        account = self.accman.get(account_id)
+        uploader = PIC_SERVICES[service].do_service(account, filepath, message)
+        uploader.response
 
     ###########################################################################
     # Configuration API
     ###########################################################################
+
+    def get_shorten_url_service(self):
+        return self.config.read('Services', 'shorten-url')
+
+    def get_upload_pic_service(self):
+        return self.config.read('Services', 'upload-pic')
 
     def has_stored_passwd(self, account_id):
         account = self.accman.get(account_id)

@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""Interface for services"""
-#
-# Author: Wil Alvarez (aka Satanas)
-# 2010-04-18
-
 import urllib2
 import logging
 
@@ -42,9 +37,3 @@ class GenericService:
 
     def do_service(self, arg):
         raise NotImplementedError
-
-class ServiceResponse:
-    def __init__(self, response=None, err=False, errmsg=None):
-        self.response = response
-        self.err = err
-        self.errmsg = errmsg

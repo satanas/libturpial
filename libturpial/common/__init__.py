@@ -7,6 +7,8 @@
 
 import re
 
+from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
+
 NUM_STATUSES = 20
 
 OS_LINUX = 'linux'
@@ -32,12 +34,23 @@ def get_account_id_from(column_id):
     temp = column_id.rfind('-')
     return column_id[:temp]
 
+def build_account_id(username, protocol_id):
+    return "%s-%s" % (username, protocol_id)
+
 def get_column_type_from(column_id):
     temp = column_id.rfind('-')
     return column_id[temp + 1:]
 
-def build_account_id(username, protocol_id):
-    return "%s-%s" % (username, protocol_id)
+def get_preview_service_from_url(url):
+    for service in PREVIEW_MEDIA_SERVICES:
+        if PREVIEW_MEDIA_SERVICES[service].can_manage_url(url):
+            return PREVIEW_MEDIA_SERVICES[service]
+    return None
+
+def is_preview_service_supported(url):
+    if get_preview_service_from_url(url) != None:
+        return True
+    return False
 
 class StatusColumn:
     TIMELINE = 'timeline'

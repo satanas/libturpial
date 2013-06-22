@@ -7,13 +7,12 @@
 
 import os
 import re
-import httplib
-import urllib2
 import logging
+import requests
 
 from libturpial.lib.interfaces.service import GenericService
 
-class ShowMediaService(GenericService):
+class PreviewMediaService(GenericService):
     def __init__(self):
         self.log = logging.getLogger('Service')
         self.url_pattern = ""
@@ -22,7 +21,8 @@ class ShowMediaService(GenericService):
         raise NotImplementedError
 
     def _get_content_from_url(self, url):
-        return urllib2.urlopen(url).read()
+        response = requests.get(url)
+        return response.content
 
     def _get_id_from_url(self, url):
         parts = url.split("/")
