@@ -11,7 +11,6 @@ import shutil
 import logging
 import ConfigParser
 
-from libturpial.api.models.column import Column
 from libturpial.common import get_username_from, get_protocol_from
 from libturpial.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials
 
@@ -274,16 +273,8 @@ class AppConfig(ConfigBase):
         for i in indexes:
             value = stored_cols[i]
             if value != '':
-                temp = value.rfind('-')
-                acc_id = value[:temp]
-                pt_id = acc_id.split('-')[1]
-                col_id = value[temp + 1:]
-                id_ = "%s-%s" % (acc_id, col_id)
-                columns.append(Column(id_, acc_id, pt_id, col_id))
+                columns.append(value)
         return columns
-
-    def save_account(self, account):
-        pass
 
     def delete_current_config(self):
         os.remove(self.configpath)

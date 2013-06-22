@@ -28,6 +28,14 @@ def get_username_from(account_id):
 def get_protocol_from(account_id):
     return account_id.split('-')[1]
 
+def get_account_id_from(column_id):
+    temp = column_id.rfind('-')
+    return column_id[:temp]
+
+def get_column_name_from(column_id):
+    temp = column_id.rfind('-')
+    return column_id[temp + 1:]
+
 def build_account_id(username, protocol_id):
     return "%s-%s" % (username, protocol_id)
 

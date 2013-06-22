@@ -21,6 +21,7 @@ from libturpial.lib.services.url import URL_SERVICES
 #from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
 #from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
 from libturpial.api.managers.accountmanager import AccountManager
+from libturpial.api.managers.columnmanager import ColumnManager
 from libturpial.lib.services.media.preview import utils as previewutils
 
 # TODO: Implement basic code to identify generic proxies in ui_base
@@ -68,10 +69,8 @@ class Core:
     def __init__(self):
         self.config = AppConfig()
         self.accman = AccountManager(self.config)
+        self.column_manager = ColumnManager(self.config)
         self.tmp_accounts = []
-
-        #self.load_registered_accounts()
-        #self.load_registered_columns()
 
     def __handle_exception(self, exc, extra_info=''):
         _type = type(exc)
@@ -173,46 +172,17 @@ class Core:
     def load_account(self, account_id):
         return self.accman.load(account_id)
 
-    def load_registered_accounts(self):
-        """Loads all stored accounts
-        """
-        accounts = self.config.get_stored_accounts()
-        for account_id in accounts:
-            self.load_account(account_id)
-
-    # DONE until here ================
     def register_column(self, column_id):
         """Register the *column_id* column and returns a :class:`Column` object
         """
-        count = len(self.registered_columns) + 1
-        key = "column%s" % count
-        self.config.write('Columns', key, column_id)
-        self.load_registered_columns()
-        temp = None
-        for col in self.registered_columns:
-            if col.id_ == column_id:
-                temp = col
-                break
-        return temp
+        return self.column_manager.register(column_id)
 
     def unregister_column(self, column_id):
         """Removes the column *column_id* from config.
         """
-        index = 0
-        to_store = {}
-        for col in self.registered_columns:
-            if col.id_ != column_id:
-                index += 1
-                key = "column%s" % index
-                to_store[key] = col.id_
-        self.config.write_section('Columns', to_store)
-        self.load_registered_columns()
-        return column_id
+        return self.column_manager.unregister(column_id)
 
-    def load_registered_columns(self):
-        """Reads the config to load all stored columns
-        """
-        self.registered_columns = self.config.get_stored_columns()
+    # DONE until here ================
 
     def list_accounts(self):
         """Returns an array of registered accounts. For example:

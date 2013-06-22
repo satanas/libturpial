@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from libturpial.common import build_account_id
-from libturpial.config import AccountConfig
 from libturpial.api.models.account import Account
 from libturpial.exceptions import ErrorCreatingAccount, \
         ErrorLoadingAccount, AccountNotLoggedIn
@@ -11,12 +10,18 @@ class AccountManager:
     def __init__(self, config):
         self.config = config
         self.__accounts = {}
+        self.__load_registered()
 
     def __len__(self):
         return len(self.__accounts)
 
     def __iter__(self):
         return self.__accounts.iteritems()
+
+    def __load_registered(self):
+        accounts = self.config.get_stored_accounts()
+        for account_id in accounts:
+            self.load(account_id)
 
     def load(self, account_id):
         # TODO: Set the timeout
