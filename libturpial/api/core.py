@@ -473,7 +473,7 @@ class Core:
     def get_shorten_url_service(self):
         return self.config.read('Services', 'shorten-url')
 
-    def get_upload_pic_service(self):
+    def get_upload_media_service(self):
         return self.config.read('Services', 'upload-pic')
 
     def has_stored_passwd(self, account_id):
