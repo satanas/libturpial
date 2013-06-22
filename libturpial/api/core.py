@@ -8,6 +8,7 @@
 import os
 import ssl
 import urllib2
+import requests
 import tempfile
 
 from libturpial.common import *
@@ -153,6 +154,10 @@ class Core:
                 filtered_statuses.append(status)
         return filtered_statuses
 
+    ###########################################################################
+    # Multi-account and multi-column API
+    ###########################################################################
+
     def register_account(self, account):
         # TODO: Update doc, protocol object
         """Register an account for the user *username* and the protocol
@@ -219,8 +224,9 @@ class Core:
         """
         return self.accman.accounts()
 
-    # Microblogging features
-    ########################
+    ###########################################################################
+    # Microblogging API
+    ###########################################################################
 
     def get_column_statuses(self, account_id, column_id,
                             count=NUM_STATUSES, since_id=None):
@@ -294,208 +300,126 @@ class Core:
             profile = account.profile
         return profile
 
-    # DONE until here ================
+    def get_conversation(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.get_conversation(status_id)
 
-    def get_conversation(self, acc_id, status_id):
-        try:
-            account = self.accman.get(acc_id)
-            return Response(account.get_conversation(status_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def update_status(self, account_id, text, in_reply_id=None):
+        account = self.accman.get(account_id)
+        return account.update_status(text, in_reply_id)
 
-    def update_status(self, acc_id, text, in_reply_id=None):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.update_status(str(text), str(in_reply_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
-
-    def broadcast_status(self, acc_array, text):
-        responses = []
-        for acc_id in acc_array:
+    def broadcast_status(self, account_id_array, text):
+        response = {}
+        for account_id in account_id_array:
             try:
-                account = self.accman.get(acc_id)
-                resp = Response(account.update_status(text), account_id=acc_id)
-                responses.append(resp)
+                account = self.accman.get(account_id)
+                response[account_id] = account.update_status(text)
             except Exception, exc:
-                resp = self.__handle_exception(exc)
-                resp.account_id = acc_id
-                responses.append(resp)
+                response[account_id] = exc
+        return response
 
-        return Response(responses)
+    def destroy_status(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.destroy_status(status_id)
 
-    def destroy_status(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.destroy_status(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def get_single_status(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.get_status(status_id)
 
-    def get_single_status(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.get_status(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def repeat_status(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.repeat_status(status_id)
 
-    def repeat_status(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.repeat(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def mark_status_as_favorite(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.mark_as_favorite(status_id)
 
-    def unrepeat_status(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.unrepeat(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def unmark_status_as_favorite(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.unmark_as_favorite(status_id)
 
-    def update_profile(self, acc_id, args):
-        try:
-            account = self.accman.get(str(acc_id))
-            new_profile = account.update_profile(args)
-            account.set_profile(new_profile)
-            return Response(new_profile)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def send_direct_message(self, account_id, username, message):
+        account = self.accman.get(account_id)
+        return account.send_direct_message(username, message)
 
-    def follow(self, acc_id, username, by_id=False):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.follow(str(username), str(by_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def destroy_direct_message(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.destroy_direct_message(status_id)
 
-    def unfollow(self, acc_id, username):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.unfollow(str(username)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def update_profile(self, account_id, fullname=None, url=None, bio=None,
+            location=None):
+        account = self.accman.get(account_id)
+        return account.update_profile(fullname, url, bio, location)
 
-    def send_direct(self, acc_id, username, message):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.send_direct(str(username), str(message)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def follow(self, account_id, username, by_id=False):
+        account = self.accman.get(account_id)
+        return account.follow(username, by_id)
 
-    def destroy_direct(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.destroy_direct(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def unfollow(self, account_id, username):
+        account = self.accman.get(account_id)
+        return account.unfollow(username)
 
-    def mark_favorite(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.mark_favorite(status_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def block(self, account_id, username):
+        account = self.accman.get(account_id)
+        return account.block(username)
 
-    def unmark_favorite(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.unmark_favorite(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def unblock(self, account_id, username):
+        account = self.accman.get(account_id)
+        return account.unblock(username)
 
-    def search(self, acc_id, query, count=NUM_STATUSES, since_id=None):
-        try:
-            account = self.accman.get(str(acc_id), False)
-            # The unquote is to ensure that the query is not url-encoded. The
-            # encoding will be done automatically by the http module
-            unquoted_query = urllib2.unquote(str(query))
-            return Response(account.search(unquoted_query, count, since_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def report_as_spam(self, account_id, username):
+        account = self.accman.get(account_id)
+        return account.report_as_spam(username)
 
-    def trends(self, acc_id):
-        try:
-            account = self.accman.get(str(acc_id), False)
-            return Response(account.trends())
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def mute(self, username):
+        self.config.append_filter('@%s' % username)
+        return username
 
-    def block(self, acc_id, user):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.block(str(user)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def unmute(self, username):
+        self.config.remove_filter('@%s' % username)
+        return username
 
-    def unblock(self, acc_id, user):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.unblock(str(user)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def verify_friendship(self, account_id, username):
+        account = self.accman.get(account_id)
+        return account.is_friend(username)
 
-    def report_spam(self, acc_id, user):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.report_spam(user))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def search(self, account_id, query, count=NUM_STATUSES, since_id=None, extra=None):
+        account = self.accman.get(account_id, False)
+        # The unquote is to ensure that the query is not url-encoded. The
+        # encoding will be done automatically by the http module
+        unquoted_query = urllib2.unquote(query)
+        return account.search(unquoted_query, count, since_id, extra)
 
-    def verify_friendship(self, acc_id, user):
-        pass
-
-    def is_friend(self, acc_id, user):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.is_friend(str(user)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
-
-    def mute(self, user):
-        try:
-            self.config.append_filter('@%s' % str(user))
-            return Response(str(user))
-        except Exception, exc:
-            return self.__handle_exception(exc)
-
-    def unmute(self, user):
-        try:
-            self.config.remove_filter('@%s' % str(user))
-            return Response(user)
-        except Exception, exc:
-            return self.__handle_exception(exc)
-
-    def get_profile_image(self, acc_id, user):
+    def get_profile_image(self, account_id, username):
         # Returns the path of profile image in original size
-        try:
-            account = self.accman.get(str(acc_id))
-            basename = "%s-%s-profile-image" % (acc_id, user)
-            img_path = os.path.join(account.config.imgdir, basename)
-            if not os.path.isfile(img_path):
-                fd = open(img_path, 'w')
-                fd.write(account.get_profile_image(str(user)))
-                fd.close()
-            return Response(img_path)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        account = self.accman.get(account_id)
+        basename = "%s-%s-profile-image" % (account_id, username)
+        img_destination_path = os.path.join(account.config.imgdir, basename)
+        if not os.path.isfile(img_destination_path):
+            img_url = account.get_profile_image(username)
+            fd = open(img_destination_path, 'w')
+            fd.write(self.fetch_image(img_url))
+            fd.close()
+        return img_destination_path
 
     def get_status_avatar(self, status):
         # Returns the path of profile image for the user who post the status
         # in avatar size (48x48)
-        try:
-            account = self.accman.get(status.account_id)
-            basename = "%s-%s-avatar-%s" % (status.account_id, status.username, os.path.basename(status.avatar))
-            img_path = os.path.join(account.config.imgdir, basename)
-            if not os.path.isfile(img_path):
-                handle = urllib2.urlopen(status.avatar)
-                fp = open(img_path, 'w')
-                fp.write(handle.read())
-                fp.close()
-            return Response(img_path)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        account = self.accman.get(status.account_id)
+        basename = "%s-%s-avatar-%s" % (status.account_id, status.username, os.path.basename(status.avatar))
+        img_destination_path = os.path.join(account.config.imgdir, basename)
+        if not os.path.isfile(img_destination_path):
+            fp = open(img_destination_path, 'w')
+            fp.write(self.fetch_image(status.avatar))
+            fp.close()
+        return img_destination_path
 
-    ''' Services '''
+    # DONE until here ================
+
+    ###########################################################################
+    # Services API
+    ###########################################################################
+
     def list_short_url_services(self):
         return URL_SERVICES.keys()
 
@@ -533,7 +457,7 @@ class Core:
             response.items = message
             return response
 
-    def get_media_content(self, url, acc_id):
+    def get_media_content(self, url, account_id):
         service = previewutils.get_service_from_url(str(url))
         try:
             return service.do_service(str(url))
@@ -543,27 +467,33 @@ class Core:
     def list_upload_pic_services(self):
         return PIC_SERVICES.keys()
 
-    def upload_pic(self, acc_id, filepath, message):
+    def upload_pic(self, account_id, filepath, message):
         service = self.config.read('Services', 'upload-pic')
         try:
-            account = self.accman.get(str(acc_id))
+            account = self.accman.get(account_id)
             uploader = PIC_SERVICES[service].do_service(account, filepath, message)
             return Response(uploader.response)
         except Exception, exc:
             return self.__handle_exception(exc)
 
+    def fetch_image(self, url):
+        response = requests.get(url)
+        return response.content
 
-    ''' Configuration '''
-    def has_stored_passwd(self, acc_id):
-        account = self.accman.get(str(acc_id))
+    ###########################################################################
+    # Configuration API
+    ###########################################################################
+
+    def has_stored_passwd(self, account_id):
+        account = self.accman.get(account_id)
         if account.profile.password is None:
             return False
         if account.profile.password == '':
             return False
         return True
 
-    def is_account_logged_in(self, acc_id):
-        account = self.accman.get(str(acc_id))
+    def is_account_logged_in(self, account_id):
+        account = self.accman.get(account_id)
         return account.logged_in
 
     def is_muted(self, username):

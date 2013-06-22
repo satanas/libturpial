@@ -357,7 +357,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def update_profile(self, profile_args):
+    def update_profile(self, fullname=None, url=None, bio=None, location=None):
         """
         Update the user profile
 
@@ -482,7 +482,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def search(self, query, count, since_id=None):
+    def search(self, query, count, since_id=None, extra=None):
         """
         Execute a search query in server
 

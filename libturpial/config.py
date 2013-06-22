@@ -12,7 +12,8 @@ import logging
 import ConfigParser
 
 from libturpial.common import get_username_from, get_protocol_from
-from libturpial.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials
+from libturpial.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials, \
+        ExpressionAlreadyFiltered
 
 try:
     from xdg import BaseDirectory
@@ -213,30 +214,27 @@ class AppConfig(ConfigBase):
         _fd.close()
         return muted
 
-    def save_filters(self, lst):
+    def save_filters(self, filter_list):
         _fd = open(self.filterpath, 'w')
-        for expression in lst:
+        for expression in filter_list:
             _fd.write(expression + '\n')
         _fd.close()
 
     def append_filter(self, expression):
-        self.log.debug('Filtering expression: %s' % expression)
-        for term in self.load_filter_list():
+        for term in self.load_filters():
             if term == expression:
-                self.log.debug('Expression already filtered')
-                return
+                raise ExpressionAlreadyFiltered
         _fd = open(self.filterpath, 'a')
         _fd.write(expression + '\n')
         _fd.close()
 
     def remove_filter(self, expression):
-        self.log.debug('Unfiltering expression: %s' % expression)
         new_list = []
-        for term in self.load_filter_list():
+        for term in self.load_filters():
             if term == expression:
                 continue
             new_list.append(term)
-        self.save_filter_list(new_list)
+        self.save_filters(new_list)
 
     def load_friends(self):
         friends = []

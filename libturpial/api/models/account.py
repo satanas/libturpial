@@ -181,6 +181,10 @@ class Account(object):
         """
         return self.config != None and self.profile != None
 
+    def update_profile(self, fullname=None, url=None, bio=None, location=None):
+        self.profile = self.protocol.update_profile(fullname, url, bio, location)
+        return self.profile
+
     def __getattr__(self, name):
         try:
             return getattr(self.protocol, name)

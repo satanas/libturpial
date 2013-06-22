@@ -2,6 +2,7 @@
 
 """ Twitter implementation for Turpial"""
 
+from libturpial.exceptions import *
 from libturpial.api.models.list import List
 from libturpial.api.models.status import Status
 from libturpial.api.models.entity import Entity
@@ -11,7 +12,6 @@ from libturpial.lib.http import TurpialHTTPOAuth
 from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.protocols.twitter.params import OAUTH_OPTIONS
 from libturpial.common import NUM_STATUSES, StatusColumn, build_account_id
-from libturpial.exceptions import *
 
 
 # TODO:
@@ -23,7 +23,7 @@ class Main(Protocol):
     def __init__(self):
         self.id_ = 'twitter'
         self.base_url = 'http://api.twitter.com/1.1'
-        self.search_url = 'http://search.twitter.com'
+        self.search_url = 'http://api.twitter.com/1.1'
         self.hashtags_url = 'http://twitter.com/search?q=%23'
         self.profiles_url = 'http://www.twitter.com'
 
@@ -292,17 +292,18 @@ class Main(Protocol):
                 users.append(profile)
         return users
 
-    def update_profile(self, p_args):
-        # We use if's instead update method to guarantee valid arguments
+    def update_profile(self, fullname=None, url=None, bio=None, location=None):
         args = {}
-        if 'name' in p_args:
-            args['name'] = p_args['name']
-        if 'url' in p_args:
-            args['url'] = p_args['url']
-        if 'description' in p_args:
-            args['description'] = p_args['description']
-        if 'location' in p_args:
-            args['location'] = p_args['location']
+        if fullname:
+            args['name'] = fullname
+        if url:
+            args['url'] = url
+        if location:
+            args['location'] = location
+        if bio:
+            args['description'] = bio
+        if not args:
+            raise InvalidOrMissingArguments
 
         rtn = self.http.post('/account/update_profile', args)
         self.check_for_errors(rtn)
@@ -386,12 +387,15 @@ class Main(Protocol):
         self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
-    def search(self, query, count=NUM_STATUSES, since_id=None):
+    def search(self, query, count=NUM_STATUSES, since_id=None, extra=None):
         args = self.__build_basic_args(count, since_id)
         args['q'] = query
-        rtn = self.http.get('/search', args, base_url=self.search_url)
+        if extra:
+            args = dict(args.items() + extra.items())
+
+        rtn = self.http.get('/search/tweets', args)
         self.check_for_errors(rtn)
-        return self.json_to_status(rtn['results'])
+        return self.json_to_status(rtn['statuses'])
 
     def is_friend(self, user):
         result = self.http.get('/friendships/show',

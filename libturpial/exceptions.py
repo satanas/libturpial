@@ -52,6 +52,12 @@ class ServiceDown(Exception):
 class InvalidOrMissingCredentials(Exception):
     pass
 
+class InvalidOrMissingArguments(Exception):
+    pass
+
+class ExpressionAlreadyFiltered(Exception):
+    pass
+
 class BadOAuthTimestamp(Exception):
     pass
 
