@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from libturpial.config import AccountConfig
+from libturpial.api.models.column import Column
 from libturpial.api.models.profile import Profile
 from libturpial.lib.protocols.twitter import twitter
 from libturpial.lib.protocols.identica import identica
@@ -134,9 +135,12 @@ class Account(object):
         self.profile = self.protocol.verify_credentials()
         self.lists = self.protocol.get_lists(self.profile.username)
 
-        self.columns = [ColumnType.TIMELINE, ColumnType.REPLIES,
-                        ColumnType.DIRECTS, ColumnType.SENT,
-                        ColumnType.FAVORITES] + self.lists
+        self.columns = [
+            Column(self.id_, ColumnType.TIMELINE),
+            Column(self.id_, ColumnType.REPLIES),
+            Column(self.id_, ColumnType.DIRECTS),
+            Column(self.id_, ColumnType.SENT),
+            Column(self.id_, ColumnType.FAVORITES)] + self.lists
         return self.id_
 
     def get_friends(self):

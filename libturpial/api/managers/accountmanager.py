@@ -85,7 +85,7 @@ class AccountManager:
         """
         return sorted(self.__accounts.keys())
 
-    def get_all(self):
+    def accounts(self):
         """
         Return all :class:`libturpial.api.models.account.Account` objects
         registered

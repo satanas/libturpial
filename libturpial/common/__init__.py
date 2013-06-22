@@ -32,7 +32,7 @@ def get_account_id_from(column_id):
     temp = column_id.rfind('-')
     return column_id[:temp]
 
-def get_column_name_from(column_id):
+def get_column_type_from(column_id):
     temp = column_id.rfind('-')
     return column_id[temp + 1:]
 

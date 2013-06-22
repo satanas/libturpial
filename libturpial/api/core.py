@@ -16,7 +16,7 @@ from libturpial.exceptions import *
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
 from libturpial.api.models.account import Account
-from libturpial.api.models.response import Response
+from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.services.url import URL_SERVICES
 #from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
 #from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
@@ -182,8 +182,6 @@ class Core:
         """
         return self.column_manager.unregister(column_id)
 
-    # DONE until here ================
-
     def list_accounts(self):
         """Returns an array of registered accounts. For example:
 
@@ -196,46 +194,35 @@ class Core:
 
         >>> ['twitter', 'identica']
         """
-        return Protocol.available()
+        return Protocol.availables()
 
-    ''' all_* methods returns arrays of objects '''
-    def all_accounts(self):
-        """Returns all registered accounts as an array of
-        :class:`libturpial.api.models.Account` objects
-        """
-        return self.accman.get_all()
+    def available_columns(self):
+        """Returns a dictionary with all registered (non-registered-yet)
+        columns per account. Example:
 
-    def name_as_id(self, account_id):
-        if self.accman.get(account_id).protocol_id == Protocol.TWITTER:
-            return self.accman.change_id(account_id, self.accman.get(account_id).profile.username)
-        else:
-            return account_id
-
-    def all_columns(self):
-        """Returns a dictionary with all registered columns per account. Example:
-
-        >>> {'foo-twitter': ['timeline', 'replies', 'direct', 'sent', 'favorites']}
+        >>> {'foo-twitter': ['timeline', 'direct', 'sent', 'favorites']}
         """
         columns = {}
-        for account in self.all_accounts():
-            columns[account.id_] = {}
-            if account.logged_in != LoginStatus.DONE:
-                continue
-            for col in account.get_columns():
-                id_ = ""
-                for reg in self.registered_columns:
-                    if account.id_ == reg.account_id and reg.column_name == col:
-                        id_ = reg.id_
-                        break
-                item = Column(id_, account.id_, account.protocol_id, col)
-                columns[account.id_][col] = item
+        for account in self.registered_accounts():
+            columns[account.id_] = []
+            for column in account.get_columns():
+                if not self.column_manager.is_registered(column.id_):
+                    columns[account.id_].append(column)
         return columns
 
-    def all_registered_columns(self):
-        """Returns an array of :class:`libturpial.api.models.Column` objects
+    def registered_columns(self):
+        """Returns DICTIONARY an array of :class:`libturpial.api.models.Column` objects
         per column registered
         """
-        return self.registered_columns
+        return self.column_manager.columns()
+
+    def registered_accounts(self):
+        """Returns DICTIONARY all registered accounts as an array of
+        :class:`libturpial.api.models.Account` objects registered
+        """
+        return self.accman.accounts()
+
+    # DONE until here ================
 
     def get_column_statuses(self, account_id, column_id,
                             count=NUM_STATUSES, since_id=None):

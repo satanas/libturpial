@@ -29,8 +29,8 @@ class Protocol:
         self.log.debug('Started')
 
     @staticmethod
-    def available():
-        return [self.TWITTER, self.IDENTICA]
+    def availables():
+        return [Protocol.TWITTER, Protocol.IDENTICA]
 
     # ------------------------------------------------------------
     # Time related methods. Overwrite if necesary
