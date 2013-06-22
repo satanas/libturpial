@@ -13,4 +13,4 @@ class PicTwitterMediaContent(PreviewMediaService):
 
     def do_service(self, url):
         rawimg = self._get_content_from_url(url)
-        return Media.new_image(name, rawimg)
+        return Media.new_image(url, rawimg)
