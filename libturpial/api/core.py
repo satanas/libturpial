@@ -169,9 +169,6 @@ class Core:
         """
         return self.accman.unregister(account_id, delete_all)
 
-    def load_account(self, account_id):
-        return self.accman.load(account_id)
-
     def register_column(self, column_id):
         """Register the *column_id* column and returns a :class:`Column` object
         """
