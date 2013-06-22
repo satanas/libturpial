@@ -6,8 +6,7 @@ from libturpial.lib.protocols.twitter import twitter
 from libturpial.lib.protocols.identica import identica
 from libturpial.lib.interfaces.protocol import Protocol
 
-from libturpial.common import get_username_from, get_protocol_from, \
-        build_account_id
+from libturpial.common import *
 from libturpial.exceptions import EmptyOAuthCredentials, \
         EmptyBasicCredentials, ErrorLoadingAccount
 
@@ -81,7 +80,7 @@ class Account(object):
 
     @staticmethod
     def new_from_params(protocol_id, username, key, secret, verifier):
-        # TODO: Update doc
+        # TODO: Update doc, new methods do not do the fetch automatically
         """
         Return a new account object based on OAuth authentication. This will
         create a new entry in *~/.config/turpial/accounts/* with all the
@@ -115,6 +114,7 @@ class Account(object):
         account.config = AccountConfig(account_id)
         key, secret, verifier = account.config.load_oauth_credentials()
         account.setup_user_credentials(account.id_, key, secret, verifier)
+        account.fetch()
         return account
 
     def request_oauth_access(self):
@@ -130,7 +130,7 @@ class Account(object):
         if token:
             self.config.save_oauth_credentials(token.key, token.secret, token.verifier)
 
-    def login(self):
+    def fetch(self):
         self.profile = self.protocol.verify_credentials()
         self.lists = self.protocol.get_lists(self.profile.username)
 
@@ -170,7 +170,7 @@ class Account(object):
         """
         return self.config.calculate_cache_size()
 
-    def is_logged_in(self):
+    def is_ready(self):
         """
         Return `True` if the current account has been logged in, `False`
         otherwise

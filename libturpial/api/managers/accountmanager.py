@@ -24,7 +24,7 @@ class AccountManager:
         #self.protocol.timeout = timeout
 
         self.__accounts[account_id] = Account.load(account_id)
-        return account_id
+        return self.__accounts[account_id]
 
     def register(self, account):
         # TODO: Update doc

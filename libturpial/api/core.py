@@ -171,24 +171,25 @@ class Core:
         return self.accman.unregister(account_id, delete_all)
 
     def load_account(self, account_id):
-        self.accman.load(account_id)
+        return self.accman.load(account_id)
 
     def load_registered_accounts(self):
         """Loads all stored accounts
         """
         accounts = self.config.get_stored_accounts()
         for account_id in accounts:
-            self.accman.load(account_id)
+            self.load_account(account_id)
 
+    # DONE until here ================
     def register_column(self, column_id):
         """Register the *column_id* column and returns a :class:`Column` object
         """
-        count = len(self.reg_columns) + 1
+        count = len(self.registered_columns) + 1
         key = "column%s" % count
         self.config.write('Columns', key, column_id)
         self.load_registered_columns()
         temp = None
-        for col in self.reg_columns:
+        for col in self.registered_columns:
             if col.id_ == column_id:
                 temp = col
                 break
@@ -199,7 +200,7 @@ class Core:
         """
         index = 0
         to_store = {}
-        for col in self.reg_columns:
+        for col in self.registered_columns:
             if col.id_ != column_id:
                 index += 1
                 key = "column%s" % index
@@ -211,7 +212,7 @@ class Core:
     def load_registered_columns(self):
         """Reads the config to load all stored columns
         """
-        self.reg_columns = self.config.get_stored_columns()
+        self.registered_columns = self.config.get_stored_columns()
 
     def list_accounts(self):
         """Returns an array of registered accounts. For example:
@@ -252,7 +253,7 @@ class Core:
                 continue
             for col in account.get_columns():
                 id_ = ""
-                for reg in self.reg_columns:
+                for reg in self.registered_columns:
                     if account.id_ == reg.account_id and reg.column_name == col:
                         id_ = reg.id_
                         break
@@ -264,11 +265,7 @@ class Core:
         """Returns an array of :class:`libturpial.api.models.Column` objects
         per column registered
         """
-        return self.reg_columns
-
-    def login(self, account_id):
-        account = self.accman.get(account_id)
-        return account.login()
+        return self.registered_columns
 
     def get_column_statuses(self, account_id, column_id,
                             count=NUM_STATUSES, since_id=None):
