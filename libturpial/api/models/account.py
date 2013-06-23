@@ -179,7 +179,7 @@ class Account(object):
         Return `True` if the current account has been logged in, `False`
         otherwise
         """
-        return self.config != None and self.profile != None
+        return self.profile != None
 
     def update_profile(self, fullname=None, url=None, bio=None, location=None):
         self.profile = self.protocol.update_profile(fullname, url, bio, location)
