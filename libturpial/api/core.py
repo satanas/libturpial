@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """ Minimalistic and agnostic core for Turpial """
-#
-# Author: Wil Alvarez (aka Satanas)
-# Mar 06, 2011
 
 import os
-import ssl
 import urllib2
 import requests
-import tempfile
 
 from libturpial.common import *
 from libturpial.exceptions import *
@@ -70,66 +65,6 @@ class Core:
         self.config = AppConfig()
         self.accman = AccountManager(self.config)
         self.column_manager = ColumnManager(self.config)
-        self.tmp_accounts = []
-
-    def __handle_exception(self, exc, extra_info=''):
-        _type = type(exc)
-        print "Exception type: %s" % (str(_type))
-        response = None
-        if _type == urllib2.URLError:
-            response = Response(code=801)
-        elif _type == IndexError:
-            return Response(code=808)
-        elif _type == KeyError:
-            response = Response(code=807)
-        elif _type == NotImplementedError:
-            response = Response(code=900)
-        elif _type == ZeroDivisionError:
-            response = Response(code=809)
-        elif _type == urllib2.HTTPError:
-            if exc.code in ERROR_CODES:
-                response = Response(code=exc.code)
-            elif (exc.code == 400):
-                response = Response(code=100)
-                response.errmsg = "Sorry, server is limiting your API calls"
-            elif (exc.code == 403):
-                msg = ''
-                errmsg = exc.read()
-                if type(errmsg) == str:
-                    msg = errmsg
-                elif type(errmsg) == dict:
-                    if 'error' in errmsg:
-                        msg = errmsg['error']
-                else:
-                    msg = errmsg
-
-                if msg.find("Status is a duplicate.") > 0:
-                    response = Response(code=802)
-                elif msg.find("is already on your list.") > 0:
-                    response = Response(code=802)
-                elif msg.find("already requested to follow") > 0:
-                    response = Response(code=802)
-                #elif msg.find("cannot send messages to users who are not following you") > 0:
-                #    response = Response(code=813)
-                #elif msg.find("text of your tweet is too long") > 0:
-                #    response = Response(code=814)
-                else:
-                    response = Response(code=100)
-                    response.errmsg = msg
-        elif _type == ValueError:
-            response = Response(code=404)
-        elif _type == ssl.SSLError:
-            response = Response(code=810)
-        elif _type == URLShortenError:
-            response = Response(code=811)
-        elif _type == NoURLException:
-            response = Response(code=812)
-        elif _type == AlreadyShortURLException:
-            response = Response(code=815)
-        else:
-            response = Response(code=999)
-
-        return response
 
     def __apply_filters(self, statuses):
         filtered_statuses = []
