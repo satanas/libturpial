@@ -93,10 +93,10 @@ class Main(Protocol):
         while parse.find(id="allow"):
             parse = BeautifulSoup(navegador.page_source)
 
-        codeid = int(navegador.find_element_by_tag_name("code").text)
+        token = int(navegador.find_element_by_tag_name("code").text)
         navegador.close()
         
-        return codeid
+        return token
 
     def authorize_token(self, pin):
         self.http.authorize_token(pin)
