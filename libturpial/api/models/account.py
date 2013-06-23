@@ -45,6 +45,7 @@ class Account(object):
     """
 
     def __init__(self, protocol_id, username=None):
+        self.id_ = None
         self.config = None
         self.protocol_id = protocol_id
 
@@ -123,7 +124,7 @@ class Account(object):
 
     def authorize_oauth_access(self, pin):
         self.profile = self.protocol.authorize_token(pin)
-        self.__setup(profile.username)
+        self.__setup(self.profile.username)
 
     def save(self):
         self.config = AccountConfig(self.id_)
@@ -179,7 +180,7 @@ class Account(object):
         Return `True` if the current account has been logged in, `False`
         otherwise
         """
-        return self.profile != None
+        return self.profile != None and self.id_ != None
 
     def update_profile(self, fullname=None, url=None, bio=None, location=None):
         self.profile = self.protocol.update_profile(fullname, url, bio, location)
