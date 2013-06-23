@@ -11,7 +11,9 @@ import shutil
 import logging
 import ConfigParser
 
-from libturpial.api.models.column import Column
+from libturpial.common import get_username_from, get_protocol_from
+from libturpial.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials, \
+        ExpressionAlreadyFiltered
 
 try:
     from xdg import BaseDirectory
@@ -70,7 +72,6 @@ ACCOUNT_CFG = {
     },
     'Login':{
         'username': '',
-        'password': '',
         'protocol': '',
     }
 }
@@ -116,6 +117,7 @@ class ConfigBase:
                     self.__config[section][option] = self.cfg.get(section, option)
                 else:
                     self.write(section, option, value)
+
         self.log.debug('Loaded configuration')
 
     def load_failsafe(self):
@@ -212,30 +214,27 @@ class AppConfig(ConfigBase):
         _fd.close()
         return muted
 
-    def save_filters(self, lst):
+    def save_filters(self, filter_list):
         _fd = open(self.filterpath, 'w')
-        for expression in lst:
+        for expression in filter_list:
             _fd.write(expression + '\n')
         _fd.close()
 
     def append_filter(self, expression):
-        self.log.debug('Filtering expression: %s' % expression)
-        for term in self.load_filter_list():
+        for term in self.load_filters():
             if term == expression:
-                self.log.debug('Expression already filtered')
-                return
+                raise ExpressionAlreadyFiltered
         _fd = open(self.filterpath, 'a')
         _fd.write(expression + '\n')
         _fd.close()
 
     def remove_filter(self, expression):
-        self.log.debug('Unfiltering expression: %s' % expression)
         new_list = []
-        for term in self.load_filter_list():
+        for term in self.load_filters():
             if term == expression:
                 continue
             new_list.append(term)
-        self.save_filter_list(new_list)
+        self.save_filters(new_list)
 
     def load_friends(self):
         friends = []
@@ -272,16 +271,8 @@ class AppConfig(ConfigBase):
         for i in indexes:
             value = stored_cols[i]
             if value != '':
-                temp = value.rfind('-')
-                acc_id = value[:temp]
-                pt_id = acc_id.split('-')[1]
-                col_id = value[temp + 1:]
-                id_ = "%s-%s" % (acc_id, col_id)
-                columns.append(Column(id_, acc_id, pt_id, col_id))
+                columns.append(value)
         return columns
-
-    def save_account(self, account):
-        pass
 
     def delete_current_config(self):
         os.remove(self.configpath)
@@ -289,7 +280,7 @@ class AppConfig(ConfigBase):
 
 class AccountConfig(ConfigBase):
 
-    def __init__(self, account_id, pw=None):
+    def __init__(self, account_id):
         ConfigBase.__init__(self, default=ACCOUNT_CFG)
         self.log = logging.getLogger('AccountConfig')
         self.basedir = os.path.join(BASEDIR, 'accounts', account_id)
@@ -305,32 +296,50 @@ class AccountConfig(ConfigBase):
         self.log.debug('CACHEDIR: %s' % self.imgdir)
         self.log.debug('CONFIGFILE: %s' % self.configpath)
 
-        exist = True
         if not os.path.isdir(self.basedir):
             os.makedirs(self.basedir)
         if not os.path.isdir(self.imgdir):
             os.makedirs(self.imgdir)
-        if not os.path.isfile(self.configpath):
+        if not self.exists(account_id):
             self.create()
-            exist = False
 
         try:
             self.load()
         except Except, exc:
             self.load_failsafe()
 
-        if not exist:
-            us = account_id.split('-')[0]
-            pt = account_id.split('-')[1]
-            self.write('Login', 'username', us)
-            self.write('Login', 'protocol', pt)
-            self.remember(pw, us)
+        if not self.exists(account_id):
+            self.write('Login', 'username', get_username_from(account_id))
+            self.write('Login', 'protocol', get_protocol_from(account_id))
 
-    def remember(self, pw, us):
-        self.write('Login', 'password', self.transform(pw, us))
+    @staticmethod
+    def exists(account_id):
+        basedir = os.path.join(BASEDIR, 'accounts', account_id)
+        configpath = os.path.join(basedir, 'config')
 
-    def forget(self):
-        self.write('Login', 'password', '')
+        if not os.path.isfile(configpath):
+            return False
+        return True
+
+
+    def save_oauth_credentials(self, key, secret, verifier):
+        self.write('OAuth', 'key', key)
+        self.write('OAuth', 'secret', secret)
+        self.write('OAuth', 'verifier', verifier)
+
+    def load_oauth_credentials(self):
+        key = self.read('OAuth', 'key')
+        secret = self.read('OAuth', 'secret')
+        verifier = self.read('OAuth', 'verifier')
+        if key and secret and verifier:
+            return key, secret, verifier
+        else:
+            raise EmptyOAuthCredentials
+
+    def forget_oauth_credentials(self):
+        self.write('OAuth', 'key', '')
+        self.write('OAuth', 'secret', '')
+        self.write('OAuth', 'verifier', '')
 
     def transform(self, pw, us):
         a = base64.b16encode(pw)

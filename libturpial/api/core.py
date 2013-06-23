@@ -1,29 +1,23 @@
 # -*- coding: utf-8 -*-
 
 """ Minimalistic and agnostic core for Turpial """
-#
-# Author: Wil Alvarez (aka Satanas)
-# Mar 06, 2011
 
 import os
-import ssl
-import Queue
 import urllib2
-import logging
-import tempfile
-import traceback
+import requests
 
 from libturpial.common import *
+from libturpial.exceptions import *
 from libturpial.config import AppConfig
-from libturpial.common.exceptions import *
 from libturpial.common.tools import get_urls
 from libturpial.api.models.column import Column
-from libturpial.api.models.response import Response
-from libturpial.api.models.accountmanager import AccountManager
-from libturpial.api.services.shorturl import URL_SERVICES
-from libturpial.api.services.uploadpic import PIC_SERVICES
-from libturpial.api.services.showmedia import SHOWMEDIA_SERVICES
-from libturpial.api.services.showmedia import utils as showmediautils
+from libturpial.api.models.account import Account
+from libturpial.lib.interfaces.protocol import Protocol
+from libturpial.lib.services.url import URL_SERVICES
+from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
+from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
+from libturpial.api.managers.accountmanager import AccountManager
+from libturpial.api.managers.columnmanager import ColumnManager
 
 # TODO: Implement basic code to identify generic proxies in ui_base
 
@@ -66,85 +60,11 @@ class Core:
     >>> for v in value:
     >>>     print v
     """
-    def __init__(self, log_level=logging.DEBUG):
-        logging.basicConfig(level=log_level)
 
-        self.queue = Queue.Queue()
-        self.log = logging.getLogger('Core')
-        self.log.debug('Started')
+    def __init__(self):
         self.config = AppConfig()
-
         self.accman = AccountManager(self.config)
-        self.load_registered_accounts()
-        self.load_registered_columns()
-
-    def __print_traceback(self):
-        if self.log.getEffectiveLevel() == logging.DEBUG:
-            print traceback.print_exc()
-
-    def __handle_exception(self, exc, extra_info=''):
-        self.__print_traceback()
-
-        _type = type(exc)
-        print "Exception type: %s" % (str(_type))
-        response = None
-        if _type == urllib2.URLError:
-            response = Response(code=801)
-        elif _type == IndexError:
-            return Response(code=808)
-        elif _type == KeyError:
-            response = Response(code=807)
-        elif _type == NotImplementedError:
-            response = Response(code=900)
-        elif _type == ZeroDivisionError:
-            response = Response(code=809)
-        elif _type == urllib2.HTTPError:
-            if exc.code in ERROR_CODES:
-                response = Response(code=exc.code)
-            elif (exc.code == 400):
-                self.log.debug("Error HTTP 400 detected: %s" % exc)
-                response = Response(code=100)
-                response.errmsg = "Sorry, server is limiting your API calls"
-            elif (exc.code == 403):
-                msg = ''
-                errmsg = exc.read()
-                self.log.debug("Error HTTP 403 detected: %s" % errmsg)
-                if type(errmsg) == str:
-                    msg = errmsg
-                elif type(errmsg) == dict:
-                    if 'error' in errmsg:
-                        msg = errmsg['error']
-                else:
-                    msg = errmsg
-
-                if msg.find("Status is a duplicate.") > 0:
-                    response = Response(code=802)
-                elif msg.find("is already on your list.") > 0:
-                    response = Response(code=802)
-                elif msg.find("already requested to follow") > 0:
-                    response = Response(code=802)
-                elif msg.find("cannot send messages to users who are not following you") > 0:
-                    response = Response(code=813)
-                elif msg.find("text of your tweet is too long") > 0:
-                    response = Response(code=814)
-                else:
-                    response = Response(code=100)
-                    response.errmsg = msg
-        elif _type == ValueError:
-            response = Response(code=404)
-        elif _type == ssl.SSLError:
-            response = Response(code=810)
-        elif _type == URLShortenError:
-            response = Response(code=811)
-        elif _type == NoURLException:
-            response = Response(code=812)
-        elif _type == AlreadyShortURLException:
-            response = Response(code=815)
-        else:
-            response = Response(code=999)
-
-        self.log.debug(response.errmsg)
-        return response
+        self.column_manager = ColumnManager(self.config)
 
     def __apply_filters(self, statuses):
         filtered_statuses = []
@@ -168,73 +88,39 @@ class Core:
                 filtered_statuses.append(status)
         return filtered_statuses
 
-    ''' Microblogging '''
-    def register_account(self, username, protocol_id,
-                         password=None, auth=None):
+    def fetch_image(self, url):
+        response = requests.get(url)
+        return response.content
+
+    ###########################################################################
+    # Multi-account and multi-column API
+    ###########################################################################
+
+    def register_account(self, account):
+        # TODO: Update doc, protocol object
         """Register an account for the user *username* and the protocol
         *protocol_id* (see :class:`libturpial.common.ProtocolType` for
-        possible values). *password* is neccessary only for Identi.ca accounts,
-        Twitter accounts receive None because they use OAuth. **auth** is not
-        used anymore (left only for backward compatibility).
-
-        If the account doesn't exist it will create all the needed files to
-        store the config.
+        possible values).
 
         Returns a string with the id of the account registered.
         """
-        self.log.debug('Registering account %s' % username)
-        acc = self.accman.register(username, protocol_id, password, auth)
-        if not acc:
-            self.log.debug('Invalid account %s in %s' % (username,
-                                                         protocol_id))
-        return acc
+        return self.accman.register(account)
 
     def unregister_account(self, account_id, delete_all=False):
         """Removes an account form config. If *delete_all* is **True** removes 
         all the config files asociated to that account.
         """
-        self.log.debug('Unregistering account %s' % account_id)
         return self.accman.unregister(account_id, delete_all)
-
-    def load_registered_accounts(self):
-        """Loads all stored accounts
-        """
-        accounts = self.config.get_stored_accounts()
-        for acc in accounts:
-            self.log.debug('Registering account: %s' % acc)
-            self.accman.load(acc)
 
     def register_column(self, column_id):
         """Register the *column_id* column and returns a :class:`Column` object
         """
-        count = len(self.reg_columns) + 1
-        key = "column%s" % count
-        self.config.write('Columns', key, column_id)
-        self.load_registered_columns()
-        temp = None
-        for col in self.reg_columns:
-            if col.id_ == column_id:
-                temp = col
-                break
-        return temp
+        return self.column_manager.register(column_id)
 
     def unregister_column(self, column_id):
         """Removes the column *column_id* from config.
         """
-        index = 0
-        to_store = {}
-        for col in self.reg_columns:
-            if col.id_ != column_id:
-                index += 1
-                key = "column%s" % index
-                to_store[key] = col.id_
-        self.config.write_section('Columns', to_store)
-        self.load_registered_columns()
-
-    def load_registered_columns(self):
-        """Reads the config to load all stored columns
-        """
-        self.reg_columns = self.config.get_stored_columns()
+        return self.column_manager.unregister(column_id)
 
     def list_accounts(self):
         """Returns an array of registered accounts. For example:
@@ -247,495 +133,292 @@ class Core:
         """Returns an array of supported protocols. For example:
 
         >>> ['twitter', 'identica']
-
-        See :class:`libturpial.common.ProtocolType` for more information
         """
-        return [ProtocolType.TWITTER, ProtocolType.IDENTICA]
+        return Protocol.availables()
 
-    ''' all_* methods returns arrays of objects '''
-    def all_accounts(self):
-        """Returns all registered accounts as an array of
-        :class:`libturpial.api.models.Account` objects
-        """
-        return self.accman.get_all()
+    def available_columns(self):
+        """Returns a dictionary with all registered (non-registered-yet)
+        columns per account. Example:
 
-    def name_as_id(self, acc_id):
-        if self.accman.get(acc_id).protocol_id == ProtocolType.TWITTER:
-            return self.accman.change_id(acc_id, self.accman.get(acc_id).profile.username)
-        else:
-            return acc_id
-
-    def all_columns(self):
-        """Returns a dictionary with all registered columns per account. Example:
-
-        >>> {'foo-twitter': ['timeline', 'replies', 'direct', 'sent', 'favorites']}
+        >>> {'foo-twitter': ['timeline', 'direct', 'sent', 'favorites']}
         """
         columns = {}
-        for account in self.all_accounts():
-            columns[account.id_] = {}
-            if account.logged_in != LoginStatus.DONE:
-                continue
-            for col in account.get_columns():
-                id_ = ""
-                for reg in self.reg_columns:
-                    if account.id_ == reg.account_id and reg.column_name == col:
-                        id_ = reg.id_
-                        break
-                item = Column(id_, account.id_, account.protocol_id, col)
-                columns[account.id_][col] = item
+        for account in self.registered_accounts():
+            columns[account.id_] = []
+            for column in account.get_columns():
+                if not self.column_manager.is_registered(column.id_):
+                    columns[account.id_].append(column)
         return columns
 
-    def all_registered_columns(self):
-        """Returns an array of :class:`libturpial.api.models.Column` objects
+    def registered_columns(self):
+        """Returns DICTIONARY an array of :class:`libturpial.api.models.Column` objects
         per column registered
         """
-        return self.reg_columns
+        return self.column_manager.columns()
 
-    def change_login_status(self, acc_id, status):
-        try:
-            account = self.accman.login_status(acc_id, status)
-        except Exception, exc:
-            return self.__handle_exception(exc)
-
-    def login(self, acc_id):
-        """Starts login sequence for account *acc_id*. Returns a
-        :class:`libturpial.api.models.response.Response` object.
-
-        On success, response item will contain a
-        :class:`libturpial.api.models.auth_object.AuthObject` object. With this
-        object you have to validate if the account requires authorization or not.
-        On **True** (needs OAuth authorization), you need to open a browser with
-        the URL pointed by **AuthObject**, user must authorize Turpial and then
-        write back the PIN returned by the service. After getting the PIN you can
-        continue the process with the method
-        :meth:`libturpial.api.code.Core.authorize_oauth_token`. If the account
-        doesn't require authorization you must continue with the
-        :meth:`libturpial.api.core.Core.auth` method.
-
-        On error, response code will be greater than zero.
-
-        >>> acc_id = 'foo-twitter'
-        >>> response = c.login(acc_id)
-        >>> if response.code > 0:
-        >>>     raise Exception
-        >>> 
-        >>> auth_obj = response.items
-        >>> # Validates if account needs authorization
-        >>> if auth_obj.must_auth():
-        >>>     print "Visit %s, authorize Turpial and write back the pin" % auth_obj.url
-        >>>     pin = raw_input('Pin: ')
-        >>>     c.core.authorize_oauth_token(acc_id, pin)
-        >>> 
-        >>> # Continue with the authentication process
+    def registered_accounts(self):
+        """Returns DICTIONARY all registered accounts as an array of
+        :class:`libturpial.api.models.Account` objects registered
         """
-        self.log.debug('Starting login sequence with %s' % acc_id)
-        try:
-            account = self.accman.get(acc_id, False)
-            if account.logged_in == LoginStatus.DONE:
-                #add columns
-                return Response(code=808)
-            else:
-                self.accman.login_status(acc_id, LoginStatus.IN_PROGRESS)
-                return Response(account.start_login(acc_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        return self.accman.accounts()
 
-    def authorize_oauth_token(self, acc_id, pin):
-        """Authorize an OAuth token for the account *account_id* with the given
-        *pin*. Returns a
-        :class:`libturpial.api.models.response.Response` object. You need to
-        validate response code because on success response items will be
-        **None**
-        """
-        self.log.debug('Authorizating OAuth token for %s' % acc_id)
-        try:
-            account = self.accman.get(acc_id, False)
-            if account.logged_in == LoginStatus.DONE:
-                return Response(code=808)
-            else:
-                return Response(account.authorize_oauth_token(pin))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    ###########################################################################
+    # Microblogging API
+    ###########################################################################
 
-    def auth(self, acc_id):
-        """Second step on login sequence (after authorization). This method will
-        authenticate account *acc_id* against service (Twitter, Identica, etc)
-        and returns a :class:`libturpial.api.models.response.Response` object.
-        On success response items will hold the id of the authenticated
-        account.
-        """
-        try:
-            account = self.accman.get(acc_id, False)
-            if account.logged_in == LoginStatus.DONE:
-                return Response(code=808)
-            else:
-                self.accman.login_status(acc_id, LoginStatus.DONE)
-                return Response(account.auth())
-        except Exception, exc:
-            self.accman.login_status(acc_id, LoginStatus.NONE)
-            return self.__handle_exception(exc)
-
-    def get_column_statuses(self, acc_id, col_id,
-                            count=STATUSPP, since_id=None):
-        """Fetch the statuses for the account *acc_id* and the column *col_id*.
+    def get_column_statuses(self, account_id, column_id,
+                            count=NUM_STATUSES, since_id=None):
+        """Fetch the statuses for the account *account_id* and the column *column_id*.
         *count* let you specify how many statuses do you want to fetch, values
         range goes from 0-200. If *since_id* is not **None** libturpial will
         only fetch statuses newer than that.
         """
-        try:
-            if col_id.find(ColumnType.SEARCH) == 0:
-                criteria = col_id[len(ColumnType.SEARCH) + 1:]
-                return self.search(acc_id, criteria, count, since_id)
+        if column_id.find(ColumnType.SEARCH) == 0:
+            criteria = column_id[len(ColumnType.SEARCH) + 1:]
+            return self.search(account_id, criteria, count, since_id)
 
-            account = self.accman.get(acc_id)
-            if col_id == ColumnType.TIMELINE:
-                rtn = self.__apply_filters(account.get_timeline(count, since_id))
-            elif col_id == ColumnType.REPLIES:
-                rtn = account.get_replies(count, since_id)
-            elif col_id == ColumnType.DIRECTS:
-                rtn = account.get_directs(count, since_id)
-            elif col_id == ColumnType.SENT:
-                rtn = account.get_sent(count, since_id)
-            elif col_id == ColumnType.FAVORITES:
-                rtn = account.get_favorites(count)
-            elif col_id == ColumnType.PUBLIC:
-                rtn = account.get_public_timeline(count, since_id)
-            else:
-                list_id = account.get_list_id(col_id)
-                if list_id is None:
-                    raise IndexError
-                rtn = account.get_list_statuses(list_id, count, since_id)
-            return Response(rtn)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        account = self.accman.get(account_id)
+        if column_id == ColumnType.TIMELINE:
+            rtn = self.__apply_filters(account.get_timeline(count, since_id))
+        elif column_id == ColumnType.REPLIES:
+            rtn = account.get_replies(count, since_id)
+        elif column_id == ColumnType.DIRECTS:
+            rtn = account.get_directs(count, since_id)
+        elif column_id == ColumnType.SENT:
+            rtn = account.get_sent(count, since_id)
+        elif column_id == ColumnType.FAVORITES:
+            rtn = account.get_favorites(count)
+        elif column_id == ColumnType.PUBLIC:
+            rtn = account.get_public_timeline(count, since_id)
+        else:
+            list_id = account.get_list_id(column_id)
+            if list_id is None:
+                raise UserListNotFound
+            rtn = account.get_list_statuses(list_id, count, since_id)
+        return rtn
 
-    def get_public_timeline(self, acc_id, count=STATUSPP, since_id=None):
+    def get_public_timeline(self, account_id, count=NUM_STATUSES, since_id=None):
         """Fetch the public timeline for the service associated to the
-        account *acc_id*. *count* and *since_id* work in the same way
+        account *account_id*. *count* and *since_id* work in the same way
         that in :meth:`libturpial.api.core.Core.get_column_statuses`
         """
-        try:
-            account = self.accman.get(acc_id, False)
-            return Response(account.get_public_timeline(count, since_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        account = self.accman.get(account_id, False)
+        return account.get_public_timeline(count, since_id)
 
-    def get_followers(self, acc_id, only_id=False):
-        try:
-            account = self.accman.get(acc_id)
-            return Response(account.get_followers(only_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def get_followers(self, account_id, only_id=False):
+        account = self.accman.get(account_id)
+        return account.get_followers(only_id)
 
-    def get_following(self, acc_id, only_id=False):
-        try:
-            account = self.accman.get(acc_id)
-            return Response(account.get_following(only_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def get_following(self, account_id, only_id=False):
+        account = self.accman.get(account_id)
+        return account.get_following(only_id)
 
     def get_all_friends_list(self):
         friends = []
-        try:
-            for account in self.accman.get_all():
-                print account
-                for profile in account.get_following():
-                    if profile not in friends:
-                        friends.append(profile)
-            self.config.save_friends([f.username for f in friends])
-            return Response(friends)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        for account in self.accman.get_all():
+            print account
+            for profile in account.get_following():
+                if profile not in friends:
+                    friends.append(profile)
+        self.config.save_friends([f.username for f in friends])
+        return friends
 
     def load_all_friends_list(self):
         return self.config.load_friends()
 
-    def get_own_profile(self, acc_id):
-        try:
-            account = self.accman.get(acc_id)
-            return Response(account.profile)
-        except Exception, exc:
-            return self.__handle_exception(exc)
-
-    def get_user_profile(self, acc_id, user):
-        try:
-            account = self.accman.get(str(acc_id))
-            profile = account.get_profile(str(user))
+    def get_user_profile(self, account_id, user=None):
+        """
+        If user is None it fetch the profile for account_id
+        """
+        account = self.accman.get(account_id)
+        if user:
+            profile = account.get_profile(user)
             profile.muted = self.is_muted(profile.username)
-            return Response(profile)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        else:
+            profile = account.profile
+        return profile
 
-    def get_conversation(self, acc_id, status_id):
-        try:
-            account = self.accman.get(acc_id)
-            return Response(account.get_conversation(status_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def get_conversation(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.get_conversation(status_id)
 
-    def update_status(self, acc_id, text, in_reply_id=None):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.update_status(str(text), str(in_reply_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def update_status(self, account_id, text, in_reply_id=None):
+        account = self.accman.get(account_id)
+        return account.update_status(text, in_reply_id)
 
-    def broadcast_status(self, acc_array, text):
-        responses = []
-        for acc_id in acc_array:
+    def broadcast_status(self, account_id_array, text):
+        response = {}
+        for account_id in account_id_array:
             try:
-                account = self.accman.get(acc_id)
-                resp = Response(account.update_status(text), account_id=acc_id)
-                responses.append(resp)
+                account = self.accman.get(account_id)
+                response[account_id] = account.update_status(text)
             except Exception, exc:
-                resp = self.__handle_exception(exc)
-                resp.account_id = acc_id
-                responses.append(resp)
+                response[account_id] = exc
+        return response
 
-        return Response(responses)
+    def destroy_status(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.destroy_status(status_id)
 
-    def destroy_status(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.destroy_status(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def get_single_status(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.get_status(status_id)
 
-    def get_single_status(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.get_status(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def repeat_status(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.repeat_status(status_id)
 
-    def repeat_status(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.repeat(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def mark_status_as_favorite(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.mark_as_favorite(status_id)
 
-    def unrepeat_status(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.unrepeat(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def unmark_status_as_favorite(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.unmark_as_favorite(status_id)
 
-    def update_profile(self, acc_id, args):
-        try:
-            account = self.accman.get(str(acc_id))
-            new_profile = account.update_profile(args)
-            account.set_profile(new_profile)
-            return Response(new_profile)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def send_direct_message(self, account_id, username, message):
+        account = self.accman.get(account_id)
+        return account.send_direct_message(username, message)
 
-    def follow(self, acc_id, username, by_id=False):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.follow(str(username), str(by_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def destroy_direct_message(self, account_id, status_id):
+        account = self.accman.get(account_id)
+        return account.destroy_direct_message(status_id)
 
-    def unfollow(self, acc_id, username):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.unfollow(str(username)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def update_profile(self, account_id, fullname=None, url=None, bio=None,
+            location=None):
+        account = self.accman.get(account_id)
+        return account.update_profile(fullname, url, bio, location)
 
-    def send_direct(self, acc_id, username, message):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.send_direct(str(username), str(message)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def follow(self, account_id, username, by_id=False):
+        account = self.accman.get(account_id)
+        return account.follow(username, by_id)
 
-    def destroy_direct(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.destroy_direct(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def unfollow(self, account_id, username):
+        account = self.accman.get(account_id)
+        return account.unfollow(username)
 
-    def mark_favorite(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.mark_favorite(status_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def block(self, account_id, username):
+        account = self.accman.get(account_id)
+        return account.block(username)
 
-    def unmark_favorite(self, acc_id, status_id):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.unmark_favorite(str(status_id)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def unblock(self, account_id, username):
+        account = self.accman.get(account_id)
+        return account.unblock(username)
 
-    def search(self, acc_id, query, count=STATUSPP, since_id=None):
-        try:
-            account = self.accman.get(str(acc_id), False)
-            # The unquote is to ensure that the query is not url-encoded. The
-            # encoding will be done automatically by the http module
-            unquoted_query = urllib2.unquote(str(query))
-            return Response(account.search(unquoted_query, count, since_id))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def report_as_spam(self, account_id, username):
+        account = self.accman.get(account_id)
+        return account.report_as_spam(username)
 
-    def trends(self, acc_id):
-        try:
-            account = self.accman.get(str(acc_id), False)
-            return Response(account.trends())
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def mute(self, username):
+        self.config.append_filter('@%s' % username)
+        return username
 
-    def block(self, acc_id, user):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.block(str(user)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def unmute(self, username):
+        self.config.remove_filter('@%s' % username)
+        return username
 
-    def unblock(self, acc_id, user):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.unblock(str(user)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def verify_friendship(self, account_id, username):
+        account = self.accman.get(account_id)
+        return account.is_friend(username)
 
-    def report_spam(self, acc_id, user):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.report_spam(user))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def search(self, account_id, query, count=NUM_STATUSES, since_id=None, extra=None):
+        account = self.accman.get(account_id, False)
+        # The unquote is to ensure that the query is not url-encoded. The
+        # encoding will be done automatically by the http module
+        unquoted_query = urllib2.unquote(query)
+        return account.search(unquoted_query, count, since_id, extra)
 
-    def verify_friendship(self, acc_id, user):
-        pass
-
-    def is_friend(self, acc_id, user):
-        try:
-            account = self.accman.get(str(acc_id))
-            return Response(account.is_friend(str(user)))
-        except Exception, exc:
-            return self.__handle_exception(exc)
-
-    def mute(self, user):
-        try:
-            self.config.append_filter('@%s' % str(user))
-            return Response(str(user))
-        except Exception, exc:
-            return self.__handle_exception(exc)
-
-    def unmute(self, user):
-        try:
-            self.config.remove_filter('@%s' % str(user))
-            return Response(user)
-        except Exception, exc:
-            return self.__handle_exception(exc)
-
-    def get_profile_image(self, acc_id, user):
+    def get_profile_image(self, account_id, username):
         # Returns the path of profile image in original size
-        try:
-            account = self.accman.get(str(acc_id))
-            basename = "%s-%s-profile-image" % (acc_id, user)
-            img_path = os.path.join(account.config.imgdir, basename)
-            if os.path.isfile(img_path):
-                self.log.debug('Getting profile image for %s from cache' % user)
-            else:
-                fd = open(img_path, 'w')
-                fd.write(account.get_profile_image(str(user)))
-                fd.close()
-            return Response(img_path)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        account = self.accman.get(account_id)
+        basename = "%s-%s-profile-image" % (account_id, username)
+        img_destination_path = os.path.join(account.config.imgdir, basename)
+        if not os.path.isfile(img_destination_path):
+            img_url = account.get_profile_image(username)
+            fd = open(img_destination_path, 'w')
+            fd.write(self.fetch_image(img_url))
+            fd.close()
+        return img_destination_path
 
     def get_status_avatar(self, status):
         # Returns the path of profile image for the user who post the status
         # in avatar size (48x48)
-        try:
-            account = self.accman.get(status.account_id)
-            basename = "%s-%s-avatar-%s" % (status.account_id, status.username, os.path.basename(status.avatar))
-            img_path = os.path.join(account.config.imgdir, basename)
-            if not os.path.isfile(img_path):
-                handle = urllib2.urlopen(status.avatar)
-                fp = open(img_path, 'w')
-                fp.write(handle.read())
-                fp.close()
-            return Response(img_path)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        account = self.accman.get(status.account_id)
+        basename = "%s-%s-avatar-%s" % (status.account_id, status.username, os.path.basename(status.avatar))
+        img_destination_path = os.path.join(account.config.imgdir, basename)
+        if not os.path.isfile(img_destination_path):
+            fp = open(img_destination_path, 'w')
+            fp.write(self.fetch_image(status.avatar))
+            fp.close()
+        return img_destination_path
 
-    ''' Services '''
-    def list_short_url_services(self):
+    ###########################################################################
+    # Services API
+    ###########################################################################
+
+    def available_short_url_services(self):
         return URL_SERVICES.keys()
 
-    def short_url(self, url):
-        service = self.config.read('Services', 'shorten-url')
-        try:
-            # Validate already shorten URLs
-            if os.path.split(url)[0].find(service) >= 0:
-                raise AlreadyShortURLException
-            urlshorter = URL_SERVICES[service]
-            resp = urlshorter.do_service(str(url))
-            return Response(resp.response)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def short_single_url(self, long_url):
+        service = self.get_shorten_url_service()
+        if os.path.split(long_url)[0].find(service) >= 0:
+            raise URLAlreadyShort
+        urlshorter = URL_SERVICES[service]
+        return urlshorter.do_service(long_url)
 
-    def autoshort_url(self, message):
-        message = str(message)
-        try:
-            all_urls = get_urls(message)
-            if len(all_urls) == 0:
-                raise NoURLException
+    def short_url_in_message(self, message):
+        all_urls = get_urls(message)
+        if len(all_urls) == 0:
+            raise NoURLToShorten
 
-            code = 0
-            for url in all_urls:
-                response = self.short_url(url)
-                if response.code == 0:
-                    message = message.replace(url, response.items)
-                elif response.code > 0 and code == 0:
-                    code = response.code
-            response = Response(message)
-            response.code = code
-            return response
-        except Exception, exc:
-            response = self.__handle_exception(exc)
-            response.items = message
-            return response
+        for long_url in all_urls:
+            try:
+                short_url = self.short_single_url(long_url)
+            except URLAlreadyShort:
+                short_url = long_url
+            finally:
+                message = message.replace(long_url, short_url)
+        return message
 
-    def get_media_content(self, url, acc_id):
-        service = showmediautils.get_service_from_url(str(url))
-        try:
-            return service.do_service(str(url))
-        except Exception, exc:
-            return self.__handle_exception(exc)
+    def available_preview_media_services(self):
+        return PREVIEW_MEDIA_SERVICES.keys()
 
-    def list_upload_pic_services(self):
-        return PIC_SERVICES.keys()
+    def preview_media(self, url):
+        if not is_preview_service_supported(url):
+            raise PreviewServiceNotSupported
 
-    def upload_pic(self, acc_id, filepath, message):
-        service = self.config.read('Services', 'upload-pic')
-        try:
-            account = self.accman.get(str(acc_id))
-            uploader = PIC_SERVICES[service].do_service(account, filepath, message)
-            return Response(uploader.response)
-        except Exception, exc:
-            return self.__handle_exception(exc)
+        service = get_preview_service_from_url(url)
+        return service.do_service(url)
 
+    def available_upload_media_services(self):
+        return UPLOAD_MEDIA_SERVICES.keys()
 
-    ''' Configuration '''
-    def has_stored_passwd(self, acc_id):
-        account = self.accman.get(str(acc_id))
+    def upload_media(self, account_id, filepath, message=None):
+        service = self.get_upload_media_service()
+        account = self.accman.get(account_id)
+        uploader = UPLOAD_MEDIA_SERVICES[service]
+        return uploader.do_service(account, filepath, message)
+
+    ###########################################################################
+    # Configuration API
+    ###########################################################################
+
+    def get_shorten_url_service(self):
+        return self.config.read('Services', 'shorten-url')
+
+    def get_upload_media_service(self):
+        return self.config.read('Services', 'upload-pic')
+
+    def has_stored_passwd(self, account_id):
+        account = self.accman.get(account_id)
         if account.profile.password is None:
             return False
         if account.profile.password == '':
             return False
         return True
 
-    def is_account_logged_in(self, acc_id):
-        account = self.accman.get(str(acc_id))
+    def is_account_logged_in(self, account_id):
+        account = self.accman.get(account_id)
         return account.logged_in
 
     def is_muted(self, username):

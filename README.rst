@@ -1,8 +1,7 @@
 libturpial
 ==========
 
-**Summary:** A microblogging client written in Python. Lightweight, functional 
-and beautiful
+**Summary:** A powerful microblogging library written in Python
 
 *libturpial* is a library that handles multiple microblogging protocols. It 
 implements a lot of features and aims to support all the features for each 
@@ -33,6 +32,7 @@ libturpial needs this packages to work properly:
  * ``python >= 2.5``
  * ``simplejson >= 1.9.2`` (python-simplejson)
  * ``oauth``  (python-oauth)
+ * ``requests`` (python-requests)
  * ``setuptools`` (python2-distribute)
  * ``pkg-resources``
 
@@ -53,11 +53,49 @@ or using ``sudo``::
 
     $ sudo python setup.py install
 
+Usage Introduction
+------------------
 
-Usage
------
+In this example we will create an account, do the OAuth authentication and then 
+register the account in libturpial. First, let's create the account and request
+the OAuth access::
 
-asdasd
+    from libturpial.api.core import Core
+    from libturpial.api.models.account import Account
+    
+    account = Account.new('twitter')
+    url = account.request_oauth_access()
+    print url
+
+Visit the URL showed before and authorize Turpial, then copy the pin and continue 
+with this steps::
+
+    account.authorize_oauth_access(PIN)
+    
+    c = Core()
+    acc_id = c.register_account(account)
+
+Now you have an account registered. You can then use all the methods availables in 
+`core.py <https://github.com/satanas/libturpial/blob/development/libturpial/api/core.py>`_. For example::
+
+    timeline = c.get_column_statuses(acc_id, 'timeline')
+    for status in timeline:
+        print "@%s: %s" % (status.username, status.text)
+
+Next time you want to use your account you don't need to repeat the whole OAuth
+process again, just load Core and you will have you account available through the
+account_id. For more information check the next section
+
+
+Documentation
+-------------
+
+To generate the documentation and learn how to use libturpial install sphinx
+and run::
+
+    $ sphinx-build -a -b html docs/ my_output_folder/
+
+Then check index.html in **my_output_folder**
 
 
 Further Information

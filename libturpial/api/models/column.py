@@ -1,28 +1,18 @@
 # -*- coding: utf-8 -*-
 
-""" Module to represent user columns """
-#
-# Author: Wil Alvarez (aka Satanas)
-# Nov 25, 2011
-
-
 class Column:
-    def __init__(self, id_, acc_id=None, pt_id=None, col_name=None):
-        self.id_ = id_  # If id_ == "" is not registered. Otherwise, registered
-        self.account_id = acc_id  # username-protocol_id
-        self.protocol_id = pt_id
-        self.column_name = col_name
-        self.updating = False
+    """
+    This model represents a column that holds statuses. To instanciate it you
+    need to specify it *type_*, *the account_id* it is associated to, the
+    *protocol_id* and it *name*
+    """
+    # TODO: Update doc. column_id is something like: satanas82-twitter-timeline
+    def __init__(self, account_id, type_, singular_unit='tweet',
+            plural_unit='tweets'):
         self.size = 0
-
-    def __str__(self):
-        return "id_: %s, acc_id: %s, pro_id: %s, col_name: %s" % (self.id_,
-                                                                  self.account_id,
-                                                                  self.protocol_id,
-                                                                  self.column_name)
-
-    def build_id(self):
-        return "%s-%s" % (self.account_id, self.column_name)
-
-    def inc_size(self, size):
-        self.size += size
+        self.id_ = "%s-%s" % (account_id, type_) # username-protocol-column
+        self.type_ = type_
+        self.account_id = account_id
+        self.updating = False
+        self.singular_unit = singular_unit
+        self.plural_unit = plural_unit

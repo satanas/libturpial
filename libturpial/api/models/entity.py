@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-""" Module to represent status entities (URLs, HTs, mentions) """
-#
-# Author: Wil Alvarez (aka Satanas)
-# Dic 07, 2011
-
-
 class Entity:
+    """
+    A :class:`libturpial.api.model.status.Status` can potentially contents
+    mentions, URLs, hashtags and other so this class models that data in a 
+    parsed and structured way
+    """
     def __init__(self, account_id, url, text, search):
         self.account_id = account_id
         self.url = url

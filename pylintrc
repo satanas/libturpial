@@ -147,13 +147,13 @@ function-rgx=[a-z_][a-z0-9_]{2,30}$
 method-rgx=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match correct instance attribute names
-attr-rgx=[a-z_][a-z0-9_]{2,30}$
+attr-rgx=[A-Za-z_][\w]{1,30}$
 
 # Regular expression which should only match correct argument names
-argument-rgx=[a-z_][a-z0-9_]{2,30}$
+argument-rgx=[A-Za-z_][\w]{1,30}$
 
 # Regular expression which should only match correct variable names
-#variable-rgx=[a-z_][a-z0-9_]{2,30}$
+variable-rgx=[A-Za-z_][\w]{1,30}$
 
 # Regular expression which should only match correct list comprehension /
 # generator expression variable names
@@ -273,7 +273,7 @@ int-import-graph=
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=80
+max-line-length=120
 
 # Maximum number of lines in a module
 max-module-lines=1000

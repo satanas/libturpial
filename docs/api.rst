@@ -18,7 +18,7 @@ Core
 Configuration
 -------------
 
-.. automodule:: libturpial.config
+.. automodule:: libturpial.lib.config
 	:members:
 	:undoc-members:
 	:special-members:
@@ -26,12 +26,19 @@ Configuration
 Protocols
 ---------
 
-List of protocols supported by libturpial
+Protocol.py
++++++++++++
+.. autoclass:: libturpial.lib.interfaces.protocol.Protocol
+	:members:
+	:undoc-members:
+	:private-members:
+	:special-members:
+
 
 Twitter
 +++++++
 
-.. autoclass:: libturpial.api.protocols.twitter.twitter.Main
+.. autoclass:: libturpial.lib.protocols.twitter.twitter.Main
 	:members:
 	:undoc-members:
 	:special-members:
@@ -41,12 +48,58 @@ Twitter
 Identi.ca
 +++++++++
 
-.. autoclass:: libturpial.api.protocols.identica.identica.Main
+.. autoclass:: libturpial.lib.protocols.identica.identica.Main
+	:members:
+	:undoc-members:
+	:private-members:
+	:special-members:
+
+HTTP
+----
+
+.. automodule:: libturpial.lib.http
+
+Constants
++++++++++
+
+.. data:: DEFAULT_TIMEOUT
+
+    Default time that TurpialHTTPBase waits until killing a request. Value: 20 (seconds)
+
+.. data:: FORMAT_XML
+
+    Constant to identify XML requests
+
+.. data:: FORMAT_JSON
+
+    Constant to identify JSON requests
+
+TurpialHTTPBase
++++++++++++++++
+.. autoclass:: libturpial.lib.http.TurpialHTTPBase
 	:members:
 	:undoc-members:
 	:special-members:
 
-.. autoattribute:: libturpial.api.protocols.identica.params.POST_ACTIONS
+TurpialHTTPOAuth
+++++++++++++++++
+.. autoclass:: libturpial.lib.http.TurpialHTTPOAuth
+	:members:
+	:undoc-members:
+	:private-members:
+	:special-members:
+
+TurpialHTTPBasicAuth
+++++++++++++++++++++
+.. autoclass:: libturpial.lib.http.TurpialHTTPBasicAuth
+	:members:
+	:undoc-members:
+	:special-members:
+
+TurpialHTTPRequest
+++++++++++++++++++
+.. autoclass:: libturpial.lib.http.TurpialHTTPRequest
+	:members:
 
 Constants
 ---------

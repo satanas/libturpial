@@ -7,8 +7,14 @@
 
 import re
 
+<<<<<<< HEAD
 #: Default value for the number of statuses fetched by request
 STATUSPP = 20
+=======
+from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
+
+NUM_STATUSES = 20
+>>>>>>> origin/development
 
 OS_LINUX = 'linux'  #: Constant to identify Linux based operating systems
 OS_WINDOWS = 'windows'  #: Constant to identify Windows operating systems
@@ -33,11 +39,40 @@ CLIENT_PATTERN = re.compile('<a href="(.*?)">(.*?)</a>')
 URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$%&\'()*+,;=]*)')
 
 
+<<<<<<< HEAD
 class ProtocolType:
     """Protocol type"""
     TWITTER = 'twitter' #: Twitter
     IDENTICA = 'identica' #: Identica
+=======
+def get_username_from(account_id):
+    return account_id.split('-')[0]
 
+def get_protocol_from(account_id):
+    return account_id.split('-')[1]
+
+def get_account_id_from(column_id):
+    temp = column_id.rfind('-')
+    return column_id[:temp]
+
+def build_account_id(username, protocol_id):
+    return "%s-%s" % (username, protocol_id)
+
+def get_column_type_from(column_id):
+    temp = column_id.rfind('-')
+    return column_id[temp + 1:]
+>>>>>>> origin/development
+
+def get_preview_service_from_url(url):
+    for service in PREVIEW_MEDIA_SERVICES:
+        if PREVIEW_MEDIA_SERVICES[service].can_manage_url(url):
+            return PREVIEW_MEDIA_SERVICES[service]
+    return None
+
+def is_preview_service_supported(url):
+    if get_preview_service_from_url(url) != None:
+        return True
+    return False
 
 class StatusColumn:
     """Status column"""
@@ -52,12 +87,15 @@ class StatusColumn:
     SINGLE = 'single'
 
 
+<<<<<<< HEAD
 class StatusType:
     """Status type"""
     NORMAL = 0x1
     DIRECT = 0x2
 
 
+=======
+>>>>>>> origin/development
 class ColumnType:
     """Column type"""
     TIMELINE = 'timeline'
@@ -69,6 +107,7 @@ class ColumnType:
     SEARCH = 'search'
 
 
+<<<<<<< HEAD
 class LoginStatus:
     """Login status"""
     NONE = 0
@@ -76,6 +115,8 @@ class LoginStatus:
     IN_PROGRESS = 2
 
 #: Dictionary with all error messages supported by libturpial
+=======
+>>>>>>> origin/development
 ERROR_CODES = {
     100: "",
     304: "There was no new data to return",
