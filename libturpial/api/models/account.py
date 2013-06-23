@@ -122,7 +122,7 @@ class Account(object):
         return self.protocol.request_token()
 
     def authorize_oauth_access(self, pin):
-        profile = self.protocol.authorize_token(pin)
+        self.profile = self.protocol.authorize_token(pin)
         self.__setup(profile.username)
 
     def save(self):
