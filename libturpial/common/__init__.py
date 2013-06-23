@@ -11,16 +11,26 @@ from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
 
 NUM_STATUSES = 20
 
-OS_LINUX = 'linux'
-OS_WINDOWS = 'windows'
-OS_MAC = 'darwin'
-OS_JAVA = 'java'
+OS_LINUX = 'linux'  #: Constant to identify Linux based operating systems
+OS_WINDOWS = 'windows'  #: Constant to identify Windows operating systems
+OS_MAC = 'darwin'  #: Constant to identify Mac operating systems
+OS_JAVA = 'java'  #: Constant to identify Java based operating systems
+
+#: Constant to identify operating systems that does not belong to any
+#: of the previous categories 
 OS_UNKNOWN = 'unknown'
 
+#: Regex pattern to match microblogging hashtags (for example: #hashtags)
 HASHTAG_PATTERN = re.compile('(?<![\w])#[\wáéíóúÁÉÍÓÚñÑçÇ]+')
+
+#: Regex pattern to match microblogging mentions (for example: @user)
 MENTION_PATTERN = re.compile('(?<![\w])@[\w]+')
+
+#: Regex pattern to match client names from an <a> tag
 CLIENT_PATTERN = re.compile('<a href="(.*?)">(.*?)</a>')
-# According to RFC 3986 - http://www.ietf.org/rfc/rfc3986.txt
+
+#: Regex pattern to match URLs
+#: According to RFC 3986 - http://www.ietf.org/rfc/rfc3986.txt
 URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$%&\'()*+,;=]*)')
 
 
@@ -53,11 +63,12 @@ def is_preview_service_supported(url):
     return False
 
 class StatusColumn:
-    TIMELINE = 'timeline'
-    REPLIES = 'replies'
-    DIRECTS = 'directs'
-    FAVORITES = 'favorites'
-    PUBLIC = 'public'
+    """Status column"""
+    TIMELINE = 'timeline' #: Timeline column
+    REPLIES = 'replies'  #: Replies column
+    DIRECTS = 'directs'  #: Directs column
+    FAVORITES = 'favorites' #: Favs column
+    PUBLIC = 'public' #: Public column
     SENT = 'sent'
     CONVERSATION = 'conversation'
     PROFILE = 'profile'
@@ -65,6 +76,7 @@ class StatusColumn:
 
 
 class ColumnType:
+    """Column type"""
     TIMELINE = 'timeline'
     REPLIES = 'replies'
     DIRECTS = 'directs'
