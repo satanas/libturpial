@@ -89,7 +89,7 @@ class PreviewServiceNotSupported(Exception):
 
 class UploadImageError(Exception):
     """An upload image error ocurred"""
-    def __init__(self, message):
+    def __init__(self, message=None):
         self.message = message
 
 class NotSupported(Exception):

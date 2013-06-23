@@ -98,6 +98,9 @@ class Main(Protocol):
     # Methods related to Twitter service
     #################################################################
 
+    def verify_credentials_provider(self, format_='json'):
+        return "%s/account/verify_credentials.%s" % (self.base_url, format_)
+
     def verify_credentials(self):
         rtn = self.http.get('/account/verify_credentials', secure=True)
         self.check_for_errors(rtn)

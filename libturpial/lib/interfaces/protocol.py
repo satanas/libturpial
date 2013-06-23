@@ -179,6 +179,10 @@ class Protocol:
     def verify_credentials(self):
         raise NotImplementedError
 
+    def verify_credentials_provider(self):
+        # Must return URL of the verify_credentials provider
+        raise NotImplementedError
+
     def get_timeline(self, count, since_id):
         """
         Fetch *count* statuses from timeline starting from *since_id*. If

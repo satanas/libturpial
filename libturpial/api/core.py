@@ -455,16 +455,14 @@ class Core:
         service = get_preview_service_from_url(url)
         return service.do_service(url)
 
-    # DONE until here ================
-
     def available_upload_media_services(self):
         return UPLOAD_MEDIA_SERVICES.keys()
 
-    def upload_media(self, account_id, filepath, message):
-        service = self.get_upload_pic_service()
+    def upload_media(self, account_id, filepath, message=None):
+        service = self.get_upload_media_service()
         account = self.accman.get(account_id)
-        uploader = PIC_SERVICES[service].do_service(account, filepath, message)
-        uploader.response
+        uploader = UPLOAD_MEDIA_SERVICES[service]
+        return uploader.do_service(account, filepath, message)
 
     ###########################################################################
     # Configuration API
