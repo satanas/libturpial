@@ -76,7 +76,12 @@ with this steps::
     acc_id = c.register_account(account)
 
 Now you have an account registered. You can then use all the methods availables in 
-`core.py <https://github.com/satanas/libturpial/blob/development/libturpial/api/core.py>`_. For example::
+`core.py <https://github.com/satanas/libturpial/blob/development/libturpial/api/core.py>`_. 
+For example to send a tweet::
+
+    c.update_status(acc_id,"New Tweet sent using #libturpial").
+
+or if you want to get your timeline::
 
     timeline = c.get_column_statuses(acc_id, 'timeline')
     for status in timeline:
