@@ -17,7 +17,7 @@ c = Core()
 accounts = c.list_accounts()
 
 if account in accounts:
-    acc.update_status(account,message)
+    c.update_status(account,message)
 else:
     #If account is not already registered in libturpial, acces must be granted:
     a = Account.new('twitter') #you can also create identi.ca accounts
