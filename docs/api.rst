@@ -19,6 +19,9 @@ Configuration
 -------------
 
 .. automodule:: libturpial.lib.config
+	:members:
+	:undoc-members:
+	:special-members:
 
 Protocols
 ---------
@@ -38,8 +41,9 @@ Twitter
 .. autoclass:: libturpial.lib.protocols.twitter.twitter.Main
 	:members:
 	:undoc-members:
-	:private-members:
 	:special-members:
+
+.. autoattribute:: libturpial.api.protocols.twitter.params.POST_ACTIONS
 
 Identi.ca
 +++++++++
@@ -90,7 +94,6 @@ TurpialHTTPBasicAuth
 .. autoclass:: libturpial.lib.http.TurpialHTTPBasicAuth
 	:members:
 	:undoc-members:
-	:private-members:
 	:special-members:
 
 TurpialHTTPRequest
@@ -101,51 +104,9 @@ TurpialHTTPRequest
 Constants
 ---------
 
-.. autoattribute:: libturpial.common.ProtocolType
-
-.. data:: STATUSPP
-
-    Default value for the number of statuses fetched by request
-
-.. data:: OS_LINUX
-
-    Constant to identify Linux based operating systems
-
-.. data:: OS_WINDOWS
-
-    Constant to identify Windows operating systems
-
-.. data:: OS_MAC
-
-    Constant to identify Mac operating systems
-
-.. data:: OS_JAVA
-
-    Constant to identify Java based operating systems
-
-.. data:: OS_UNKNOWN
-
-    Constant to identify operating systems that does not belong to any of the previous categories
-
-.. data:: HASHTAG_PATTERN
-
-    Regex pattern to match microblogging hashtags (for example: #hashtags)
-
-.. data:: MENTION_PATTERN
-
-    Regex pattern to match microblogging mentions (for example: @user)
-
-.. data:: CLIENT_PATTERN
-
-    Regex pattern to match client names from an <a> tag
-
-.. data:: URL_PATTERN
-
-    Regex pattern to match URLs
-
-.. data:: ERROR_CODES
-
-    Dictionary with all error messages supported by libturpial
+.. automodule:: libturpial.common
+	:members:
+	:undoc-members:
 
 Exceptions
 ----------
