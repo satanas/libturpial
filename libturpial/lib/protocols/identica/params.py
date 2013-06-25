@@ -1,13 +1,5 @@
-<<<<<<< HEAD:libturpial/api/protocols/identica/params.py
 #: List of twitter method names that require the use of POST
 POST_ACTIONS = [
-=======
-'''
-List of twitter method names that require the use of POST
-'''
-
-POST_ACTIONS = (
->>>>>>> origin/development:libturpial/lib/protocols/identica/params.py
 
     #: Status Methods
     'update',
