@@ -13,6 +13,9 @@ from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.protocols.twitter.params import OAUTH_OPTIONS
 from libturpial.common import NUM_STATUSES, StatusColumn, build_account_id
 
+# features
+from bs4 import BeautifulSoup
+from selenium import webdriver
 
 # TODO:
 # * Use trim_user wherever we can to improve performance
@@ -82,8 +85,18 @@ class Main(Protocol):
         self.setup_user_info(account_id)
         self.http.set_token_info(key, secret, verifier)
 
+    # automate token
     def request_token(self):
-        return self.http.request_token()
+        navegador = webdriver.Firefox()
+        navegador.get((self.http.request_token()))
+        parse = BeautifulSoup(navegador.page_source)
+        while parse.find(id="allow"):
+            parse = BeautifulSoup(navegador.page_source)
+
+        token = int(navegador.find_element_by_tag_name("code").text)
+        navegador.close()
+        
+        return token
 
     def authorize_token(self, pin):
         self.http.authorize_token(pin)
