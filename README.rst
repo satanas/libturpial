@@ -11,7 +11,7 @@ used for *Turpial*.
 Currently  *libturpial* is in heavy development, so probably you will find bugs or 
 undesired behavior. In this cases please report issues at:
 
-http://dev.turpial.org.ve/projects/libturpial/issues
+http://github.com/Turpial/libturpial/issues
 
 We will be very graceful for your contributions.
 

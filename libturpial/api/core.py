@@ -19,17 +19,17 @@ from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
 from libturpial.api.managers.accountmanager import AccountManager
 from libturpial.api.managers.columnmanager import ColumnManager
 
-# TODO: Implement basic code to identify generic proxies in ui_base
-
 
 class Core:
-    """The main core libturpial. This should be the only class you need to
-    instanciate to use libturpial.
+    """
+    This is the main object in libturpial. This should be the only class you need to
+    instantiate to use libturpial. Most important arguments used in Core are
+    *account_id* and *column_id*.
 
-    Most important params used in Core are:
-
-    * account_id: A composite string formed by the **username** and the **protocol_id**
-    * column:id: A composite string formed by **account_id** and the **column-name**
+    * account_id: Is a composite string formed by the **username** and the 
+      **protocol_id** that identify every single account.
+    * column_id: Is composite string formed by **account_id** and the 
+      **column_name** that identify one column of one account.
 
     Examples of account_id:
 
@@ -41,24 +41,19 @@ class Core:
     >>> twitter_timeline = 'foo-twitter-timeline'
     >>> identica_replies = 'foo-identica-replies'
 
-    Most of Core methods return a
-    :class:`libturpial.api.models.reponse.Response` object. If request is
-    successful error code will be zero an **items** attribute will hold the
-    response for the request. Otherwise error code will be greater than zero
-    and errmsg will hold a string with the error message.
+    When you instantiate Core it will load all registered accounts
+    at once, so you don't need to worry about it. If you already registered the
+    accounts before, they will be available after you create the core object.
 
-    On errors not related to the request methods will return an exception.
-
-    >>> response = c.get_own_profile('foo-twitter')
-    >>> if response.code > 0:
-    >>>     raise Exception, response.errmsg
-    >>> 
-    >>> value = response.items
+    All the Core methods will return an object defined in 
+    :class:`libturpial.api.models` or a valid python object if request is 
+    successful, otherwise they will raise an exception.
 
     If the request returns an array, you can iterate over the elements with:
 
-    >>> for v in value:
-    >>>     print v
+    >>> for object in response:
+    >>>     print object
+
     """
 
     def __init__(self):
@@ -89,6 +84,9 @@ class Core:
         return filtered_statuses
 
     def fetch_image(self, url):
+        """
+        Retrieve an image by it *URL*. Return the binary data of the image
+        """
         response = requests.get(url)
         return response.content
 
@@ -97,40 +95,52 @@ class Core:
     ###########################################################################
 
     def register_account(self, account):
-        # TODO: Update doc, protocol object
-        """Register an account for the user *username* and the protocol
-        *protocol_id* (see :class:`libturpial.common.ProtocolType` for
-        possible values).
+        # TODO: Add documention/reference for account validation
+        """
+        Register *account* into config files. *account* must be a
+        valid and authenticated :class:`libturpial.api.models.account.Account`
+        object.
 
-        Returns a string with the id of the account registered.
+        Return a string with the id of the account registered.
         """
         return self.accman.register(account)
 
     def unregister_account(self, account_id, delete_all=False):
-        """Removes an account form config. If *delete_all* is **True** removes 
-        all the config files asociated to that account.
+        """
+        Removes the account identified by *account_id* from memory. If 
+        *delete_all* is **True** it deletes all the files asociated to 
+        that account from disk otherwise the account will be available
+        the next time you load Core.
+
+        Return a string with the id of the account unregistered.
         """
         return self.accman.unregister(account_id, delete_all)
 
     def register_column(self, column_id):
-        """Register the *column_id* column and returns a :class:`Column` object
+        """
+        Register a column identified by *column_id* column and return a string 
+        with the id of the column registered on success.
         """
         return self.column_manager.register(column_id)
 
     def unregister_column(self, column_id):
-        """Removes the column *column_id* from config.
+        """
+        Removes the column identified by *column_id* from config and return a
+        string with the id if the column unregistered on success.
         """
         return self.column_manager.unregister(column_id)
 
     def list_accounts(self):
-        """Returns an array of registered accounts. For example:
+        """
+        Return an array with the ids of all registered accounts. For example:
 
         >>> ['foo-twitter', 'foo-identica']
         """
         return self.accman.list()
 
     def list_protocols(self):
-        """Returns an array of supported protocols. For example:
+        """
+        Return an array with the ids of supported protocols. For example:
 
         >>> ['twitter', 'identica']
         """
@@ -247,6 +257,7 @@ class Core:
         return account.update_status(text, in_reply_id)
 
     def broadcast_status(self, account_id_array, text):
+        # TODO: if account_id_array is None it send the message to all accounts
         response = {}
         for account_id in account_id_array:
             try:
