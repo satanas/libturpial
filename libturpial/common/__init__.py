@@ -33,6 +33,7 @@ CLIENT_PATTERN = re.compile('<a href="(.*?)">(.*?)</a>')
 #: According to RFC 3986 - http://www.ietf.org/rfc/rfc3986.txt
 URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$%&\'()*+,;=]*)')
 
+
 def get_username_from(account_id):
     return account_id.split('-')[0]
 
