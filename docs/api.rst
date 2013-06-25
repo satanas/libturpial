@@ -7,6 +7,7 @@ API
 
 This part of the documentation covers all modules of libturpial.
 
+
 Core
 ----
 
