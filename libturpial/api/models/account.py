@@ -9,39 +9,66 @@ from libturpial.lib.interfaces.protocol import Protocol
 
 from libturpial.common import *
 from libturpial.exceptions import EmptyOAuthCredentials, \
-        EmptyBasicCredentials, ErrorLoadingAccount
+        EmptyBasicCredentials, ErrorLoadingAccount, \
+        AccountNotAuthenticated
 
 
 class Account(object):
-    # TODO: Update doc
     """
-    This class holds all related methods to an user account. It contains a
-    protocol instance associated to the user and the profile model to store the
-    user details. This is the class you must instanciate if you want to handle
+    This class represents an user account and holds all it related methods.
+    This is done thanks to one :class:`libturpial.lib.interfaces.protocol.Protocol` 
+    instance associated to the user account that handles all the dirty work 
+    against the service (Twitter, Identi.ca, etc) as well as one 
+    :class:`libturpial.api.models.profile.Profile` model that store the user 
+    details.
+
+    This is the class you must instanciate if you want to handle/authenticate 
     a user account.
 
-    Account let you perform two main actions: create a new account or load an
-    existing one. To create a new valid account based on OAuth authentication
-    do the following:
+    **Account** let you perform three actions to get an account: create a new 
+    account from scratch, create a new account from params and load a
+    previously registered account. To create a new account from scratch do:
 
-    >>> account = Account.new_oauth('twitter', 'my_user', 'key', 'secret', 'verifier')
+    >>> account = Account.new('twitter')
 
-    And to create a new one for Basic authentication:
+    If you know the username too, then you can pass it as argument:
 
-    >>> account = Account.new_basic('identica', 'my_user', 'my_password')
+    >>> account = Account.new('twitter', 'username')
 
-    Both commands will create a new entry in *~/.config/turpial/accounts/*
-    with all the information about configuration. An existing account can be
-    loaded later only with the account id. For example:
+    At this point, that account is not a valid account yet because it 
+    hasn't been authenticated. You should do the authentication by yourself.
+    This is, request OAuth access:
 
-    >>> account = Account.load('my_user-twitter')
+    >>> url = account.request_oauth_access()
 
-    Or
+    That method will return an URL that your user must visit to authorize the 
+    app. After that, you must to ask for the PIN returned by the service and
+    execute:
 
-    >>> account = Account.load('my_user-identica')
+    >>> account.authorize_oauth_access('the_pin')
+
+    And voilá! You now have a valid and fully authenticated account ready to be
+    registered in :class:`libturpial.api.core.Core`.
+
+    But **Account** let you create accounts passing all the params needed for
+    the OAuth authentication. If you already know those params (user key, 
+    user secret and PIN) then you just need to execute:
+
+    >>> account = Account.new_from_params('twitter', 'username', 'key', 'secret', 'the_pin')
+
+    And you will have a valid and fully authenticated account ready to be
+    registered in :class:`libturpial.api.core.Core` too.
+
+    Now, what if you did all this process before and registered the account
+    in :class:`libturpial.api.core.Core`? Well, you just need to load the
+    account then:
+
+    >>> account = Account.load('username-twitter')
+
+    And you will have an account already authenticated and ready to be used.
 
     From this point you can use the method described here to handle the
-    *account* object.
+    account object.
     """
 
     def __init__(self, protocol_id, username=None):
@@ -68,28 +95,33 @@ class Account(object):
 
     @staticmethod
     def new(protocol_id, username=None):
-        # TODO: Update doc
         """
-        Return a new account object based on OAuth authentication. This will
-        create a new entry in *~/.config/turpial/accounts/* with all the
-        configuration stuff. It needs the *username*, the OAuth *key*, the OAuth
-        *secret* and the *verifier* (also known as PIN) given by the service.
+        Return a new account object associated to the protocol identified by
+        *protocol_id*. If *username* is not None it will build the account_id 
+        for the account.
 
-        If the account exists this method overwrite the previous credentials
+        This account is empty, must be authenticated before it can be registered
+        in :class:`libturpial.api.core.Core`.
+
+        .. warning::
+            None information is stored at disk at this point.
         """
         account = Account(protocol_id, username)
         return account
 
     @staticmethod
     def new_from_params(protocol_id, username, key, secret, verifier):
-        # TODO: Update doc, new methods do not do the fetch automatically
         """
-        Return a new account object based on OAuth authentication. This will
-        create a new entry in *~/.config/turpial/accounts/* with all the
-        configuration stuff. It needs the *username*, the OAuth *key*, the OAuth
-        *secret* and the *verifier* (also known as PIN) given by the service.
+        Return a new account object associated to the protocol identified by
+        *protocol_id* and authenticated against the respective service (Twitter,
+        Identi.ca, etc) using *username*, *key*, *secret* and *verifier* (aka 
+        PIN).
 
-        If the account exists this method overwrite the previous credentials
+        This account is authenticated after creation, so it can be registered
+        in :class:`libturpial.api.core.Core` immediately.
+
+        .. warning::
+            None information is stored at disk at this point.
         """
         account = Account(protocol_id, username)
         account.setup_user_credentials(account.id_, key, secret, verifier)
@@ -98,13 +130,13 @@ class Account(object):
     @staticmethod
     def load(account_id):
         """
-        Return the Account object associated to *account_id* loaded from
+        Return the account object associated to *account_id* loaded from
         existing configuration. If the *account_id* does not correspond to a
-        valid account returns a
+        valid account it returns a
         :class:`libturpial.exceptions.ErrorLoadingAccount` exception.
+
         If credentials in configuration file are empty it returns a 
-        :class:`libturpial.exceptions.EmptyOAuthCredentials` or a
-        :class:`libturpial.exceptions.EmptyBasicCredentials` exception.
+        :class:`libturpial.exceptions.EmptyOAuthCredentials` exception.
         """
         if not AccountConfig.exists(account_id):
             raise ErrorLoadingAccount("Account has no stored credentials")
@@ -120,19 +152,39 @@ class Account(object):
         return account
 
     def request_oauth_access(self):
+        """
+        Ask for an OAuth token. Return an URL that must be visited for the user
+        in order to authenticate the app.
+        """
         return self.protocol.request_token()
 
     def authorize_oauth_access(self, pin):
+        """
+        Take the *pin* returned by OAuth service and authenticate the token 
+        requested with :method:`request_oauth_access`.
+        """
         self.profile = self.protocol.authorize_token(pin)
         self.__setup(self.profile.username)
 
     def save(self):
+        """
+        Save to disk the configuration and credentials for the account. If the 
+        account hasn't been authenticated it will raise an 
+        :class:`libturpial.exceptions.AccountNotAuthenticated` exception.
+        """
+        if not self.is_authenticated():
+            raise AccountNotAuthenticated
+
         self.config = AccountConfig(self.id_)
         token = self.get_oauth_token()
         if token:
             self.config.save_oauth_credentials(token.key, token.secret, token.verifier)
 
     def fetch(self):
+        """
+        Retrieve the user profile information and return the id of the account 
+        on success. This method authenticate the account.
+        """
         self.profile = self.protocol.verify_credentials()
         self.lists = self.protocol.get_lists(self.profile.username)
 
@@ -144,11 +196,19 @@ class Account(object):
             Column(self.id_, ColumnType.FAVORITES)] + self.lists
         return self.id_
 
-    def get_friends(self):
+    def fetch_friends(self):
+        """
+        Retrieve all the friends for the user and return an array of string
+        where each element correspond to the user_id of the friend.
+        """
         self.friends = self.protocol.get_following(only_id=True)
         return self.friends
 
     def get_columns(self):
+        """
+        Return an array of :class:`libturpial.api.models.column.Column` with
+        all the available columns for the user
+        """
         return self.columns
 
     def get_list_id(self, list_name):
@@ -165,7 +225,7 @@ class Account(object):
 
     def delete_cache(self):
         """
-        Clean cache associated to this account
+        Delete all files cached for this account
         """
         self.config.delete_cache()
 
@@ -183,6 +243,12 @@ class Account(object):
         return self.profile != None and self.id_ != None
 
     def update_profile(self, fullname=None, url=None, bio=None, location=None):
+        """
+        Update the *fullname*, *url*, *bio* or *location* of the user profile.
+        You may specify one or more arguments. Return an 
+        :class:`libturpial.api.models.profile.Profile` object containing the 
+        user profile
+        """
         self.profile = self.protocol.update_profile(fullname, url, bio, location)
         return self.profile
 
