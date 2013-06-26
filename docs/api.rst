@@ -16,6 +16,14 @@ Core
 	:undoc-members:
 	:special-members:
 
+Account
+-------
+
+.. autoclass:: libturpial.api.models.account.Account
+	:members:
+	:undoc-members:
+	:special-members:
+
 Configuration
 -------------
 
