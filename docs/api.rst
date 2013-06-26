@@ -16,115 +16,34 @@ Core
 	:undoc-members:
 	:special-members:
 
-Account
--------
+Models
+------
 
-.. autoclass:: libturpial.api.models.account.Account
-	:members:
-	:undoc-members:
-	:special-members:
+.. toctree::
+   :maxdepth: 2
 
-Configuration
--------------
+   api_models
 
-.. automodule:: libturpial.lib.config
-	:members:
-	:undoc-members:
-	:special-members:
+Managers
+--------
 
-Protocols
----------
-
-Protocol.py
-+++++++++++
-.. autoclass:: libturpial.lib.interfaces.protocol.Protocol
-	:members:
-	:undoc-members:
-	:private-members:
-	:special-members:
-
-
-Twitter
-+++++++
-
-.. autoclass:: libturpial.lib.protocols.twitter.twitter.Main
-	:members:
-	:undoc-members:
-	:special-members:
-
-.. autoattribute:: libturpial.api.protocols.twitter.params.POST_ACTIONS
-
-Identi.ca
-+++++++++
-
-.. autoclass:: libturpial.lib.protocols.identica.identica.Main
-	:members:
-	:undoc-members:
-	:private-members:
-	:special-members:
-
-HTTP
-----
-
-.. automodule:: libturpial.lib.http
-
-Constants
-+++++++++
-
-.. data:: DEFAULT_TIMEOUT
-
-    Default time that TurpialHTTPBase waits until killing a request. Value: 20 (seconds)
-
-.. data:: FORMAT_XML
-
-    Constant to identify XML requests
-
-.. data:: FORMAT_JSON
-
-    Constant to identify JSON requests
-
-TurpialHTTPBase
+Account Manager
 +++++++++++++++
-.. autoclass:: libturpial.lib.http.TurpialHTTPBase
+
+.. autoclass:: libturpial.api.managers.accountmanager.AccountManager
 	:members:
 	:undoc-members:
 	:special-members:
 
-TurpialHTTPOAuth
-++++++++++++++++
-.. autoclass:: libturpial.lib.http.TurpialHTTPOAuth
-	:members:
-	:undoc-members:
-	:private-members:
-	:special-members:
+Column Manager
+++++++++++++++
 
-TurpialHTTPBasicAuth
-++++++++++++++++++++
-.. autoclass:: libturpial.lib.http.TurpialHTTPBasicAuth
+.. autoclass:: libturpial.api.managers.columnmanager.ColumnManager
 	:members:
 	:undoc-members:
 	:special-members:
 
-TurpialHTTPRequest
-++++++++++++++++++
-.. autoclass:: libturpial.lib.http.TurpialHTTPRequest
-	:members:
 
-Constants
----------
 
-.. automodule:: libturpial.common
-	:members:
-	:undoc-members:
 
-Exceptions
-----------
-
-Module to handle custom exceptions for libturpial
-
-.. module:: libturpial.common.exceptions
-
-.. autoexception:: URLShortenError
-.. autoexception:: NoURLException
-.. autoexception:: UploadImageError
 
