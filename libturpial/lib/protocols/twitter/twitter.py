@@ -126,14 +126,14 @@ class Main(Protocol):
         rtn = self.http.get('/direct_messages', args)
         self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
-                                   _type=Status.DIRECT)
+                                   type_=Status.DIRECT)
 
     def get_directs_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/direct_messages/sent', args)
         self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
-                                   _type=Status.DIRECT)
+                                   type_=Status.DIRECT)
 
     def get_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
@@ -332,7 +332,7 @@ class Main(Protocol):
         rtn = self.http.post('/statuses/retweet', {'id': status_id})
         self.check_for_errors(rtn)
         status = self.json_to_status(rtn)
-        status.reposted_by = self.get_repeaters(status_id)
+        status.repeated_by = self.get_repeaters(status_id)
         return status
 
     def mark_as_favorite(self, status_id):
@@ -449,27 +449,27 @@ class Main(Protocol):
             profile.link_color = ('#' + response['profile_link_color']) or Profile.DEFAULT_LINK_COLOR
             return profile
 
-    def json_to_status(self, response, column_id='', _type=Status.NORMAL):
+    def json_to_status(self, response, column_id='', type_=Status.NORMAL):
         if isinstance(response, list):
             statuses = []
             for resp in response:
                 if not resp:
                     continue
-                status = self.json_to_status(resp, column_id, _type)
-                if status.reposted_by:
+                status = self.json_to_status(resp, column_id, type_)
+                if status.repeated_by:
                     # TODO: Handle this
                     #users = self.get_retweet_users(status.id_)
-                    #status.reposted_by = users
+                    #status.repeated_by = users
                     #count = self.get_retweet_count(status.id_)
-                    #status.reposted_count = count
+                    #status.repeated_count = count
                     pass
                 statuses.append(status)
             return statuses
         else:
-            reposted_by = None
+            repeated_by = None
             retweeted_id = None
             if 'retweeted_status' in response:
-                reposted_by = response['user']['screen_name']
+                repeated_by = response['user']['screen_name']
                 retweeted_id = response['id']
                 post = response['retweeted_status']
             else:
@@ -502,9 +502,9 @@ class Main(Protocol):
             if 'favorited' in post:
                 fav = post['favorited']
 
-            retweeted = False
+            repeated = False
             if 'retweeted' in post:
-                retweeted = post['retweeted']
+                repeated = post['retweeted']
 
             source = None
             if 'source' in post:
@@ -512,7 +512,7 @@ class Main(Protocol):
 
             status = Status()
             status.id_ = str(post['id'])
-            status.retweeted_id = retweeted_id
+            status.original_status_id = retweeted_id
             status.username = username
             status.avatar = avatar
             status.text = post['text']
@@ -521,14 +521,14 @@ class Main(Protocol):
             status.is_favorite = fav
             status.is_protected = protected
             status.is_verified = verified
-            status.reposted_by = reposted_by
+            status.repeated_by = repeated_by
             status.datetime = self.get_str_time(post['created_at'])
             status.timestamp = self.get_int_time(post['created_at'])
             status.entities = self.get_entities(post)
-            status._type = _type
+            status.type_ = type_
             status.account_id = self.account_id
             status.is_own = (username.lower() == self.uname.lower())
-            status.retweeted = retweeted
+            status.repeated = repeated
             status.set_display_id(column_id)
             status.get_source(source)
             return status
