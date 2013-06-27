@@ -25,7 +25,7 @@ class Account(object):
     This is the class you must instanciate if you want to handle/authenticate 
     a user account.
 
-    **Account** let you perform three actions to get an account: create a new 
+    *Account* let you perform three actions to build an account: create a new 
     account from scratch, create a new account from params and load a
     previously registered account. To create a new account from scratch do:
 
@@ -50,7 +50,7 @@ class Account(object):
     And voilá! You now have a valid and fully authenticated account ready to be
     registered in :class:`libturpial.api.core.Core`.
 
-    But **Account** let you create accounts passing all the params needed for
+    But *Account* let you create accounts passing all the params needed for
     the OAuth authentication. If you already know those params (user key, 
     user secret and PIN) then you just need to execute:
 
@@ -100,7 +100,7 @@ class Account(object):
         *protocol_id*. If *username* is not None it will build the account_id 
         for the account.
 
-        This account is empty, must be authenticated before it can be registered
+        This account is empty and must be authenticated before it can be registered
         in :class:`libturpial.api.core.Core`.
 
         .. warning::

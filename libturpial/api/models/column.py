@@ -2,11 +2,18 @@
 
 class Column:
     """
-    This model represents a column that holds statuses. To instanciate it you
-    need to specify it *type_*, *the account_id* it is associated to, the
-    *protocol_id* and it *name*
+    This model represents a column that holds :class:`libturpial.api.models.status.Status` objects.
+    You need to specify to what *account_id* are they associated, as well as what *type_* of column
+    it is. Available column types are available in :class:`libturpial.common.ColumnType`.
+
+
+    :ivar id_: Column id (for example: "johndoe-twitter-timeline")
+    :ivar type_: Column type
+    :ivar account_id: id of account associated to the column
+    :ivar size: max number of statuses that this column can hold
+    :ivar singular_unit: unit used to identify one status (for example: 'tweet')
+    :ivar plural_unit: unit used to identify more than one status (for example: 'tweets')
     """
-    # TODO: Update doc. column_id is something like: satanas82-twitter-timeline
     def __init__(self, account_id, type_, singular_unit='tweet',
             plural_unit='tweets'):
         self.size = 0
