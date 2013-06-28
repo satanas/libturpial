@@ -146,6 +146,19 @@ class Core:
         """
         return Protocol.availables()
 
+    def all_columns(self):
+        """
+        Returns a dictionary with all columns per account. Example:
+
+        >>> {'foo-twitter': ['timeline', 'direct', 'sent', 'favorites']}
+        """
+        columns = {}
+        for account in self.registered_accounts():
+            columns[account.id_] = []
+            for column in account.get_columns():
+                columns[account.id_].append(column)
+        return columns
+
     def available_columns(self):
         """Returns a dictionary with all registered (non-registered-yet)
         columns per account. Example:
@@ -419,6 +432,12 @@ class Core:
 
     def get_upload_media_service(self):
         return self.config.read('Services', 'upload-pic')
+
+    def set_shorten_url_service(self, value):
+        return self.config.write('Services', 'shorten-url', value)
+
+    def set_upload_media_service(self, value):
+        return self.config.write('Services', 'upload-pic', value)
 
     def has_stored_passwd(self, account_id):
         account = self.accman.get(account_id)
