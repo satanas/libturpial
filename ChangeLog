@@ -1,3 +1,16 @@
+v1.0
+	* Restructured Core with new and better methods
+	* Added ColumnManager to handle columns
+	* Enhaced documentation
+	* Eased the OAuth authentication process
+	* Removed support for Response object. Now all methods return models or
+	python objects
+	* Added support for Twitter API v1.1
+	* Account objects can now be used as separated entities outside Core
+	* Added exceptions for error cases
+	* Migrated from urllib2 to Requests <3
+	* Identi.ca support is not working at the moment because of their migration to pump.io
+
 v0.8.8
     * Feature #479: Optimized tweets loading
     * Minor improvements
