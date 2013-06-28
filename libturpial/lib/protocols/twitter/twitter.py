@@ -529,7 +529,6 @@ class Main(Protocol):
             status.account_id = self.account_id
             status.is_own = (username.lower() == self.uname.lower())
             status.repeated = repeated
-            status.set_display_id(column_id)
             status.get_source(source)
             return status
 
@@ -544,7 +543,7 @@ class Main(Protocol):
             _list = List()
             _list.id_ = str(response['id'])
             _list.user = response['user']
-            _list.name = response['slug']
+            _list.slug = response['slug']
             _list.title = response['name']
             _list.suscribers = response['subscriber_count']
             _list.description = response['description']

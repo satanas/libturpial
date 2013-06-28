@@ -9,7 +9,7 @@ class List:
 
     :ivar id_: List id
     :ivar user: User that owns the list
-    :ivar name: List name
+    :ivar slug: List name
     :ivar title: List title
     :ivar suscribers: Suscribed users (count)
     :ivar description: List description
@@ -19,7 +19,7 @@ class List:
     def __init__(self):
         self.id_ = None
         self.user = None
-        self.name = None
+        self.slug = None
         self.title = None
         self.suscribers = None
         self.description = None

@@ -47,7 +47,7 @@ def get_account_id_from(column_id):
 def build_account_id(username, protocol_id):
     return "%s-%s" % (username, protocol_id)
 
-def get_column_type_from(column_id):
+def get_column_slug_from(column_id):
     temp = column_id.rfind('-')
     return column_id[temp + 1:]
 
