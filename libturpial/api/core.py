@@ -146,6 +146,19 @@ class Core:
         """
         return Protocol.availables()
 
+    def all_columns(self):
+        """
+        Returns a dictionary with all columns per account. Example:
+
+        >>> {'foo-twitter': ['timeline', 'direct', 'sent', 'favorites']}
+        """
+        columns = {}
+        for account in self.registered_accounts():
+            columns[account.id_] = []
+            for column in account.get_columns():
+                columns[account.id_].append(column)
+        return columns
+
     def available_columns(self):
         """Returns a dictionary with all registered (non-registered-yet)
         columns per account. Example:
@@ -212,7 +225,7 @@ class Core:
         account *account_id*. *count* and *since_id* work in the same way
         that in :meth:`libturpial.api.core.Core.get_column_statuses`
         """
-        account = self.accman.get(account_id, False)
+        account = self.accman.get(account_id)
         return account.get_public_timeline(count, since_id)
 
     def get_followers(self, account_id, only_id=False):
@@ -333,7 +346,7 @@ class Core:
         return account.is_friend(username)
 
     def search(self, account_id, query, count=NUM_STATUSES, since_id=None, extra=None):
-        account = self.accman.get(account_id, False)
+        account = self.accman.get(account_id)
         # The unquote is to ensure that the query is not url-encoded. The
         # encoding will be done automatically by the http module
         unquoted_query = urllib2.unquote(query)
@@ -419,6 +432,12 @@ class Core:
 
     def get_upload_media_service(self):
         return self.config.read('Services', 'upload-pic')
+
+    def set_shorten_url_service(self, value):
+        return self.config.write('Services', 'shorten-url', value)
+
+    def set_upload_media_service(self, value):
+        return self.config.write('Services', 'upload-pic', value)
 
     def has_stored_passwd(self, account_id):
         account = self.accman.get(account_id)

@@ -74,7 +74,6 @@ class InvalidOAuthToken(Exception):
     pass
 
 class URLShortenError(Exception):
-    """An URL shorten error ocurred"""
     def __init__(self, message):
         self.message = message
 
@@ -88,7 +87,6 @@ class PreviewServiceNotSupported(Exception):
     pass
 
 class UploadImageError(Exception):
-    """An upload image error ocurred"""
     def __init__(self, message=None):
         self.message = message
 

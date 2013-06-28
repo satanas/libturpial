@@ -5,118 +5,112 @@ API
 
 .. module:: libturpial
 
-This part of the documentation covers all modules of libturpial.
+The API_ module contains the modules and classes that will be used for any developer that want
+to create an application or script based on libturpial. We can call it the *public interface*.
+Here you can find the Core_, all the models_ that represent libturpial entities and the Managers_
+
 
 
 Core
 ----
 
 .. autoclass:: libturpial.api.core.Core
-	:members:
-	:undoc-members:
-	:special-members:
-
-Configuration
--------------
-
-.. automodule:: libturpial.lib.config
-	:members:
-	:undoc-members:
-	:special-members:
-
-Protocols
----------
-
-Protocol.py
-+++++++++++
-.. autoclass:: libturpial.lib.interfaces.protocol.Protocol
-	:members:
-	:undoc-members:
-	:private-members:
-	:special-members:
+    :members:
+    :member-order: bysource
 
 
-Twitter
+Models
+------
+
+Here you can find the representation of the information used by libturpial_ mapped to Python objects.
+They handle the methods and properties of each entity and guarantee the data consistency.
+
+
+Account
 +++++++
 
-.. autoclass:: libturpial.lib.protocols.twitter.twitter.Main
-	:members:
-	:undoc-members:
-	:special-members:
+.. autoclass:: libturpial.api.models.account.Account
+    :members:
+    :member-order: bysource
 
-.. autoattribute:: libturpial.api.protocols.twitter.params.POST_ACTIONS
+Column
+++++++
 
-Identi.ca
-+++++++++
+.. autoclass:: libturpial.api.models.column.Column
+    :members:
+    :member-order: bysource
 
-.. autoclass:: libturpial.lib.protocols.identica.identica.Main
-	:members:
-	:undoc-members:
-	:private-members:
-	:special-members:
+List
+++++
 
-HTTP
-----
+.. autoclass:: libturpial.api.models.list.List
+    :members:
+    :member-order: bysource
 
-.. automodule:: libturpial.lib.http
+.. _status:
 
-Constants
-+++++++++
+Status
+++++++
 
-.. data:: DEFAULT_TIMEOUT
+.. autoclass:: libturpial.api.models.status.Status
+    :members:
+    :member-order: bysource
 
-    Default time that TurpialHTTPBase waits until killing a request. Value: 20 (seconds)
+Profile
++++++++
 
-.. data:: FORMAT_XML
+.. autoclass:: libturpial.api.models.profile.Profile
+    :members:
+    :member-order: bysource
 
-    Constant to identify XML requests
+Entity
+++++++
 
-.. data:: FORMAT_JSON
+.. autoclass:: libturpial.api.models.entity.Entity
+    :members:
+    :member-order: bysource
 
-    Constant to identify JSON requests
+Client
+++++++
 
-TurpialHTTPBase
+.. autoclass:: libturpial.api.models.client.Client
+    :members:
+    :member-order: bysource
+
+Media
++++++
+
+.. autoclass:: libturpial.api.models.media.Media
+    :members:
+    :member-order: bysource
+
+Proxy
++++++
+
+.. autoclass:: libturpial.api.models.proxy.Proxy
+    :members:
+    :member-order: bysource
+
+
+Managers
+--------
+
+This classes are used by :class:`libturpial.api.core.Core` to handle and 
+organize multiple instances of columns and accounts. They are responsible of 
+add, delete and manage both.
+
+Account Manager
 +++++++++++++++
-.. autoclass:: libturpial.lib.http.TurpialHTTPBase
-	:members:
-	:undoc-members:
-	:special-members:
 
-TurpialHTTPOAuth
-++++++++++++++++
-.. autoclass:: libturpial.lib.http.TurpialHTTPOAuth
-	:members:
-	:undoc-members:
-	:private-members:
-	:special-members:
+.. autoclass:: libturpial.api.managers.accountmanager.AccountManager
+    :members:
+    :member-order: bysource
 
-TurpialHTTPBasicAuth
-++++++++++++++++++++
-.. autoclass:: libturpial.lib.http.TurpialHTTPBasicAuth
-	:members:
-	:undoc-members:
-	:special-members:
+Column Manager
+++++++++++++++
 
-TurpialHTTPRequest
-++++++++++++++++++
-.. autoclass:: libturpial.lib.http.TurpialHTTPRequest
-	:members:
+.. autoclass:: libturpial.api.managers.columnmanager.ColumnManager
+    :members:
+    :member-order: bysource
 
-Constants
----------
-
-.. automodule:: libturpial.common
-	:members:
-	:undoc-members:
-
-Exceptions
-----------
-
-Module to handle custom exceptions for libturpial
-
-.. module:: libturpial.common.exceptions
-
-.. autoexception:: URLShortenError
-.. autoexception:: NoURLException
-.. autoexception:: UploadImageError
-
+.. _libturpial: index

@@ -6,13 +6,14 @@ import tempfile
 
 class Media(object):
     """
-    This class models a media object (image, video or map) that can be rendered
-    on the UI. *type_* could be :var:`libturpial.api.models.media.IMAGE`,
-    :var:`libturpial.api.models.media.VIDEO` or
-    :var:`libturpial.api.models.media.MAP`, *name* is the URI name and
-    *content* is the binary content of the media. If *path* is **None** a
-    temporary path will be created and *info* holds any additional information
-    about the resource.
+    This class represents a media object (image, video or map) that can be 
+    rendered on the UI. *type_* could be 
+    :py:attr:`libturpial.api.models.media.IMAGE`,
+    :py:attr:`libturpial.api.models.media.VIDEO` or
+    :py:attr:`libturpial.api.models.media.MAP`, *name* is the filename and
+    *content* holds the binary data of the media. If *path* is `None` a
+    temporary path will be created using the filename. *info* stores any 
+    additional information about the resource.
     """
 
     IMAGE = 0
@@ -43,11 +44,14 @@ class Media(object):
 
     @staticmethod
     def new_image(name, content, path=None, info=None):
+        """
+        Create an image media
+        """
         return Media(Media.IMAGE, name, content, path, info)
 
     def save_content(self):
         """
-        Saves the content of the media in the path specified on init.
+        Saves the content of the media in the path specified.
         """
         try:
             fd = open(self.path, 'wb')
@@ -58,18 +62,18 @@ class Media(object):
 
     def is_video(self):
         """
-        Returns **True** if the media is a video
+        Returns `True` if the media is a video
         """
         return self.type_ == self.VIDEO
 
     def is_image(self):
         """
-        Returns **True** if the media is an image
+        Returns `True` if the media is an image
         """
         return self.type_ == self.IMAGE
 
     def is_map(self):
         """
-        Returns **True** if the media is a map
+        Returns `True` if the media is a map
         """
         return self.type_ == self.MAP

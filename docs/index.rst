@@ -13,12 +13,12 @@ and is the backend used for Turpial_.
 libturpial is currently under heavy development, so probably you will find bugs or undesired behavior. In 
 this cases please report issues at:
 
-http://github.com/Turpial/libturpial/issues
+http://github.com/satanas/libturpial/issues
 
 We will be very graceful for your contributions.
 
-Feature support
----------------
+Features
+--------
 
 - Twitter API
 - Identi.ca API
@@ -32,11 +32,13 @@ Feature support
 
 Quickstart
 ----------
+.. toctree::
+    :maxdepth: 2
 
+    quickstart
 
-
-API Documentation
------------------
+Reference
+---------
 
 This part of the documentation shows you details about specific functions, methods and classes in libturpial.
 
@@ -44,21 +46,17 @@ This part of the documentation shows you details about specific functions, metho
    :maxdepth: 2
 
    api
+   lib
+   config
+   exceptions
 
-More information
-----------------
+Further information
+-------------------
 
 For more information about the development process, please go to:
 
 http://wiki.turpial.org.ve/dev:welcome
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 .. _Turpial: http://turpial.org.ve
 .. _Twitter: http://twitter.com
