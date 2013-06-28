@@ -69,7 +69,12 @@ the account_id, it's like if you must to tell:
 
     Core, on this account do that.
 
-It's not hard once you get used, it's like: "`sudo make me a sandwich`_" ;)
+It's not hard once you get used, it's like: "`sudo make me a sandwich`_" ;) (CC-BY-NC by XKCD)
+.. image:: http://imgs.xkcd.com/comics/sandwich.png
+  :align: center
+  :alt: XKCD Comic
+  :height: 150
+  :width: 180
 
 Fetch the timeline
 ------------------
