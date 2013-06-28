@@ -73,8 +73,6 @@ Twitter
 	:undoc-members:
 	:special-members:
 
-.. autoattribute:: libturpial.api.protocols.twitter.params.POST_ACTIONS
-
 Identi.ca
 +++++++++
 
