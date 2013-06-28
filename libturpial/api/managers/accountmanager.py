@@ -8,6 +8,23 @@ from libturpial.exceptions import ErrorCreatingAccount, \
 
 
 class AccountManager:
+    """
+    This class has methods to manage accounts. You can register new accounts,
+    load and unregister existing accounts.
+
+    This manager can be iterated and each element will have the account id 
+    and the respective object. For example:
+
+    >>> for item in account_manager:
+            print item
+    ('foo-twitter', <libturpial.api.models.account.Account object at 0x10c5c2e10>)
+    ('bar-twitter', <libturpial.api.models.account.Account object at 0x10c5c2910>)
+
+    To check how much accounts are registered simply use the `len` function:
+
+    >>> len(account_manager)
+    2
+    """
     def __init__(self, config):
         self.config = config
         self.__accounts = {}
@@ -25,21 +42,26 @@ class AccountManager:
             self.load(account_id)
 
     def load(self, account_id):
+        """
+        Load and existing account identified by *account_id*. If the load
+        fails an :class:`libturpial.exceptions.ErrorLoadingAccount` exception
+        will raise. Return the id of the account loaded on success
+        """
         # TODO: Set the timeout
         #timeout = int(self.config.read('Advanced', 'socket-timeout'))
         #self.protocol.timeout = timeout
 
         self.__accounts[account_id] = Account.load(account_id)
-        return self.__accounts[account_id]
+        return account_id
 
     def register(self, account):
-        # TODO: Update doc
         """
-        Register a new OAuth based account in libturpial record for the protocol
-        specified by *protocol_id*, *username* and OAuth params: *key*,
-        *secret* and *verifier*. Return the id of the new account if the
-        registration process was successful, otherwise raise an
-        :class:`libturpial.common.exceptions.ErrorCreatingAccount` exception.
+        Register the *account* object passed as argument. If the account hasn't
+        been authenticated it will raise a 
+        :class:`libturpial.exceptions.AccountNotAuthenticated` exception. If 
+        the account is already registered a
+        :class:`libturpial.exceptions.AccountAlreadyRegistered` exception will
+        raise. Return the id of the account loaded on success
         """
         if not account.is_authenticated():
             raise AccountNotAuthenticated
@@ -53,8 +75,8 @@ class AccountManager:
 
     def unregister(self, account_id, delete_all):
         """
-        Remove the account *account_id* from libturpial record. If *delete_all*
-        is **True** all configuration files are deleted from disk. Be careful
+        Remove the account identified by *account_id* from memory. If *delete_all*
+        is `True` all configuration files are deleted from disk. Be careful
         because this operation can not be undone.
         """
         if account_id in self.__accounts:
@@ -64,15 +86,11 @@ class AccountManager:
             return account_id
         return None
 
-    def get(self, account_id, validate_login=False):
+    def get(self, account_id):
         """
-        Return the :class:`libturpial.api.models.account.Account` object
-        associated to *account_id* if it has been loaded or try to load the
-        account otherwise. If any of the previous method fails it raise an
-        :class:`libturpial.exceptions.ErrorLoadingAccount` exception.
-        If *validate_login* is **True** and the account is not logged in a
-        :class:`libturpial.common.exceptions.AccountNotLoggedIn` exception is
-        raised.
+        Obtain the account identified by *account_id*. If the account is not
+        loaded yet, it will be loaded immediately. Return a 
+        :class:`libturpial.api.models.account.Account` object on success
         """
         try:
             account = self.__accounts[account_id]
@@ -80,20 +98,18 @@ class AccountManager:
             self.load(account_id)
             account = self.__accounts[account_id]
 
-        if validate_login and account.is_not_logged_in():
-            raise AccountNotLoggedIn
-
         return account
 
     def list(self):
         """
-        Return an alphabetically sorted list with all account ids registered
+        Return an alphabetically sorted list with all the ids of the registered
+        accounts.
         """
         return sorted(self.__accounts.keys())
 
     def accounts(self):
         """
-        Return all :class:`libturpial.api.models.account.Account` objects
-        registered
+        Return a list of :class:`libturpial.api.models.account.Account` objects
+        with all the accounts registered
         """
         return self.__accounts.values()

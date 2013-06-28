@@ -212,7 +212,7 @@ class Core:
         account *account_id*. *count* and *since_id* work in the same way
         that in :meth:`libturpial.api.core.Core.get_column_statuses`
         """
-        account = self.accman.get(account_id, False)
+        account = self.accman.get(account_id)
         return account.get_public_timeline(count, since_id)
 
     def get_followers(self, account_id, only_id=False):
@@ -333,7 +333,7 @@ class Core:
         return account.is_friend(username)
 
     def search(self, account_id, query, count=NUM_STATUSES, since_id=None, extra=None):
-        account = self.accman.get(account_id, False)
+        account = self.accman.get(account_id)
         # The unquote is to ensure that the query is not url-encoded. The
         # encoding will be done automatically by the http module
         unquoted_query = urllib2.unquote(query)

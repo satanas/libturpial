@@ -88,25 +88,24 @@ Proxy
     :member-order: bysource
 
 
-
-
-
 Managers
 --------
+
+This classes are used by :class:`libturpial.api.core.Core` to handle and 
+organize multiple instances of columns and accounts. They are responsible of 
+add, delete and manage both.
 
 Account Manager
 +++++++++++++++
 
 .. autoclass:: libturpial.api.managers.accountmanager.AccountManager
-	:members:
-	:undoc-members:
-	:special-members:
+    :members:
+    :member-order: bysource
 
 Column Manager
 ++++++++++++++
 
 .. autoclass:: libturpial.api.managers.columnmanager.ColumnManager
-	:members:
-	:undoc-members:
-	:special-members:
+    :members:
+    :member-order: bysource
 
