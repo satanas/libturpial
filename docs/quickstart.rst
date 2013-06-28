@@ -69,7 +69,7 @@ the account_id, it's like if you must to tell:
 
     Core, on this account do that.
 
-It's not hard once you get used, it's like: `"sudo make me a sandwich"`__ ;)
+It's not hard once you get used, it's like: "`sudo make me a sandwich`_" ;)
 
 Fetch the timeline
 ------------------
@@ -307,7 +307,7 @@ Previous sections were a brief introduction to the whole power of libturpial.
 For more information please check the `full documentation`_
 
 
-.. __`"sudo make me a sandwich"`: http://imgs.xkcd.com/comics/sandwich.png
+.. _`sudo make me a sandwich`: http://imgs.xkcd.com/comics/sandwich.png
 .. _status: api.html#status
 .. _core: api.html#core
 .. _`full documentation`: index
