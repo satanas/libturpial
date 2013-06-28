@@ -24,6 +24,7 @@ Models
 Here you can find the representation of the information used by libturpial_ mapped to Python objects.
 They handle the methods and properties of each entity and guarantee the data consistency.
 
+
 Account
 +++++++
 
@@ -44,6 +45,8 @@ List
 .. autoclass:: libturpial.api.models.list.List
     :members:
     :member-order: bysource
+
+.. _status:
 
 Status
 ++++++
