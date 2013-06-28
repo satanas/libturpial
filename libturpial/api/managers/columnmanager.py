@@ -5,6 +5,19 @@ from libturpial.exceptions import ColumnAlreadyRegistered
 from libturpial.common import get_account_id_from, get_column_type_from
 
 class ColumnManager:
+    """
+    This class has methods to manage columns. You can register new columns,
+    load and unregister existing columns.
+
+    This manager can be iterated and each element will have a list of columns
+    per account. For example:
+
+    >>> for item in column_manager:
+            print item
+    ('foo-twitter', [<libturpial.api.models.column.Column instance at 0x10a9ce368>, 
+        <libturpial.api.models.column.Column instance at 0x10a9ce8c0>])
+
+    """
     def __init__(self, config):
         self.config = config
         self.__load_registered()
@@ -33,6 +46,12 @@ class ColumnManager:
         return count
 
     def register(self, column_id):
+        """
+        Register a new column identified by *column_id*. If the column is 
+        already registered a
+        :class:`libturpial.exceptions.ColumnAlreadyRegistered` exception will
+        raise. Return the id of the column registered on success
+        """
         for account_id, columns in self.__registered_columns.iteritems():
             for col in columns:
                 if col.id_ == column_id:
@@ -46,6 +65,10 @@ class ColumnManager:
         return column_id
 
     def unregister(self, column_id):
+        """
+        Remove the column identified by *column_id* from memory. Return the id 
+        of the unregistered column.
+        """
         index = 0
         to_store = {}
         for account_id, columns in self.__registered_columns.iteritems():
@@ -60,9 +83,24 @@ class ColumnManager:
         return column_id
 
     def columns(self):
+        """
+        Return a dict where each key represents an account_id and it value is 
+        a list of :class:`libturpial.api.models.column.Column` objects
+        with all the columns registered.
+
+        For example:
+
+        >>> column_manager.columns()
+        {'foo-twitter': [<libturpial.api.models.column.Column instance at 0x10a9cbb48>, 
+            <libturpial.api.models.column.Column instance at 0x10a9cb6c8>]}
+        """
         return self.__registered_columns
 
     def is_registered(self, column_id):
+        """
+        Return `True` if column identified by *column_id* is registered. 
+        `False` otherwise.
+        """
         for account_id, columns in self.__registered_columns.iteritems():
             for col in columns:
                 if col.id_ == column_id:

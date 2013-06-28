@@ -61,7 +61,7 @@ class AccountManager:
         :class:`libturpial.exceptions.AccountNotAuthenticated` exception. If 
         the account is already registered a
         :class:`libturpial.exceptions.AccountAlreadyRegistered` exception will
-        raise. Return the id of the account loaded on success
+        raise. Return the id of the account registered on success
         """
         if not account.is_authenticated():
             raise AccountNotAuthenticated
@@ -77,7 +77,8 @@ class AccountManager:
         """
         Remove the account identified by *account_id* from memory. If *delete_all*
         is `True` all configuration files are deleted from disk. Be careful
-        because this operation can not be undone.
+        because this operation can not be undone. Return the id of the 
+        unregistered column on success, `None` otherwise
         """
         if account_id in self.__accounts:
             if delete_all:
