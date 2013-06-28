@@ -161,7 +161,7 @@ class Account(object):
     def authorize_oauth_access(self, pin):
         """
         Take the *pin* returned by OAuth service and authenticate the token 
-        requested with :method:`request_oauth_access`.
+        requested with *request_oauth_access*
         """
         self.profile = self.protocol.authorize_token(pin)
         self.__setup(self.profile.username)
