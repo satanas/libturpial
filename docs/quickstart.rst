@@ -307,7 +307,7 @@ Previous sections were a brief introduction to the whole power of libturpial.
 For more information please check the `full documentation`_
 
 
-.. _`"sudo make me a sandwich"`: http://imgs.xkcd.com/comics/sandwich.png
+.. __`"sudo make me a sandwich"`: http://imgs.xkcd.com/comics/sandwich.png
 .. _status: api.html#status
 .. _core: api.html#core
-.. __`full documentation`: index
+.. _`full documentation`: index
