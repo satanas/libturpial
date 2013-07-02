@@ -33,7 +33,6 @@ CLIENT_PATTERN = re.compile('<a href="(.*?)">(.*?)</a>')
 #: According to RFC 3986 - http://www.ietf.org/rfc/rfc3986.txt
 URL_PATTERN = re.compile('((?<!\w)(http://|ftp://|https://|www\.)[-\w._~:/?#\[\]@!$%&\'()*+,;=]*)')
 
-
 def get_username_from(account_id):
     return account_id.split('-')[0]
 
@@ -47,7 +46,7 @@ def get_account_id_from(column_id):
 def build_account_id(username, protocol_id):
     return "%s-%s" % (username, protocol_id)
 
-def get_column_type_from(column_id):
+def get_column_slug_from(column_id):
     temp = column_id.rfind('-')
     return column_id[temp + 1:]
 

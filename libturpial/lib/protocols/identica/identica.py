@@ -107,14 +107,14 @@ class Main(Protocol):
         rtn = self.http.get('/direct_messages', args)
         self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
-                                   _type=Status.DIRECT)
+                                   type_=Status.DIRECT)
 
     def get_directs_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
         rtn = self.http.get('/direct_messages/sent', args)
         self.check_for_errors(rtn)
         return self.json_to_status(rtn, StatusColumn.DIRECTS,
-                                   _type=Status.DIRECT)
+                                   type_=Status.DIRECT)
 
     def get_sent(self, count=NUM_STATUSES, since_id=None):
         args = self.__build_basic_args(count, since_id)
@@ -340,13 +340,13 @@ class Main(Protocol):
             #profile.link_color = Profile.DEFAULT_LINK_COLOR
             return profile
 
-    def json_to_status(self, response, column_id='', _type=Status.NORMAL):
+    def json_to_status(self, response, column_id='', type_=Status.NORMAL):
         if isinstance(response, list):
             statuses = []
             for resp in response:
                 if not resp:
                     continue
-                status = self.json_to_status(resp, column_id, _type)
+                status = self.json_to_status(resp, column_id, type_)
                 statuses.append(status)
             return statuses
         else:
@@ -398,7 +398,7 @@ class Main(Protocol):
             status.datetime = self.get_str_time(post['created_at'])
             status.timestamp = self.get_int_time(post['created_at'])
             status.entities = self.get_entities(post)
-            status._type = _type
+            status.type_ = type_
             status.account_id = self.account_id
             status.is_own = (username.lower() == self.uname.lower())
             status.set_display_id(column_id)

@@ -32,8 +32,10 @@ Features
 
 Quickstart
 ----------
+.. toctree::
+    :maxdepth: 2
 
-In progress...
+    quickstart
 
 Reference
 ---------

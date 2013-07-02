@@ -10,6 +10,7 @@ to create an application or script based on libturpial. We can call it the *publ
 Here you can find the Core_, all the models_ that represent libturpial entities and the Managers_
 
 
+
 Core
 ----
 
@@ -23,6 +24,7 @@ Models
 
 Here you can find the representation of the information used by libturpial_ mapped to Python objects.
 They handle the methods and properties of each entity and guarantee the data consistency.
+
 
 Account
 +++++++
@@ -44,6 +46,8 @@ List
 .. autoclass:: libturpial.api.models.list.List
     :members:
     :member-order: bysource
+
+.. _status:
 
 Status
 ++++++
@@ -88,25 +92,25 @@ Proxy
     :member-order: bysource
 
 
-
-
-
 Managers
 --------
+
+This classes are used by :class:`libturpial.api.core.Core` to handle and 
+organize multiple instances of columns and accounts. They are responsible of 
+add, delete and manage both.
 
 Account Manager
 +++++++++++++++
 
 .. autoclass:: libturpial.api.managers.accountmanager.AccountManager
-	:members:
-	:undoc-members:
-	:special-members:
+    :members:
+    :member-order: bysource
 
 Column Manager
 ++++++++++++++
 
 .. autoclass:: libturpial.api.managers.columnmanager.ColumnManager
-	:members:
-	:undoc-members:
-	:special-members:
+    :members:
+    :member-order: bysource
 
+.. _libturpial: index

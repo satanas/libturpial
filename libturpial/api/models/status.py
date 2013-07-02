@@ -7,6 +7,43 @@ from libturpial.api.models.client import Client
 
 
 class Status:
+    """
+    This model represents and holds all the information of a status.
+
+    :ivar id_: Status id
+    :ivar account_id: Id of the account associated to this status
+    :ivar text: Text of the status
+    :ivar username: Name of the user that updated the status
+    :ivar avatar: Display image of the user that updated the status
+    :ivar source: Client used to upload this status
+    :ivar timestamp: Time of publishing of this status (Unix time)
+    :ivar in_reply_to_id: Contains the id of the status answered (if any)
+    :ivar in_reply_to_user: Contains the user answered with status (if any)
+    :ivar favorited: `True` if this status has been marked as favorite. `False` otherwise
+    :ivar protected: `True` if this status is from a protected account. `False` otherwise
+    :ivar verified: `True` if this status is from a verified account. `False` otherwise
+    :ivar repeated: `True` if this status has been repeated (retweeted) by you. `False` otherwise
+    :ivar repeated_by: More users that have repeated this status
+    :ivar repeated_count: How much times this status has been repeated
+    :ivar original_status_id: Id of the original status (not-repeated)
+    :ivar datetime: Humanized representation of the date/time of this status
+    :ivar is_own: `True` if the status belongs to the same user of the associated account. `False` otherwise
+    :ivar entities: A dict with all the entities found in status
+    :ivar type_: Status type.
+
+    Sometimes a status can hold one or more entities (URLs, hashtags, etc). In this 
+    case the entities variable will store a dict with lists for each category.
+    For example:
+
+    >>> status.entities
+    {'urls': [], 'hashtags': [], 'mentions': [], 'groups': []}
+
+    A status can handle two possible types:
+    :class:`libturpial.api.models.status.Status.NORMAL` for regular statuses
+    or :class:`libturpial.api.models.status.Status.DIRECT` for private
+    (direct) statuses.
+    """
+
     NORMAL = 0x1
     DIRECT = 0x2
 
@@ -23,15 +60,14 @@ class Status:
         self.protected = False  # Status comes from a protected account
         self.verified = False   # Status comes from a verified account
         self.repeated = False   # Status has been repeated by user
-        self.is_own = False     # Indicate if the user is the author of the status
-        self.reposted_by = None     # Indicates if it is a repeated status
-        self.reposted_count = None  # How much repeats get the status
+        self.repeated_by = None     # Indicates if it is a repeated status
+        self.repeated_count = None  # How much repeats get the status
         self.datetime = None    # Store the date/time showed for the view
-        self._type = None
+        self.is_own = False     # Indicate if the user is the author of the status
+        self.type_ = None
         self.account_id = None
         self.entities = {}
-        self.retweeted_id = None
-        self.display_id = None
+        self.original_status_id = None
 
     def get_mentions(self):
         """
@@ -46,18 +82,15 @@ class Status:
                     mentions.append(user)
         return mentions
 
-    def set_display_id(self, column_id):
-        self.display_id = "%s-%s-%s" % (self.account_id, self.id_, column_id)
-
     def is_direct(self):
         """
-        Returns **True** if status is a direct message
+        Return `True` if this status is a direct message
         """
-        return self._type == DIRECT
+        return self.type_ == DIRECT
 
     def get_protocol_id(self):
         """
-        Returns the *protocol_id* for this status
+        Return the *protocol_id* associated to this status
         """
         return self.account_id.split('-')[1]
 

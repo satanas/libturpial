@@ -14,4 +14,4 @@ class TwitpicMediaContent(PreviewMediaService):
         media_id = self._get_id_from_url(url)
         media_content_url = "http://twitpic.com/show/full/%s.png" % media_id
         rawimg = self._get_content_from_url(media_content_url)
-        return Media.new_image(name, rawimg)
+        return Media.new_image(url, rawimg)
