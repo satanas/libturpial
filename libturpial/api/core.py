@@ -225,8 +225,7 @@ class Core:
 
     def get_all_friends_list(self):
         friends = []
-        for account in self.accman.get_all():
-            print account
+        for account in self.accman.accounts():
             for profile in account.get_following():
                 if profile not in friends:
                     friends.append(profile)
