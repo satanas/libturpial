@@ -165,7 +165,8 @@ class Core:
 
 
     def available_columns(self):
-        """Returns a dictionary with all registered (non-registered-yet)
+        """
+        Returns a dictionary with all registered (non-registered-yet)
         columns per account. Example:
 
         >>> {'foo-twitter': ['timeline', 'direct', 'sent', 'favorites']}
@@ -179,13 +180,15 @@ class Core:
         return columns
 
     def registered_columns(self):
-        """Returns a *dict* with :class:`libturpial.api.models.Column` objects
+        """
+        Returns a *dict* with :class:`libturpial.api.models.Column` objects
         per column registered
         """
         return self.column_manager.columns()
 
     def registered_accounts(self):
-        """Returns a *dict* with all registered accounts as an array of
+        """
+        Returns a *dict* with all registered accounts as an array of
         :class:`libturpial.api.models.Account` objects registered
         """
         return self.accman.accounts()
@@ -196,7 +199,8 @@ class Core:
 
     def get_column_statuses(self, account_id, column_id,
                             count=NUM_STATUSES, since_id=None):
-        """Fetch the statuses for the account *account_id* and the column *column_id*.
+        """
+        Fetch the statuses for the account *account_id* and the column *column_id*.
         *count* let you specify how many statuses do you want to fetch, values
         range goes from 0-200. If *since_id* is not **None** libturpial will
         only fetch statuses newer than that.
@@ -227,7 +231,8 @@ class Core:
 
     def get_public_timeline(self, account_id, count=NUM_STATUSES, since_id=None):
         # TODO: Remove this function and replace with streamming api
-        """Fetch the public timeline for the service associated to the
+        """
+        Fetch the public timeline for the service associated to the
         account *account_id*. *count* and *since_id* work in the same way
         that in :meth:`libturpial.api.core.Core.get_column_statuses`
         """
@@ -236,14 +241,16 @@ class Core:
 
     def get_followers(self, account_id, only_id=False):
         # TODO: define __str__ function for in libturpial.api.models.profile.Profile Class
-        """Returns a :class:`libturpial.api.models.profile.Profile` list with 
+        """
+        Returns a :class:`libturpial.api.models.profile.Profile` list with 
         all the followers of the account *account_id*
         """
         account = self.accman.get(account_id)
         return account.get_followers(only_id)
 
     def get_following(self, account_id, only_id=False):
-        """Returns a :class:`libturpial.api.models.profile.Profile` list of 
+        """
+        Returns a :class:`libturpial.api.models.profile.Profile` list of 
         all the accounts that *account_id* follows
         """
         account = self.accman.get(account_id)
@@ -251,7 +258,8 @@ class Core:
 
     def get_all_friends_list(self):
         #TODO: actual error: AttributeError: AccountManager instance has no attribute 'get_all'
-        """Returns a list with all the :class:`libturpial.api.models.profile.Profile`
+        """
+        Returns a list with all the :class:`libturpial.api.models.profile.Profile`
         objects of all the users that follow all the registered accounts.
         """
         friends = []
@@ -263,11 +271,11 @@ class Core:
         return friends
 
     def load_all_friends_list(self):
-        # TODO: this function not working?
         return self.config.load_friends()
 
     def get_user_profile(self, account_id, user=None):
-        """Returns the profile of the *user*, using the *account_id*,
+        """
+        Returns the profile of the *user*, using the *account_id*,
         if user is None, it returns the profile of account_id itself.
         """
         account = self.accman.get(account_id)
@@ -283,7 +291,8 @@ class Core:
         return account.get_conversation(status_id)
 
     def update_status(self, account_id, text, in_reply_id=None):
-        """Updates the account *account_id* with content of *text*
+        """
+        Updates the account *account_id* with content of *text*
 
         if in_reply_id is not None, specifies the tweets that is being answered.
         """
@@ -292,7 +301,8 @@ class Core:
 
     def broadcast_status(self, account_id_array=None, text):
         # TODO: add __str__ to libturpial.api.models.account.Account 
-        """Updates all the accounts in account_id_array with the content of *text*
+        """
+        Updates all the accounts in account_id_array with the content of *text*
 
         if account_id_array is None all registered accounts get updated.
         """
@@ -309,50 +319,58 @@ class Core:
         return response
 
     def destroy_status(self, account_id, status_id):
-        """Deletes status of *account_id* specified by *status_id*
+        """
+        Deletes status of *account_id* specified by *status_id*
         """
         account = self.accman.get(account_id)
         return account.destroy_status(status_id)
 
     def get_single_status(self, account_id, status_id):
-        """Retrieves a single status with *account_id* that corresponds with *status_id*
+        """
+        Retrieves a single status with *account_id* that corresponds with *status_id*
         """
         account = self.accman.get(account_id)
         return account.get_status(status_id)
 
     def repeat_status(self, account_id, status_id):
-        """Allows to send the same status again by using repeat option in API
+        """
+        Allows to send the same status again by using repeat option in API
         """
         account = self.accman.get(account_id)
         return account.repeat_status(status_id)
 
     def mark_status_as_favorite(self, account_id, status_id):
-        """Marks status of *account_id* specified by *status_id* as favorite
+        """
+        Marks status of *account_id* specified by *status_id* as favorite
         """
         account = self.accman.get(account_id)
         return account.mark_as_favorite(status_id)
 
     def unmark_status_as_favorite(self, account_id, status_id):
-        """Unmarks status of *account_id* specified by *status_id* as favorite
+        """
+        Unmarks status of *account_id* specified by *status_id* as favorite
         """
         account = self.accman.get(account_id)
         return account.unmark_as_favorite(status_id)
 
     def send_direct_message(self, account_id, username, message):
-        """Sends a direct update with the contant of *message* to *username* using *account_id*
+        """
+        Sends a direct update with the contant of *message* to *username* using *account_id*
         """
         account = self.accman.get(account_id)
         return account.send_direct_message(username, message)
 
     def destroy_direct_message(self, account_id, status_id):
-        """Deletes a direct update from *account_id* defined by its *status_id*
+        """
+        Deletes a direct update from *account_id* defined by its *status_id*
         """
         account = self.accman.get(account_id)
         return account.destroy_direct_message(status_id)
 
     def update_profile(self, account_id, fullname=None, url=None, bio=None,
             location=None):
-        """Updates the *account_id* public profile with the information in variables
+        """
+        Updates the *account_id* public profile with the information in variables
         fullname = Complete account name
         url = Blog or personal URL of the account
         bio = Small resume
@@ -362,58 +380,67 @@ class Core:
         return account.update_profile(fullname, url, bio, location)
 
     def follow(self, account_id, username, by_id=False):
-        """Makes *account_id* a follower of *username* 
+        """
+        Makes *account_id* a follower of *username*
         """
         account = self.accman.get(account_id)
         return account.follow(username, by_id)
 
     def unfollow(self, account_id, username):
-        """Stops *account_id* from being a follower of *username* 
+        """
+        Stops *account_id* from being a follower of *username*
         """
         account = self.accman.get(account_id)
         return account.unfollow(username)
 
     def block(self, account_id, username):
-        """Blocks *username* in *account_id*
+        """
+        Blocks *username* in *account_id*
         """
         account = self.accman.get(account_id)
         return account.block(username)
 
     def unblock(self, account_id, username):
-        """Unblocks *username* in *account_id*
+        """
+        Unblocks *username* in *account_id*
         """
         account = self.accman.get(account_id)
         return account.unblock(username)
 
     def report_as_spam(self, account_id, username):
-        """Reports *username* as SPAM using *account_id*
+        """
+        Reports *username* as SPAM using *account_id*
         """
         account = self.accman.get(account_id)
         return account.report_as_spam(username)
 
     def mute(self, username):
         # TODO: this applies to all the registered accounts?
-        """Adds *username* into the muted list, so that no more statuses from
+        """
+        Adds *username* into the muted list, so that no more statuses from
         that account are shown
         """
         self.config.append_filter('@%s' % username)
         return username
 
     def unmute(self, username):
-        """Removes *username* from the muted list, so that statuses from 
+        """
+        Removes *username* from the muted list, so that statuses from 
         that account are now shown
         """
         self.config.remove_filter('@%s' % username)
         return username
 
     def verify_friendship(self, account_id, username):
-        """Check if *username* is on only followed by *account_id* but if he also follows *account_id*
+        """
+        Check if *username* is on only followed by *account_id* but if he also follows *account_id*
         """
         account = self.accman.get(account_id)
         return account.is_friend(username)
 
     def search(self, account_id, query, count=NUM_STATUSES, since_id=None, extra=None):
-        """Performs a search using Twitter API, defined by:
+        """
+        Performs a search using Twitter API, defined by:
         account_id = Account to be used for the search
         query = Search Term
         acount = Max number of results
@@ -426,7 +453,8 @@ class Core:
         return account.search(unquoted_query, count, since_id, extra)
 
     def get_profile_image(self, account_id, username):
-        """Returns the local path to a the profile image of *username* in original size
+        """
+        Returns the local path to a the profile image of *username* in original size
         """
         account = self.accman.get(account_id)
         basename = "%s-%s-profile-image" % (account_id, username)
@@ -439,7 +467,8 @@ class Core:
         return img_destination_path
 
     def get_status_avatar(self, status):
-        """Returns the local path to a the profile image of the username to post *status* in 48x48 px size
+        """
+        Returns the local path to a the profile image of the username to post *status* in 48x48 px size
         """
         account = self.accman.get(status.account_id)
         basename = "%s-%s-avatar-%s" % (status.account_id, status.username, os.path.basename(status.avatar))
