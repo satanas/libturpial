@@ -299,14 +299,15 @@ class Core:
         account = self.accman.get(account_id)
         return account.update_status(text, in_reply_id)
 
-    def broadcast_status(self, account_id_array=None, text):
+    def broadcast_status(self, account_id_array, text):
         # TODO: add __str__ to libturpial.api.models.account.Account 
         """
         Updates all the accounts in account_id_array with the content of *text*
 
-        if account_id_array is None all registered accounts get updated.
+        if account_id_array is None or an empty list all registered accounts 
+        get updated.
         """
-        if account_id_array == None:
+        if not account_id_array:
             account_id_array=self.registered_accounts()
 
         response = {}
