@@ -1,7 +1,7 @@
 v1.0
     * Restructured Core with new and better methods
     * Added ColumnManager to handle columns
-    * Enhaced documentation
+    * Enhanced documentation
     * Eased the OAuth authentication process
     * Removed support for Response object. Now all methods return models or python objects
     * Added support for Twitter API v1.1
