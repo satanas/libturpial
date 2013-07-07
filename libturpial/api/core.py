@@ -259,15 +259,15 @@ class Core:
     def get_all_friends_list(self):
         #TODO: actual error: AttributeError: AccountManager instance has no attribute 'get_all'
         """
-        Returns a list with all the :class:`libturpial.api.models.profile.Profile`
-        objects of all the users that follow all the registered accounts.
+        Returns a list with all the username friends of all the registered 
+        accounts.
         """
         friends = []
         for account in self.accman.accounts():
             for profile in account.get_following():
-                if profile not in friends:
-                    friends.append(profile)
-        self.config.save_friends([f.username for f in friends])
+                if profile.username not in friends:
+                    friends.append(profile.username)
+        self.config.save_friends(friends)
         return friends
 
     def load_all_friends_list(self):
