@@ -51,7 +51,7 @@ class Profile:
         self.muted = False
 
     def __repr__(self):
-        return "libturpial.api.models.Profile "+self.username
+        return "libturpial.api.models.Profile %" % (self.username)
 
     def is_me(self):
         """

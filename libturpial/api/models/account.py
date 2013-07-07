@@ -90,7 +90,7 @@ class Account(object):
             self.protocol = identica.Main()
 
     def __repr__(self):
-        return "libturpial.api.models.Account "+self.username+"-"+self.protocol_id
+        return "libturpial.api.models.Account %s-%s" % (self.username, self.protocol_id)
 
     def __setup(self, username):
         self.id_ = build_account_id(username, self.protocol_id)
