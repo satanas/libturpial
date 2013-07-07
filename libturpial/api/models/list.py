@@ -27,4 +27,4 @@ class List:
         self.plural_unit = None
 
     def __repr__(self):
-        return "libturpial.api.models.List %" % (self.slug)
+        return "libturpial.api.models.List %s" % (self.id_)

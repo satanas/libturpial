@@ -26,4 +26,4 @@ class Column:
         self.plural_unit = plural_unit
 
     def __repr__(self):
-        return "libturpial.api.models.Column %" % (self.id_)
+        return "libturpial.api.models.Column %s" % (self.id_)
