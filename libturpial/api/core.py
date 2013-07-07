@@ -54,6 +54,9 @@ class Core:
     >>> for object in response:
     >>>     print object
 
+    In all the following functions the following apply:
+        *account_id* must be a string ("username-service")
+        *column_id* must be a string ("columnname-username-service")
     """
 
     def __init__(self):
@@ -127,7 +130,6 @@ class Core:
         return self.accman.unregister(account_id, delete_all)
 
     def all_columns(self):
-        # TODO: add __str__ function to libturpial.api.models.column.Column objects
         """
         Returns a dictionary with all columns per account. Example:
 
@@ -204,6 +206,7 @@ class Core:
         *count* let you specify how many statuses do you want to fetch, values
         range goes from 0-200. If *since_id* is not **None** libturpial will
         only fetch statuses newer than that.
+
         """
         if column_id.find(ColumnType.SEARCH) == 0:
             criteria = column_id[len(ColumnType.SEARCH) + 1:]
@@ -240,7 +243,6 @@ class Core:
         return account.get_public_timeline(count, since_id)
 
     def get_followers(self, account_id, only_id=False):
-        # TODO: define __str__ function for in libturpial.api.models.profile.Profile Class
         """
         Returns a :class:`libturpial.api.models.profile.Profile` list with 
         all the followers of the account *account_id*
@@ -257,7 +259,6 @@ class Core:
         return account.get_following(only_id)
 
     def get_all_friends_list(self):
-        #TODO: actual error: AttributeError: AccountManager instance has no attribute 'get_all'
         """
         Returns a list with all the :class:`libturpial.api.models.profile.Profile`
         objects of all the users that follow all the registered accounts.
@@ -300,7 +301,6 @@ class Core:
         return account.update_status(text, in_reply_id)
 
     def broadcast_status(self, account_id_array, text):
-        # TODO: add __str__ to libturpial.api.models.account.Account 
         """
         Updates all the accounts in account_id_array with the content of *text*
 
@@ -416,7 +416,6 @@ class Core:
         return account.report_as_spam(username)
 
     def mute(self, username):
-        # TODO: this applies to all the registered accounts?
         """
         Adds *username* into the muted list, so that no more statuses from
         that account are shown

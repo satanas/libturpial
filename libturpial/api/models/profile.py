@@ -50,6 +50,9 @@ class Profile:
         self.verified = False
         self.muted = False
 
+    def __repr__(self):
+        return "libturpial.api.models.Profile "+self.username
+
     def is_me(self):
         """
         Return `True` if the username of the profile is the same of the
