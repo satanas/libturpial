@@ -5,12 +5,12 @@
 # Author: Andrea Stagi (aka 4ndreaSt4gi)
 # 2010-08-01
 
-import os
 import re
 import logging
 import requests
 
 from libturpial.lib.interfaces.service import GenericService
+
 
 class PreviewMediaService(GenericService):
     def __init__(self):

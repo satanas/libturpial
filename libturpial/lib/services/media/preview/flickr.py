@@ -3,9 +3,10 @@
 """Flic.kr show media content service"""
 
 import httplib
+import re
 
-from libturpial.api.models.media import *
-from libturpial.lib.services.media.preview.base import *
+from libturpial.api.models.media import Media
+from libturpial.lib.services.media.preview.base import PreviewMediaService
 
 API_KEY = '0cfe8dd171816a484b9def6cc27aec31'
 
@@ -14,7 +15,12 @@ class FlickrMediaContent(PreviewMediaService):
     def __init__(self):
         PreviewMediaService.__init__(self)
         self.url_pattern = "(http(s)?://)?flic.kr"
-        self.xml_pattern = re.compile('label="Original" width="(.*)" height="(.*)" source="(.*)" url="(.*)" media="(.*)"')
+        self.xml_pattern = re.compile(r'''label="Original"\s
+                                      width="(.*)"\s  # The width of the image
+                                      height="(.*)"\s # The height of the image
+                                      source="(.*)"\s # Image's source
+                                      url="(.*)"\s    # The URL
+                                      media="(.*)"''', re.VERBOSE)
         self.resp_pattern = re.compile('/photos/(.*)/(.*)/')
 
     def do_service(self, url):
@@ -31,7 +37,9 @@ class FlickrMediaContent(PreviewMediaService):
             else:
                 url = l
 
-        req_url = 'http://api.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=%s&photo_id=%s' % (API_KEY, photo_id)
+        api_base = "http://api.flickr.com/services/rest"
+        api_method = "/?method=flickr.photos.getSizes&api_key=%s&photo_id=%s"
+        req_url = "".join([api_base, api_method]) % (API_KEY, photo_id)
         xml = self._get_content_from_url(req_url)
         resp = self.xml_pattern.search(xml)
         media_content_url = resp.groups(0)[2]

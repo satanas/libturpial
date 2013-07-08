@@ -12,8 +12,10 @@ class Profile:
     :ivar location: User location
     :ivar url: User URL
     :ivar bio: User bio or description
-    :ivar following: Indicate if the user is following to the account_id owner (`True`or `False`)
-    :ivar follow_request: Indicate if there is a pending follow request of this profile
+    :ivar following: Indicate if the user is following to the account_id
+                     owner (`True`or `False`)
+    :ivar follow_request: Indicate if there is a pending follow request
+                          of this profile
     :ivar followers_count: Number of followers of this user
     :ivar friends_count: Number of friends of this user
     :ivar favorites_count: Number of favorite statuses of this user
@@ -53,7 +55,7 @@ class Profile:
     def is_me(self):
         """
         Return `True` if the username of the profile is the same of the
-        associated account, otherwise `False`. This method can be useful to 
+        associated account, otherwise `False`. This method can be useful to
         determinate if a status belongs to given account.
         """
         if self.username == self.account_id.split('-')[0]:

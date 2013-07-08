@@ -8,7 +8,8 @@
 import os
 import sys
 
-from libturpial.common import *
+from libturpial.common import (OS_LINUX, OS_WINDOWS, OS_MAC, OS_JAVA,
+                               OS_UNKNOWN, URL_PATTERN)
 
 
 def clean_bytecodes(root_path, logger=None):

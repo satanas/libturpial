@@ -2,7 +2,19 @@
 
 """ Twitter implementation for Turpial"""
 
-from libturpial.exceptions import *
+from libturpial.exceptions import (AccountSuspended,
+                                   StatusMessageTooLong,
+                                   StatusDuplicated,
+                                   ResourceNotFound,
+                                   ServiceOverCapacity,
+                                   InternalServerError,
+                                   ServiceDown,
+                                   InvalidOrMissingCredentials,
+                                   InvalidOrMissingArguments,
+                                   BadOAuthTimestamp,
+                                   ErrorSendingDirectMessage,
+                                   RateLimitExceeded,
+                                   InvalidOAuthToken)
 from libturpial.api.models.list import List
 from libturpial.api.models.status import Status
 from libturpial.api.models.entity import Entity
@@ -17,6 +29,7 @@ from libturpial.common import NUM_STATUSES, StatusColumn, build_account_id
 # TODO:
 # * Use trim_user wherever we can to improve performance
 # * Implement trends
+
 
 class Main(Protocol):
     """Twitter implementation for libturpial"""
@@ -42,7 +55,7 @@ class Main(Protocol):
         if type(response) == list:
             return
 
-        if response.has_key('errors'):
+        if 'errors' in response:
             print response
             code = response['errors'][0]['code']
             if code == 32 or code == 215 or code == 401:
@@ -70,7 +83,6 @@ class Main(Protocol):
             elif code == 502:
                 raise ServiceDown
 
-
     def initialize_http(self):
         self.http = TurpialHTTPOAuth(self.base_url, OAUTH_OPTIONS)
 
@@ -88,7 +100,7 @@ class Main(Protocol):
     def authorize_token(self, pin):
         self.http.authorize_token(pin)
         self.http.set_token_info(self.http.token.key, self.http.token.secret,
-            self.http.token.verifier)
+                                 self.http.token.verifier)
         return self.verify_credentials()
 
     def get_oauth_token(self):
@@ -173,7 +185,7 @@ class Main(Protocol):
 
         while 1:
             rtn = self.http.get('/statuses/show', {'id': status_id,
-                               'include_entities': True})
+                                'include_entities': True})
             conversation.append(self.json_to_status(rtn,
                                 StatusColumn.CONVERSATION))
 
@@ -185,7 +197,7 @@ class Main(Protocol):
 
     def get_status(self, status_id):
         rtn = self.http.get('/statuses/show', {'id': status_id,
-                           'include_entities': True})
+                            'include_entities': True})
         self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
@@ -216,7 +228,8 @@ class Main(Protocol):
 
                     # Fetch user details (up to 100 for each request)
                     user_ids = ','.join([str(x) for x in batch])
-                    rtn2 = self.http.get('/users/lookup', {'user_id': user_ids})
+                    rtn2 = self.http.get('/users/lookup',
+                                         {'user_id': user_ids})
                     for user in rtn2:
                         followers.append(self.json_to_profile(user))
                     if current == total:
@@ -256,7 +269,8 @@ class Main(Protocol):
 
                     # Fetch user details (up to 100 for each request)
                     user_ids = ','.join([str(x) for x in batch])
-                    rtn2 = self.http.get('/users/lookup', {'user_id': user_ids})
+                    rtn2 = self.http.get('/users/lookup',
+                                         {'user_id': user_ids})
                     for user in rtn2:
                         following.append(self.json_to_profile(user))
                     if current == total:
@@ -273,8 +287,8 @@ class Main(Protocol):
         rtn = self.http.get('/users/show', {'screen_name': user})
         profile = self.json_to_profile(rtn)
         rtn = self.http.get('/statuses/user_timeline',
-                           {'screen_name': user, 'count': 10,
-                           'include_entities': True})
+                            {'screen_name': user, 'count': 10,
+                             'include_entities': True})
         profile.recent_updates = self.json_to_status(rtn)
         return profile
 
@@ -324,7 +338,7 @@ class Main(Protocol):
 
     def destroy_status(self, status_id):
         rtn = self.http.post('/statuses/destroy', {'id': status_id,
-                           'include_entities': True})
+                             'include_entities': True})
         self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
@@ -337,13 +351,13 @@ class Main(Protocol):
 
     def mark_as_favorite(self, status_id):
         rtn = self.http.post('/favorites/create', {'id': status_id,
-                           'include_entities': True}, id_in_url=False)
+                             'include_entities': True}, id_in_url=False)
         self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def unmark_as_favorite(self, status_id):
         rtn = self.http.post('/favorites/destroy', {'id': status_id,
-                           'include_entities': True}, id_in_url=False)
+                             'include_entities': True}, id_in_url=False)
         self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
@@ -358,7 +372,7 @@ class Main(Protocol):
 
     def unfollow(self, screen_name):
         rtn = self.http.post('/friendships/destroy',
-                           {'screen_name': screen_name})
+                             {'screen_name': screen_name})
         self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
@@ -370,8 +384,9 @@ class Main(Protocol):
         return self.json_to_status(rtn)
 
     def destroy_direct_message(self, direct_message_id):
-        rtn = self.http.post('/direct_messages/destroy', {'id': direct_message_id,
-                           'include_entities': True})
+        rtn = self.http.post('/direct_messages/destroy',
+                             {'id': direct_message_id,
+                              'include_entities': True})
         self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
@@ -386,7 +401,8 @@ class Main(Protocol):
         return self.json_to_profile(rtn)
 
     def report_as_spam(self, screen_name):
-        rtn = self.http.post('/users/report_spam', {'screen_name': screen_name})
+        rtn = self.http.post('/users/report_spam',
+                             {'screen_name': screen_name})
         self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
@@ -402,8 +418,8 @@ class Main(Protocol):
 
     def is_friend(self, user):
         result = self.http.get('/friendships/show',
-                              {'source_screen_name': self.uname,
-                              'target_screen_name': user})
+                               {'source_screen_name': self.uname,
+                                'target_screen_name': user})
         return result['relationship']['target']['following']
 
     def get_profile_image(self, user):
@@ -446,7 +462,8 @@ class Main(Protocol):
             if 'status' in response:
                 profile.last_update = response['status']['text']
                 profile.last_update_id = response['status']['id']
-            profile.link_color = ('#' + response['profile_link_color']) or Profile.DEFAULT_LINK_COLOR
+            profile.link_color = ('#' + response['profile_link_color']) or \
+                Profile.DEFAULT_LINK_COLOR
             return profile
 
     def json_to_status(self, response, column_id='', type_=Status.NORMAL):
@@ -493,7 +510,8 @@ class Main(Protocol):
 
             in_reply_to_id = None
             in_reply_to_user = None
-            if 'in_reply_to_status_id' in post and post['in_reply_to_status_id']:
+            if 'in_reply_to_status_id' in post and \
+                    post['in_reply_to_status_id']:
                 in_reply_to_id = post['in_reply_to_status_id']
                 if 'in_reply_to_screen_name' in post:
                     in_reply_to_user = post['in_reply_to_screen_name']
@@ -559,7 +577,7 @@ class Main(Protocol):
                 trends.append(trend)
             return trends
         else:
-            trend = Trend()
+            trend = Trend()  # FIXME
             trend.name = response['name']
             trend.promoted = False
             if response['promoted_content']:

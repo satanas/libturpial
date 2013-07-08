@@ -6,12 +6,16 @@ import os
 import urllib2
 import requests
 
-from libturpial.common import *
-from libturpial.exceptions import *
+from libturpial.common import (NUM_STATUSES,
+                               ColumnType,
+                               is_preview_service_supported,
+                               get_preview_service_from_url)
+from libturpial.exceptions import (URLAlreadyShort,
+                                   NoURLToShorten,
+                                   PreviewServiceNotSupported,
+                                   UserListNotFound)
 from libturpial.config import AppConfig
 from libturpial.common.tools import get_urls
-from libturpial.api.models.column import Column
-from libturpial.api.models.account import Account
 from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.services.url import URL_SERVICES
 from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
@@ -22,13 +26,13 @@ from libturpial.api.managers.columnmanager import ColumnManager
 
 class Core:
     """
-    This is the main object in libturpial. This should be the only class you need to
-    instantiate to use libturpial. Most important arguments used in Core are
-    *account_id* and *column_id*.
+    This is the main object in libturpial. This should be the only class you
+    need to instantiate to use libturpial. Most important arguments used in
+    Core are *account_id* and *column_id*.
 
-    * account_id: Is a composite string formed by the **username** and the 
+    * account_id: Is a composite string formed by the **username** and the
       **protocol_id** that identify every single account.
-    * column_id: Is composite string formed by **account_id** and the 
+    * column_id: Is composite string formed by **account_id** and the
       **column_name** that identify one column of one account.
 
     Examples of account_id:
@@ -42,17 +46,18 @@ class Core:
     >>> identica_replies = 'foo-identica-replies'
 
     When you instantiate Core it will load all registered accounts
-    automatically, so you don't need to worry about it. If you already registered the
-    accounts before, they will be available after you create the core object.
+    automatically, so you don't need to worry about it. If you already
+    registered the accounts before, they will be available after you create
+    the core object.
 
-    All the Core methods will return an object defined in 
-    :class:`libturpial.api.models` or a valid python object if request is 
+    All the Core methods will return an object defined in
+    :class:`libturpial.api.models` or a valid python object if request is
     successful, otherwise they will raise an exception.
 
     If the request returns an array, you can iterate over the elements with:
 
-    >>> for object in response:
-    >>>     print object
+    >>> for element in timeline:
+    >>>     print element
 
     """
 
@@ -117,8 +122,8 @@ class Core:
 
     def unregister_account(self, account_id, delete_all=False):
         """
-        Removes the account identified by *account_id* from memory. If 
-        *delete_all* is **True** it deletes all the files asociated to 
+        Removes the account identified by *account_id* from memory. If
+        *delete_all* is **True** it deletes all the files asociated to
         that account from disk otherwise the account will be available
         the next time you load Core.
 
@@ -127,7 +132,8 @@ class Core:
         return self.accman.unregister(account_id, delete_all)
 
     def all_columns(self):
-        # TODO: add __str__ function to libturpial.api.models.column.Column objects
+        # TODO: add __str__ function to libturpial.api.models.column.Column
+        # objects
         """
         Returns a dictionary with all columns per account. Example:
 
@@ -140,10 +146,9 @@ class Core:
                 columns[account.id_].append(column)
         return columns
 
-
     def register_column(self, column_id):
         """
-        Register a column identified by *column_id* column and return a string 
+        Register a column identified by *column_id* column and return a string
         with the id of the column registered on success.
         """
         return self.column_manager.register(column_id)
@@ -163,10 +168,8 @@ class Core:
         """
         return Protocol.availables()
 
-
     def available_columns(self):
-        """
-        Returns a dictionary with all registered (non-registered-yet)
+        """Returns a dictionary with all registered (non-registered-yet)
         columns per account. Example:
 
         >>> {'foo-twitter': ['timeline', 'direct', 'sent', 'favorites']}
@@ -200,10 +203,10 @@ class Core:
     def get_column_statuses(self, account_id, column_id,
                             count=NUM_STATUSES, since_id=None):
         """
-        Fetch the statuses for the account *account_id* and the column *column_id*.
-        *count* let you specify how many statuses do you want to fetch, values
-        range goes from 0-200. If *since_id* is not **None** libturpial will
-        only fetch statuses newer than that.
+        Fetch the statuses for the account *account_id* and the column
+        *column_id*. *count* let you specify how many statuses do you want to
+        fetch, values range goes from 0-200. If *since_id* is not **None**
+        libturpial will only fetch statuses newer than that.
         """
         if column_id.find(ColumnType.SEARCH) == 0:
             criteria = column_id[len(ColumnType.SEARCH) + 1:]
@@ -229,7 +232,8 @@ class Core:
             rtn = account.get_list_statuses(list_id, count, since_id)
         return rtn
 
-    def get_public_timeline(self, account_id, count=NUM_STATUSES, since_id=None):
+    def get_public_timeline(self, account_id, count=NUM_STATUSES,
+                            since_id=None):
         # TODO: Remove this function and replace with streamming api
         """
         Fetch the public timeline for the service associated to the
@@ -240,9 +244,10 @@ class Core:
         return account.get_public_timeline(count, since_id)
 
     def get_followers(self, account_id, only_id=False):
-        # TODO: define __str__ function for in libturpial.api.models.profile.Profile Class
+        # TODO: define __str__ function for
+        # in libturpial.api.models.profile.Profile Class
         """
-        Returns a :class:`libturpial.api.models.profile.Profile` list with 
+        Returns a :class:`libturpial.api.models.profile.Profile` list with
         all the followers of the account *account_id*
         """
         account = self.accman.get(account_id)
@@ -250,17 +255,19 @@ class Core:
 
     def get_following(self, account_id, only_id=False):
         """
-        Returns a :class:`libturpial.api.models.profile.Profile` list of 
+        Returns a :class:`libturpial.api.models.profile.Profile` list of
         all the accounts that *account_id* follows
         """
         account = self.accman.get(account_id)
         return account.get_following(only_id)
 
     def get_all_friends_list(self):
-        #TODO: actual error: AttributeError: AccountManager instance has no attribute 'get_all'
+        # TODO: actual error: AttributeError: AccountManager instance has no
+        # attribute 'get_all'
         """
-        Returns a list with all the :class:`libturpial.api.models.profile.Profile`
-        objects of all the users that follow all the registered accounts.
+        Returns a list with all the
+        :class:`libturpial.api.models.profile.Profile` objects of all the
+        users that follow all the registered accounts.
         """
         friends = []
         for account in self.accman.accounts():
@@ -294,21 +301,22 @@ class Core:
         """
         Updates the account *account_id* with content of *text*
 
-        if in_reply_id is not None, specifies the tweets that is being answered.
+        if in_reply_id is not None, specifies the tweets that is being
+        answered.
         """
         account = self.accman.get(account_id)
         return account.update_status(text, in_reply_id)
 
     def broadcast_status(self, account_id_array, text):
-        # TODO: add __str__ to libturpial.api.models.account.Account 
+        # TODO: add __str__ to libturpial.api.models.account.Account
         """
         Updates all the accounts in account_id_array with the content of *text*
 
-        if account_id_array is None or an empty list all registered accounts 
+        if account_id_array is None or an empty list all registered accounts
         get updated.
         """
         if not account_id_array:
-            account_id_array=self.registered_accounts()
+            account_id_array = self.registered_accounts()
 
         response = {}
         for account_id in account_id_array:
@@ -328,7 +336,8 @@ class Core:
 
     def get_single_status(self, account_id, status_id):
         """
-        Retrieves a single status with *account_id* that corresponds with *status_id*
+        Retrieves a single status with *account_id* that corresponds with
+        *status_id*
         """
         account = self.accman.get(account_id)
         return account.get_status(status_id)
@@ -356,7 +365,8 @@ class Core:
 
     def send_direct_message(self, account_id, username, message):
         """
-        Sends a direct update with the contant of *message* to *username* using *account_id*
+        Sends a direct update with the contant of *message* to *username* using
+        *account_id*
         """
         account = self.accman.get(account_id)
         return account.send_direct_message(username, message)
@@ -369,9 +379,10 @@ class Core:
         return account.destroy_direct_message(status_id)
 
     def update_profile(self, account_id, fullname=None, url=None, bio=None,
-            location=None):
+                       location=None):
         """
-        Updates the *account_id* public profile with the information in variables
+        Updates the *account_id* public profile with the information in
+        variables
         fullname = Complete account name
         url = Blog or personal URL of the account
         bio = Small resume
@@ -426,7 +437,7 @@ class Core:
 
     def unmute(self, username):
         """
-        Removes *username* from the muted list, so that statuses from 
+        Removes *username* from the muted list, so that statuses from
         that account are now shown
         """
         self.config.remove_filter('@%s' % username)
@@ -434,12 +445,14 @@ class Core:
 
     def verify_friendship(self, account_id, username):
         """
-        Check if *username* is on only followed by *account_id* but if he also follows *account_id*
+        Check if *username* is on only followed by *account_id* but if he also
+        follows *account_id*
         """
         account = self.accman.get(account_id)
         return account.is_friend(username)
 
-    def search(self, account_id, query, count=NUM_STATUSES, since_id=None, extra=None):
+    def search(self, account_id, query, count=NUM_STATUSES, since_id=None,
+               extra=None):
         """
         Performs a search using Twitter API, defined by:
         account_id = Account to be used for the search
@@ -455,7 +468,8 @@ class Core:
 
     def get_profile_image(self, account_id, username):
         """
-        Returns the local path to a the profile image of *username* in original size
+        Returns the local path to a the profile image of *username* in original
+        size
         """
         account = self.accman.get(account_id)
         basename = "%s-%s-profile-image" % (account_id, username)
@@ -469,10 +483,12 @@ class Core:
 
     def get_status_avatar(self, status):
         """
-        Returns the local path to a the profile image of the username to post *status* in 48x48 px size
+        Returns the local path to a the profile image of the username to post
+        *status* in 48x48 px size
         """
         account = self.accman.get(status.account_id)
-        basename = "%s-%s-avatar-%s" % (status.account_id, status.username, os.path.basename(status.avatar))
+        basename = "%s-%s-avatar-%s" % (status.account_id, status.username,
+                                        os.path.basename(status.avatar))
         img_destination_path = os.path.join(account.config.imgdir, basename)
         if not os.path.isfile(img_destination_path):
             fp = open(img_destination_path, 'w')

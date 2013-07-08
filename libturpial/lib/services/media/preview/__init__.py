@@ -2,13 +2,13 @@
 
 """A list containing all show media services"""
 
-from libturpial.lib.services.media.preview.imgur import ImgurMediaContent
-from libturpial.lib.services.media.preview.lockerz import LockerzMediaContent
-from libturpial.lib.services.media.preview.twitpic import TwitpicMediaContent
-from libturpial.lib.services.media.preview.yfrog import YfrogMediaContent
-from libturpial.lib.services.media.preview.pictwitter import PicTwitterMediaContent
-from libturpial.lib.services.media.preview.viame import ViameMediaContent
-from libturpial.lib.services.media.preview.flickr import FlickrMediaContent
+from .imgur import ImgurMediaContent
+from .lockerz import LockerzMediaContent
+from .twitpic import TwitpicMediaContent
+from .yfrog import YfrogMediaContent
+from .pictwitter import PicTwitterMediaContent
+from .viame import ViameMediaContent
+from .flickr import FlickrMediaContent
 
 PREVIEW_MEDIA_SERVICES = {
     'imgur': ImgurMediaContent(),

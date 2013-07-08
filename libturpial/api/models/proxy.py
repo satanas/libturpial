@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
+
 class Proxy:
     """
     This class models the information of a proxy server used to establish an
     HTTP connection. *host* and *port* are required. For an authenticated
-    proxy set *username* and *password* with according credentilas and if 
-    proxy uses HTTPS set *secure* to **True**, otherwise let it empty or 
+    proxy set *username* and *password* with according credentilas and if
+    proxy uses HTTPS set *secure* to **True**, otherwise let it empty or
     **False**
 
     For example, to store the information of a non-authenticated HTTPS proxy:

@@ -4,8 +4,8 @@
 
 import json
 
-from libturpial.api.models.media import *
-from libturpial.lib.services.media.preview.base import *
+from libturpial.api.models.media import Media
+from libturpial.lib.services.media.preview.base import PreviewMediaService
 
 API_KEY = '7ea1d30de2992c783a567df86faa388e'
 

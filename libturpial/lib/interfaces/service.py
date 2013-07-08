@@ -8,6 +8,7 @@ try:
 except ImportError:
     import simplejson as json
 
+
 class GenericService:
     def __init__(self):
         self.log = logging.getLogger('Service')
