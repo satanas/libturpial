@@ -56,8 +56,9 @@ class Core:
 
     If the request returns an array, you can iterate over the elements with:
 
-    >>> for element in timeline:
-    >>>     print element
+    >>> core = Core()
+    >>> followers = core.get_followers('username-protocol')
+    >>> [follower for follower in followers]
 
     """
 
