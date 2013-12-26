@@ -22,10 +22,10 @@ class Main(Protocol):
     """Twitter implementation for libturpial"""
     def __init__(self):
         self.id_ = 'twitter'
-        self.base_url = 'http://api.twitter.com/1.1'
-        self.search_url = 'http://api.twitter.com/1.1'
-        self.hashtags_url = 'http://twitter.com/search?q=%23'
-        self.profiles_url = 'http://www.twitter.com'
+        self.base_url = 'https://api.twitter.com/1.1'
+        self.search_url = 'https://api.twitter.com/1.1'
+        self.hashtags_url = 'https://twitter.com/search?q=%23'
+        self.profiles_url = 'https://www.twitter.com'
 
         Protocol.__init__(self)
 
