@@ -628,6 +628,6 @@ class Core:
 
     def get_cache_size(self):
         total_size = 0
-        for account in self.all_accounts():
+        for account in self.registered_accounts():
             total_size += account.get_cache_size()
         return total_size
