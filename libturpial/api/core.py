@@ -308,7 +308,7 @@ class Core:
         get updated.
         """
         if not account_id_array:
-            account_id_array=self.registered_accounts()
+            account_id_array = [acc.id_ for acc in self.registered_accounts()]
 
         response = {}
         for account_id in account_id_array:
