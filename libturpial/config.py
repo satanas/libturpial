@@ -322,10 +322,9 @@ class AccountConfig(ConfigBase):
         return True
 
 
-    def save_oauth_credentials(self, key, secret, verifier):
+    def save_oauth_credentials(self, key, secret):
         self.write('OAuth', 'key', key)
         self.write('OAuth', 'secret', secret)
-        self.write('OAuth', 'verifier', verifier)
 
     def load_oauth_credentials(self):
         key = self.read('OAuth', 'key')

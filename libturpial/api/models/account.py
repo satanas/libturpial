@@ -181,7 +181,7 @@ class Account(object):
         self.config = AccountConfig(self.id_)
         token = self.get_oauth_token()
         if token:
-            self.config.save_oauth_credentials(token.key, token.secret, token.verifier)
+            self.config.save_oauth_credentials(token.key, token.secret)
 
     def fetch(self):
         """
