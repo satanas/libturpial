@@ -305,7 +305,7 @@ class AccountConfig(ConfigBase):
 
         try:
             self.load()
-        except Except, exc:
+        except Exception, exc:
             self.load_failsafe()
 
         if not self.exists(account_id):
