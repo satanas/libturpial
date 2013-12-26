@@ -19,9 +19,9 @@ class Status:
     :ivar timestamp: Time of publishing of this status (Unix time)
     :ivar in_reply_to_id: Contains the id of the status answered (if any)
     :ivar in_reply_to_user: Contains the user answered with status (if any)
-    :ivar favorited: `True` if this status has been marked as favorite. `False` otherwise
-    :ivar protected: `True` if this status is from a protected account. `False` otherwise
-    :ivar verified: `True` if this status is from a verified account. `False` otherwise
+    :ivar is_favorite: `True` if this status has been marked as favorite. `False` otherwise
+    :ivar is_protected: `True` if this status is from a protected account. `False` otherwise
+    :ivar is_verified: `True` if this status is from a verified account. `False` otherwise
     :ivar repeated: `True` if this status has been repeated (retweeted) by you. `False` otherwise
     :ivar repeated_by: More users that have repeated this status
     :ivar repeated_count: How much times this status has been repeated
@@ -56,9 +56,9 @@ class Status:
         self.timestamp = None   # Store the timestamp in Unix time
         self.in_reply_to_id = None
         self.in_reply_to_user = None
-        self.favorited = False  # Status has been favorited
-        self.protected = False  # Status comes from a protected account
-        self.verified = False   # Status comes from a verified account
+        self.is_favorite = False  # Status has been favorited
+        self.is_protected = False  # Status comes from a protected account
+        self.is_verified = False   # Status comes from a verified account
         self.repeated = False   # Status has been repeated by user
         self.repeated_by = None     # Indicates if it is a repeated status
         self.repeated_count = None  # How much repeats get the status
