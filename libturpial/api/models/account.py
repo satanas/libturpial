@@ -215,8 +215,11 @@ class Account(object):
         return self.columns
 
     def get_list_id(self, list_name):
+        if not self.lists:
+            return None
+
         for li in self.lists:
-            if li.name == list_name:
+            if li.slug == list_name:
                 return li.id_
         return None
 
