@@ -70,42 +70,25 @@ class Core:
         if len(filtered_terms) == 0:
             return statuses
 
-        try:
-         for status in statuses:
-            print "\tstatus =", status
+        for status in statuses:
             matched = False
             for term in map(lambda x: x.lower(), filtered_terms):
-                print "\t\tterm =", term
                 if term.startswith('@'):
-                    print "\t\t\tempieza con arroba"
-                    print "\t\t\t( status.username = ", status.username, ")"
                     # Filter statuses by user
                     if status.username.lower() == term[1:]:
-                        print "\t\t\t\tel nombre coincide"
                         matched = True
                         break
                     # Filter statuses repeated by filtered users
                     elif status.repeated_by:
-                        print "\t\t\t\tes reposted_by"
                         if status.repeated_by.lower().find(term[1:]) >= 0:
-                            print "\t\t\t\t\tlo ha encontrado"
                             matched = True
                             break
-                        print "\t\t\t\t\tno lo ha encontrado"
-                    print "\t\t\t\ty no hay coincidencias"
                 else:
-                    print "\t\t\tno empieza con arroba"
                     if status.text.lower().find(term) >= 0:
-                        print "\t\t\t\tha encontrado la palabreja en el texto"
                         matched = True
                         break
-                    print "\t\t\t\tno hay coincidencias con el filtro"
             if not matched:
                 filtered_statuses.append(status)
-		print "\tstatus anyadido!"
-        except Exception as e:
-         print e
-
         return filtered_statuses
 
     def fetch_image(self, url):
