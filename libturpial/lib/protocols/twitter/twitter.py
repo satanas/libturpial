@@ -78,7 +78,7 @@ class Main(Protocol):
         self.account_id = account_id
         self.uname = account_id.split('-')[0]
 
-    def setup_user_credentials(self, account_id, key, secret, verifier):
+    def setup_user_credentials(self, account_id, key, secret, verifier=None):
         self.setup_user_info(account_id)
         self.http.set_token_info(key, secret, verifier)
 

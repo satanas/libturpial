@@ -321,10 +321,12 @@ class AccountConfig(ConfigBase):
         return True
 
 
-    def save_oauth_credentials(self, key, secret):
+    # FIXME: Remove verifier in the next stable version
+    def save_oauth_credentials(self, key, secret, verifier=None):
         self.write('OAuth', 'key', key)
         self.write('OAuth', 'secret', secret)
 
+    # FIXME: Remove verifier in the next stable version
     def load_oauth_credentials(self):
         key = self.read('OAuth', 'key')
         secret = self.read('OAuth', 'secret')
