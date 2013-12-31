@@ -513,6 +513,7 @@ class Main(Protocol):
             status = Status()
             status.id_ = str(post['id'])
             status.original_status_id = retweeted_id
+            status.created_at = post['created_at']
             status.username = username
             status.avatar = avatar
             status.text = post['text']

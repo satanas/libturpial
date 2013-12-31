@@ -26,6 +26,7 @@ class Status:
     :ivar repeated_by: More users that have repeated this status
     :ivar repeated_count: How much times this status has been repeated
     :ivar original_status_id: Id of the original status (not-repeated)
+    :ivar created_at: Original timestamp from the service
     :ivar datetime: Humanized representation of the date/time of this status
     :ivar is_own: `True` if the status belongs to the same user of the associated account. `False` otherwise
     :ivar entities: A dict with all the entities found in status
@@ -68,6 +69,7 @@ class Status:
         self.account_id = None
         self.entities = {}
         self.original_status_id = None
+        self.created_at = None
 
     def get_mentions(self):
         """
