@@ -66,7 +66,6 @@ APP_CFG = {
 
 ACCOUNT_CFG = {
     'OAuth':{
-        'verifier': '',
         'key': '',
         'secret': '',
     },
@@ -329,16 +328,14 @@ class AccountConfig(ConfigBase):
     def load_oauth_credentials(self):
         key = self.read('OAuth', 'key')
         secret = self.read('OAuth', 'secret')
-        verifier = self.read('OAuth', 'verifier')
-        if key and secret and verifier:
-            return key, secret, verifier
+        if key and secret:
+            return key, secret
         else:
             raise EmptyOAuthCredentials
 
     def forget_oauth_credentials(self):
         self.write('OAuth', 'key', '')
         self.write('OAuth', 'secret', '')
-        self.write('OAuth', 'verifier', '')
 
     def transform(self, pw, us):
         a = base64.b16encode(pw)
