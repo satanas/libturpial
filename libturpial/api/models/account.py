@@ -127,7 +127,7 @@ class Account(object):
             None information is stored at disk at this point.
         """
         account = Account(protocol_id, username)
-        account.setup_user_credentials(account.id_, key, secret, verifier)
+        account.setup_user_credentials(account.id_, key, secret)
         return account
 
     @staticmethod
@@ -149,8 +149,8 @@ class Account(object):
 
         account = Account.new(protocol_id, username)
         account.config = AccountConfig(account_id)
-        key, secret, verifier = account.config.load_oauth_credentials()
-        account.setup_user_credentials(account.id_, key, secret, verifier)
+        key, secret = account.config.load_oauth_credentials()
+        account.setup_user_credentials(account.id_, key, secret)
         account.fetch()
         return account
 
