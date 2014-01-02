@@ -386,21 +386,27 @@ class Core:
         Makes *account_id* a follower of *username*
         """
         account = self.accman.get(account_id)
-        return account.follow(username, by_id)
+        response = account.follow(username, by_id)
+        self.add_friend(username)
+        return response
 
     def unfollow(self, account_id, username):
         """
         Stops *account_id* from being a follower of *username*
         """
         account = self.accman.get(account_id)
-        return account.unfollow(username)
+        response = account.unfollow(username)
+        self.remove_friend(username)
+        return response
 
     def block(self, account_id, username):
         """
         Blocks *username* in *account_id*
         """
         account = self.accman.get(account_id)
-        return account.block(username)
+        response = account.block(username)
+        self.remove_friend(username)
+        return response
 
     def unblock(self, account_id, username):
         """
@@ -414,7 +420,9 @@ class Core:
         Reports *username* as SPAM using *account_id*
         """
         account = self.accman.get(account_id)
-        return account.report_as_spam(username)
+        response = account.report_as_spam(username)
+        self.remove_friend(username)
+        return response
 
     def mute(self, username):
         """
@@ -632,3 +640,14 @@ class Core:
         for account in self.registered_accounts():
             total_size += account.get_cache_size()
         return total_size
+
+    def add_friend(self, username):
+        friends = self.config.load_friends()
+        friends.append(username)
+        self.config.save_friends(friends)
+
+    def remove_friend(self, username):
+        friends = self.config.load_friends()
+        if username in friends:
+            friends.remove(username)
+            self.config.save_friends(friends)
