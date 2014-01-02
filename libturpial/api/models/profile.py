@@ -13,6 +13,7 @@ class Profile:
     :ivar url: User URL
     :ivar bio: User bio or description
     :ivar following: Indicate if the user is following to the account_id owner (`True`or `False`)
+    :ivar followed_by: Indicate if the user is followed by the account_id owner (`True`or `False`)
     :ivar follow_request: Indicate if there is a pending follow request of this profile
     :ivar followers_count: Number of followers of this user
     :ivar friends_count: Number of friends of this user
@@ -36,6 +37,7 @@ class Profile:
         self.url = ''
         self.bio = ''
         self.following = None
+        self.followed_by = None
         self.follow_request = False
         self.followers_count = 0
         self.friends_count = 0

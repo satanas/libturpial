@@ -282,6 +282,7 @@ class Core:
         account = self.accman.get(account_id)
         if user:
             profile = account.get_profile(user)
+            profile.followed_by = account.is_friend(user)
             profile.muted = self.is_muted(profile.username)
         else:
             profile = account.profile
