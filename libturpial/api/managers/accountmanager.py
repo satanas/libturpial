@@ -69,8 +69,9 @@ class AccountManager:
         if account.id_ in self.__accounts:
             raise AccountAlreadyRegistered
         else:
-            self.__accounts[account.id_] = account
             account.save()
+            self.load(account.id_)
+
         return account.id_
 
     def unregister(self, account_id, delete_all):
