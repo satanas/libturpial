@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """Module to handle basic configuration of Turpial"""
-#
-# Author: Wil Alvarez (aka Satanas)
-# Sep 26, 2011
 
 import os
 import base64
