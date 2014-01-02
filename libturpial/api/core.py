@@ -632,7 +632,7 @@ class Core:
         self.config.delete_current_config()
 
     def delete_cache(self):
-        for account in self.all_accounts():
+        for account in self.registered_accounts():
             account.delete_cache()
 
     def get_cache_size(self):
