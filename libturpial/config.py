@@ -21,39 +21,21 @@ except:
 APP_CFG = {
     'General':{
         'update-interval': '5',
-        'profile-color': 'on',
-        'minimize-on-close': 'on',
+        'queue-interval': '30',
         'statuses': '60',
     },
-    'Window': {
-        'size': '320,480',
-        'position': '-1,-1',
-        'state': 'windowed',
-        'visibility': 'show',
-    },
     'Columns':{
-    },
-    'Notifications':{
-        'updates': 'on',
-        'login': 'on',
-        'icon': 'on',
-    },
-    'Sounds':{
-        'updates': 'on',
-        'login': 'on',
     },
     'Services':{
         'shorten-url': 'is.gd',
         'upload-pic': 'twitpic',
-    },
-    'Browser':{
-        'cmd': ''
     },
     'Proxy':{
         'username': '',
         'password': '',
         'server': '',
         'port': '',
+        'protocol': 'http',
     },
     'Advanced': {
         'socket-timeout': '20',
@@ -85,6 +67,7 @@ class ConfigBase:
             self.default = default
         self.cfg = ConfigParser.ConfigParser()
         self.filepath = ''
+        self.extra_sections = {'Guachu': {'guachu': '1'}}
 
     def create(self):
         self.log.debug('Creating configuration file')
@@ -97,22 +80,19 @@ class ConfigBase:
         _fd.close()
 
     def load(self):
+        self.__config = dict(APP_CFG)
+        self.__config.update(self.extra_sections)
+
+        print self.__config
+
         self.cfg.read(self.configpath)
 
-        for section, _v in self.default.iteritems():
+        for section in self.cfg.sections():
             if not self.__config.has_key(section):
                 self.__config[section] = {}
-            if not self.cfg.has_section(section):
-                self.write_section(section, self.default[section])
-            if section == 'Columns':
-                for item in self.cfg.items(section):
-                    self.__config[section][item[0]] = item[1]
-                continue
-            for option, value in self.default[section].iteritems():
-                if self.cfg.has_option(section, option):
-                    self.__config[section][option] = self.cfg.get(section, option)
-                else:
-                    self.write(section, option, value)
+
+            for option in self.cfg.options(section):
+                self.__config[section][option] = self.cfg.get(section, option)
 
         self.log.debug('Loaded configuration')
 
@@ -318,12 +298,12 @@ class AccountConfig(ConfigBase):
         return True
 
 
-    # FIXME: Remove verifier in the next stable version
+    # DEPRECATE: Remove verifier in the next stable version
     def save_oauth_credentials(self, key, secret, verifier=None):
         self.write('OAuth', 'key', key)
         self.write('OAuth', 'secret', secret)
 
-    # FIXME: Remove verifier in the next stable version
+    # DEPRECATE: Remove verifier in the next stable version
     def load_oauth_credentials(self):
         key = self.read('OAuth', 'key')
         secret = self.read('OAuth', 'secret')
