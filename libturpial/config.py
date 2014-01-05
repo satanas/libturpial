@@ -67,75 +67,89 @@ class ConfigBase:
             self.default = default
         self.cfg = ConfigParser.ConfigParser()
         self.filepath = ''
-        self.extra_sections = {'Guachu': {'guachu': '1'}}
+        self.extra_sections = {}
+
+    def register_extra_option(self, section, option, default_value):
+        if not self.extra_sections.has_key(section):
+            self.extra_sections[section] = {}
+        self.extra_sections[section][option] = default_value
+        self.write(section, option, default_value)
 
     def create(self):
-        self.log.debug('Creating configuration file')
-        _fd = open(self.configpath, 'w')
         for section, v in self.default.iteritems():
-            self.cfg.add_section(section)
             for option, value in self.default[section].iteritems():
-                self.cfg.set(section, option, value)
-        self.cfg.write(_fd)
-        _fd.close()
+                self.write(section, option, value)
 
     def load(self):
-        self.__config = dict(APP_CFG)
+        self.__config = dict(self.default)
         self.__config.update(self.extra_sections)
 
-        print self.__config
+        on_disk = {}
 
         self.cfg.read(self.configpath)
 
         for section in self.cfg.sections():
-            if not self.__config.has_key(section):
-                self.__config[section] = {}
+            if not on_disk.has_key(section):
+                on_disk[section] = {}
 
             for option in self.cfg.options(section):
-                self.__config[section][option] = self.cfg.get(section, option)
+                on_disk[section][option] = self.cfg.get(section, option)
 
-        self.log.debug('Loaded configuration')
+        self.__config.update(on_disk)
+
+        # ConfigParser doesn't store on disk empty sections, so we need to remove them
+        # just to compare against saved on disk
+        on_memory = dict(self.__config)
+        for key in on_memory.keys():
+            if on_memory[key] == {}:
+                del on_memory[key]
+
+        if on_disk != on_memory:
+            self.save()
+
 
     def load_failsafe(self):
         self.__config = self.default
-        self.log.debug('Loaded failsafe configuration')
 
-    def save(self, config):
-        self.log.debug('Saving configuration')
-        _fd = open(self.configpath, 'w')
+    def save(self, config=None):
+        if config is None:
+            config = dict(self.__config)
+
         self.__config = {}
         for section, _v in config.iteritems():
-            if not self.__config.has_key(section):
-                self.__config[section] = {}
             for option, value in config[section].iteritems():
-                self.cfg.set(section, option, value)
-                self.__config[section][option] = value
-        self.cfg.write(_fd)
-        _fd.close()
+                self.write(section, option, value)
 
     def write(self, section, option, value):
+        if not self.__config.has_key(section):
+            self.__config[section] = {}
+
+        self.__config[section][option] = value
+
         _fd = open(self.configpath, 'w')
+        if not self.cfg.has_section(section):
+            self.cfg.add_section(section)
         self.cfg.set(section, option, value)
         self.cfg.write(_fd)
         _fd.close()
-        self.__config[section][option] = value
 
     def write_section(self, section, items):
-        #self.log.debug('Writing section %s' % section)
-        _fd = open(self.configpath, 'w')
         if self.cfg.has_section(section):
             self.cfg.remove_section(section)
             self.__config[section] = {}
-        self.cfg.add_section(section)
+
         for option, value in items.iteritems():
-            self.cfg.set(section, option, value)
-            self.__config[section][option] = value
-        self.cfg.write(_fd)
-        _fd.close()
+            self.write(section, option, value)
 
     def read(self, section, option):
         try:
-            return self.__config[section][option]
+            value = self.__config[section][option]
+            if value == 'on':
+                return True
+            elif value == 'off':
+                return False
+            else:
+                return value
         except Exception:
             return None
 
@@ -250,7 +264,7 @@ class AppConfig(ConfigBase):
                 columns.append(value)
         return columns
 
-    def delete_current_config(self):
+    def delete(self):
         os.remove(self.configpath)
         self.log.debug('Deleted current config. Please restart Turpial')
 

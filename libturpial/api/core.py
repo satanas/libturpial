@@ -10,6 +10,7 @@ from libturpial.common import *
 from libturpial.exceptions import *
 from libturpial.config import AppConfig
 from libturpial.common.tools import get_urls
+from libturpial.api.models.proxy import Proxy
 from libturpial.api.models.column import Column
 from libturpial.api.models.account import Account
 from libturpial.lib.interfaces.protocol import Protocol
@@ -539,6 +540,9 @@ class Core:
     # Configuration API
     ###########################################################################
 
+    def register_new_config_option(self, section, option, default_value):
+        self.config.register_extra_option(section, option, default_value)
+
     def get_shorten_url_service(self):
         return self.config.read('Services', 'shorten-url')
 
@@ -573,27 +577,32 @@ class Core:
                 return True
         return False
 
+    # WARN: Will be deprecated on next mayor version
     def get_default_browser(self):
         return self.config.read('Browser', 'cmd')
 
+    # WARN: Will be deprecated on next mayor version
     def show_notifications_in_login(self):
         temp = self.config.read('Notifications', 'login')
         if temp == 'on':
             return True
         return False
 
+    # WARN: Will be deprecated on next mayor version
     def show_notifications_in_updates(self):
         temp = self.config.read('Notifications', 'updates')
         if temp == 'on':
             return True
         return False
 
+    # WARN: Will be deprecated on next mayor version
     def play_sounds_in_login(self):
         temp = self.config.read('Sounds', 'login')
         if temp == 'on':
             return True
         return False
 
+    # WARN: Will be deprecated on next mayor version
     def play_sounds_in_updates(self):
         temp = self.config.read('Sounds', 'updates')
         if temp == 'on':
@@ -603,22 +612,36 @@ class Core:
     def get_max_statuses_per_column(self):
         return int(self.config.read('General', 'statuses'))
 
+    def get_proxy(self):
+        temp = self.config.read_section('Proxy')
+        secure = True if temp['protocol'].lower() == 'https' else False
+        return Proxy(temp['server'], temp['port'], temp['username'], temp['password'], secure)
+
+    def get_socket_timeout(self):
+        return int(self.config.read('Advanced', 'socket-timeout'))
+
+    # WARN: Will be deprecated on next mayor version
     def get_update_interval(self):
         return int(self.config.read('General', 'update-interval'))
 
+    # WARN: Will be deprecated on next mayor version
     def minimize_on_close(self):
         minimize = self.config.read('General', 'minimize-on-close')
         return True if minimize == 'on' else False
 
+    # WARN: Will be deprecated on next mayor version
     def get_config(self):
         return self.config.read_all()
 
+    # WARN: Will be deprecated on next mayor version
     def read_config_value(self, section, option):
         return self.config.read(section, option)
 
+    # WARN: Will be deprecated on next mayor version
     def write_config_value(self, section, option, value):
         self.config.write(section, option, value)
 
+    # WARN: Will be deprecated on next mayor version
     def save_all_config(self, new_config):
         self.config.save(new_config)
 
@@ -629,7 +652,7 @@ class Core:
         self.config.save_filters(lst)
 
     def delete_current_config(self):
-        self.config.delete_current_config()
+        self.config.delete()
 
     def delete_cache(self):
         for account in self.registered_accounts():
