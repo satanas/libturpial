@@ -1,3 +1,16 @@
+v1.3.0
+	* Added method to handle socket timeout
+	* Added method to handle proxy configuration using proxy model
+	* Fixed cache calculation
+	* Support for secure key in proxy configuration
+	* Implemented new config module
+	* Deleted values from default config not used by libturpial
+	* Not storing OAuth PIN in the user credentials
+	* Added/removed friends after follow, unfollow, block and report as spam
+	* Fixed broadcast when passing None as argment
+	* Added followed_by field to profile models
+	* Fixed minor issues
+
 v1.0
     * Restructured Core with new and better methods
     * Added ColumnManager to handle columns
