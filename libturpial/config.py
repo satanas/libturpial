@@ -141,13 +141,17 @@ class ConfigBase:
         for option, value in items.iteritems():
             self.write(section, option, value)
 
-    def read(self, section, option):
+    # WARN: Next version boolean will be the default answer
+    def read(self, section, option, boolean=False):
         try:
             value = self.__config[section][option]
-            if value == 'on':
-                return True
-            elif value == 'off':
-                return False
+            if boolean:
+                if value == 'on':
+                    return True
+                elif value == 'off':
+                    return False
+                else:
+                    return value
             else:
                 return value
         except Exception:
