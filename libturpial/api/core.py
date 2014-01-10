@@ -477,14 +477,16 @@ class Core:
         unquoted_query = urllib2.unquote(query)
         return account.search(unquoted_query, count, since_id, extra)
 
-    def get_profile_image(self, account_id, username):
+    def get_profile_image(self, account_id, username, use_cache=True):
         """
-        Return the local path to a the profile image of *username* in original size
+        Return the local path to a the profile image of *username* in original size.
+        If use_cache is *True* it will try to return the cached file, otherwise it 
+        will fetch the real image.
         """
         account = self.account_manager.get(account_id)
         basename = "%s-%s-profile-image" % (account_id, username)
         img_destination_path = os.path.join(account.config.imgdir, basename)
-        if not os.path.isfile(img_destination_path):
+        if not os.path.isfile(img_destination_path) or use_cache == False:
             img_url = account.get_profile_image(username)
             fd = open(img_destination_path, 'w')
             fd.write(self.fetch_image(img_url))
