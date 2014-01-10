@@ -13,6 +13,10 @@ from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.protocols.twitter.params import OAUTH_OPTIONS
 from libturpial.common import NUM_STATUSES, StatusColumn, build_account_id
 
+# features
+from bs4 import BeautifulSoup
+import mechanize
+import re
 
 # TODO:
 # * Use trim_user wherever we can to improve performance
@@ -82,8 +86,19 @@ class Main(Protocol):
         self.setup_user_info(account_id)
         self.http.set_token_info(key, secret, verifier)
 
+    # automate token v0.2
     def request_token(self):
-        return self.http.request_token()
+        br = mechanize.Browser()
+        br.set_handle_robots(False)
+        br.open(self.http.request_token())
+        br.select_form(nr=0)
+        br.form["session[username_or_email]"] = raw_input("enter username or email: ")
+        br.form["session[password]"] = raw_input("enter password: ")
+        br.submit()
+        html = br.response()
+        soap = BeautifulSoup(html)
+        code = soap.select("code")
+        return int(re.sub('<[^<]+?>', '', str(code[0])))
 
     def authorize_token(self, pin):
         self.http.authorize_token(pin)
