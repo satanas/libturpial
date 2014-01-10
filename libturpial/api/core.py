@@ -541,6 +541,22 @@ class Core:
     ###########################################################################
 
     def register_new_config_option(self, section, option, default_value):
+        """
+        Register a new configuration *option* in *section* to be handled by 
+        external modules. libturpial will set *default_value* as value if 
+        the option doesn't exist.
+
+        This method should be used if a module that uses libturpial needs to
+        handle configuration options not registered by default.
+
+        For example, if you want to register an option to handle notifications
+        on login the code should looks like:
+
+        >>> core = Core()
+        >>> core.register_new_config_option('Notifications', 'login', 'on')
+
+        From this point you can use config methods over this value as usual.
+        """
         self.config.register_extra_option(section, option, default_value)
 
     def get_shorten_url_service(self):
@@ -568,6 +584,9 @@ class Core:
         return account.logged_in
 
     def is_muted(self, username):
+        """
+        Return *True* is *username* is muted. *False* otherwise
+        """
         filtered_terms = self.config.load_filters()
         for term in filtered_terms:
             if not term.startswith('@'):
@@ -610,14 +629,24 @@ class Core:
         return False
 
     def get_max_statuses_per_column(self):
+        """
+        Return how many statuses should be fetched in each requests
+        """
         return int(self.config.read('General', 'statuses'))
 
     def get_proxy(self):
+        """
+        Return a :class:`libturpial.api.models.proxy.Proxy` object with
+        the configuration stored in disk.
+        """
         temp = self.config.read_section('Proxy')
         secure = True if temp['protocol'].lower() == 'https' else False
         return Proxy(temp['server'], temp['port'], temp['username'], temp['password'], secure)
 
     def get_socket_timeout(self):
+        """
+        Return the timeout set for the socket connections
+        """
         return int(self.config.read('Advanced', 'socket-timeout'))
 
     # WARN: Will be deprecated on next mayor version
@@ -646,30 +675,51 @@ class Core:
         self.config.save(new_config)
 
     def list_filters(self):
+        """
+        Return a list with all registered filters
+        """
         return self.config.load_filters()
 
     def save_filters(self, lst):
+        """
+        Save *lst* a the new filters list
+        """
         self.config.save_filters(lst)
 
     def delete_current_config(self):
+        """
+        Delete current configuration file. This action can not be undone
+        """
         self.config.delete()
 
     def delete_cache(self):
+        """
+        Delete all files in cache
+        """
         for account in self.registered_accounts():
             account.delete_cache()
 
     def get_cache_size(self):
+        """
+        Return current space used by cache
+        """
         total_size = 0
         for account in self.registered_accounts():
             total_size += account.get_cache_size()
         return total_size
 
     def add_friend(self, username):
+        """
+        Save *username* into the friends list
+        """
         friends = self.config.load_friends()
         friends.append(username)
         self.config.save_friends(friends)
 
     def remove_friend(self, username):
+        """
+        Remove *username* from friends list
+        """
         friends = self.config.load_friends()
         if username in friends:
             friends.remove(username)
