@@ -496,16 +496,6 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def trends(self):
-        """
-        Search for trends
-
-        .. warning::
-            This is an empty method and must be reimplemented on child class,
-            otherwise it will raise a **NotImplementedError** exception
-        """
-        raise NotImplementedError
-
     def is_friend(self, user):
         """
         Returns True is user follows current account, False otherwise
@@ -519,6 +509,26 @@ class Protocol:
     def get_profile_image(self, user):
         """
         Returns the URL for the profile image of the given user
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
+        raise NotImplementedError
+
+    def trends(self, location_id):
+        """
+        Search for trending topics in *location_id*
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
+        raise NotImplementedError
+
+    def available_trend_locations(self):
+        """
+        Search for trend locations
 
         .. warning::
             This is an empty method and must be reimplemented on child class,

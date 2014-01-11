@@ -4,9 +4,11 @@
 
 from libturpial.exceptions import *
 from libturpial.api.models.list import List
+from libturpial.api.models.trend import Trend
 from libturpial.api.models.status import Status
 from libturpial.api.models.entity import Entity
 from libturpial.api.models.profile import Profile
+from libturpial.api.models.trend import TrendLocation
 
 from libturpial.lib.http import TurpialHTTPOAuth
 from libturpial.lib.interfaces.protocol import Protocol
@@ -16,7 +18,6 @@ from libturpial.common import NUM_STATUSES, StatusColumn, build_account_id
 
 # TODO:
 # * Use trim_user wherever we can to improve performance
-# * Implement trends
 
 class Main(Protocol):
     """Twitter implementation for libturpial"""
@@ -410,6 +411,14 @@ class Main(Protocol):
         rtn = self.http.get('/users/show', {'screen_name': user})
         return rtn['profile_image_url'].replace('_normal', '')
 
+    def available_trend_locations(self):
+        rtn = self.http.get('/trends/available')
+        return self.json_to_trend_location(rtn)
+
+    def trends(self, location_id):
+        rtn = self.http.get('/trends/place', {'id': location_id}, id_in_url=False)
+        return self.json_to_trend(rtn[0]['trends'])
+
     #################################################################
     # Methods to convert JSON responses into objects
     #################################################################
@@ -561,12 +570,28 @@ class Main(Protocol):
                 trends.append(trend)
             return trends
         else:
-            trend = Trend()
-            trend.name = response['name']
-            trend.promoted = False
+            trend = Trend(response['name'])
+            trend.query = response['query']
+            trend.url = response['url']
             if response['promoted_content']:
-                trend.promoted = True
+                trend.is_promoted = True
             return trend
+
+    def json_to_trend_location(self, response):
+        if isinstance(response, list):
+            locations = []
+            for tr in response:
+                location = self.json_to_trend_location(tr)
+                locations.append(location)
+            return locations
+        else:
+            location = TrendLocation(response['name'], response['woeid'])
+            location.country = response['country']
+            location.country_code = response['countryCode']
+            location.parent_id = response['parentid']
+            location.placetype_code = int(response['placeType']['code'])
+            location.placetype_name = response['placeType']['name']
+            return location
 
     def get_entities(self, tweet):
         if 'entities' in tweet:

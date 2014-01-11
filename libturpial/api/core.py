@@ -506,6 +506,22 @@ class Core:
             fp.close()
         return img_destination_path
 
+    def get_available_trend_locations(self, account_id):
+        """
+        Return an array of :class:`libturpial.api.models.trend.TrendLocation` objects with all the
+        locations with trending topics registered.
+        """
+        account = self.account_manager.get(account_id)
+        return account.available_trend_locations()
+
+    def get_trending_topics(self, account_id, location_id):
+        """
+        Return an array of :class:`libturpial.api.models.trend.Trend` objects with trending topics
+        for the specified location. *location_id* is the Yahoo! Where On Earth ID for the location.
+        """
+        account = self.account_manager.get(account_id)
+        return account.trends(location_id)
+
     ###########################################################################
     # Services API
     ###########################################################################
