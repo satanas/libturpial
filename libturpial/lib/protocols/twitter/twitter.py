@@ -313,13 +313,18 @@ class Main(Protocol):
         self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
-    def update_status(self, text, in_reply_id=None):
+    def update_status(self, text, in_reply_id=None, media=None):
         if in_reply_id:
             args = {'status': text, 'in_reply_to_status_id': in_reply_id}
         else:
             args = {'status': text}
         args['include_entities'] = True
-        rtn = self.http.post('/statuses/update', args)
+
+        if media is not None:
+            files = {'media[]': open(media, 'rb')}
+            rtn = self.http.post('/statuses/update_with_media', args, files=files)
+        else:
+            rtn = self.http.post('/statuses/update', args)
         self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 

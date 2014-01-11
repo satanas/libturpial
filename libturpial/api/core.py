@@ -308,14 +308,17 @@ class Core:
         account = self.account_manager.get(account_id)
         return account.get_conversation(status_id)
 
-    def update_status(self, account_id, text, in_reply_id=None):
+    def update_status(self, account_id, text, in_reply_id=None, media=None):
         """
         Updates the account *account_id* with content of *text*
 
-        if in_reply_id is not None, specifies the tweets that is being answered.
+        if *in_reply_id* is not None, specifies the tweets that is being answered.
+
+        *media* can specify the filepath of an image. If not None, the status is posted with
+        the image attached. At this moment, this method is only valid for Twitter.
         """
         account = self.account_manager.get(account_id)
-        return account.update_status(text, in_reply_id)
+        return account.update_status(text, in_reply_id, media)
 
     def broadcast_status(self, account_id_array, text):
         """

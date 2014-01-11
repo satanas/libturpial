@@ -371,7 +371,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def update_status(self, text, in_reply_to_id=None):
+    def update_status(self, text, in_reply_to_id=None, media=None):
         """
         Post an update
 
