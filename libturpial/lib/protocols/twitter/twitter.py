@@ -530,6 +530,7 @@ class Main(Protocol):
             status.account_id = self.account_id
             status.is_own = (username.lower() == self.uname.lower())
             status.repeated = repeated
+            status.repeated_count = int(post['retweet_count'])
             status.get_source(source)
             return status
 
