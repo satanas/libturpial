@@ -72,18 +72,23 @@ class Core:
             return statuses
 
         for status in statuses:
+            matched = False
             for term in map(lambda x: x.lower(), filtered_terms):
                 if term.startswith('@'):
                     # Filter statuses by user
                     if status.username.lower() == term[1:]:
-                        continue
+                        matched = True
+                        break
                     # Filter statuses repeated by filtered users
-                    elif status.reposted_by:
-                        if status.reposted_by.lower().find(term[1:]) >= 0:
-                            continue
+                    elif status.repeated_by:
+                        if status.repeated_by.lower().find(term[1:]) >= 0:
+                            matched = True
+                            break
                 else:
                     if status.text.lower().find(term) >= 0:
-                        continue
+                        matched = True
+                        break
+            if not matched:
                 filtered_statuses.append(status)
         return filtered_statuses
 
