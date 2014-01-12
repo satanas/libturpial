@@ -531,6 +531,15 @@ class Core:
         account = self.account_manager.get(account_id)
         return account.trends(location_id)
 
+    def update_profile_image(self, account_id, image_path):
+        """
+        Update profile image of *account_id* with the image specified by *image_path*.
+        Return a :class:`libturpial.api.models.profile.Profile` object
+        with the user profile updated.
+        """
+        account = self.account_manager.get(account_id)
+        return account.update_profile_image(image_path)
+
     ###########################################################################
     # Services API
     ###########################################################################

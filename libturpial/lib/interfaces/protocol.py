@@ -535,3 +535,13 @@ class Protocol:
             otherwise it will raise a **NotImplementedError** exception
         """
         raise NotImplementedError
+
+    def update_profile_image(self, image_path):
+        """
+        Update user profile image and return user profile object
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
+        raise NotImplementedError

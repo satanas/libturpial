@@ -424,6 +424,12 @@ class Main(Protocol):
         rtn = self.http.get('/trends/place', {'id': location_id}, id_in_url=False)
         return self.json_to_trend(rtn[0]['trends'])
 
+    def update_profile_image(self, image_path):
+        with open(image_path, 'rb') as fd:
+            image = fd.read()
+        rtn = self.http.post('/account/update_profile_image', files={'image': image})
+        return self.json_to_profile(rtn)
+
     #################################################################
     # Methods to convert JSON responses into objects
     #################################################################
