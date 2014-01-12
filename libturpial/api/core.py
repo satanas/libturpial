@@ -65,7 +65,7 @@ class Core:
         self.account_manager = AccountManager(self.config)
         self.column_manager = ColumnManager(self.config)
 
-    def __apply_filters(self, statuses):
+    def filter_statuses(self, statuses):
         filtered_statuses = []
         filtered_terms = self.config.load_filters()
         if len(filtered_terms) == 0:
@@ -78,8 +78,8 @@ class Core:
                     if status.username.lower() == term[1:]:
                         continue
                     # Filter statuses repeated by filtered users
-                    elif status.reposted_by:
-                        if status.reposted_by.lower().find(term[1:]) >= 0:
+                    elif status.repeated_by:
+                        if status.repeated_by.lower().find(term[1:]) >= 0:
                             continue
                 else:
                     if status.text.lower().find(term) >= 0:
@@ -230,7 +230,7 @@ class Core:
 
         account = self.account_manager.get(account_id)
         if column_id == ColumnType.TIMELINE:
-            rtn = self.__apply_filters(account.get_timeline(count, since_id))
+            rtn = account.get_timeline(count, since_id)
         elif column_id == ColumnType.REPLIES:
             rtn = account.get_replies(count, since_id)
         elif column_id == ColumnType.DIRECTS:
@@ -402,7 +402,8 @@ class Core:
 
     def follow(self, account_id, username, by_id=False):
         """
-        Makes *account_id* a follower of *username*
+        Makes *account_id* a follower of *username*.
+        Return a :class:`libturpial.api.models.profile.Profile` object with the user profile
         """
         account = self.account_manager.get(account_id)
         response = account.follow(username, by_id)
@@ -411,7 +412,8 @@ class Core:
 
     def unfollow(self, account_id, username):
         """
-        Stops *account_id* from being a follower of *username*
+        Stops *account_id* from being a follower of *username*.
+        Return a :class:`libturpial.api.models.profile.Profile` object with the user profile
         """
         account = self.account_manager.get(account_id)
         response = account.unfollow(username)
@@ -420,7 +422,8 @@ class Core:
 
     def block(self, account_id, username):
         """
-        Blocks *username* in *account_id*
+        Blocks *username* in *account_id*.
+        Return a :class:`libturpial.api.models.profile.Profile` object with the user profile
         """
         account = self.account_manager.get(account_id)
         response = account.block(username)
@@ -429,14 +432,16 @@ class Core:
 
     def unblock(self, account_id, username):
         """
-        Unblocks *username* in *account_id*
+        Unblocks *username* in *account_id*.
+        Return a :class:`libturpial.api.models.profile.Profile` object with the user profile
         """
         account = self.account_manager.get(account_id)
         return account.unblock(username)
 
     def report_as_spam(self, account_id, username):
         """
-        Reports *username* as SPAM using *account_id*
+        Reports *username* as SPAM using *account_id*.
+        Return a :class:`libturpial.api.models.profile.Profile` object with the user profile
         """
         account = self.account_manager.get(account_id)
         response = account.report_as_spam(username)
@@ -461,7 +466,8 @@ class Core:
 
     def verify_friendship(self, account_id, username):
         """
-        Check if *username* is on only followed by *account_id* but if he also follows *account_id*
+        Return *True* if the owner of *account_id* and *username* are following each other.
+        *False* otherwise.
         """
         account = self.account_manager.get(account_id)
         return account.is_friend(username)
