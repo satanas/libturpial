@@ -169,7 +169,7 @@ class Core:
 
     def available_columns(self):
         """
-        Return a dictionary with all registered (non-registered-yet)
+        Return a dictionary with all available (non-registered-yet)
         columns per account. Example:
 
         >>> {'foo-twitter': ['timeline', 'direct', 'sent', 'favorites']}
@@ -185,9 +185,18 @@ class Core:
     def registered_columns(self):
         """
         Return a *dict* with :class:`libturpial.api.models.column.Column` objects
-        per column registered
+        per column registered. This method DO NOT return columns in the order they
+        have been registered. For ordered columns check
+        :method:`registered_columns_by_order()`
         """
         return self.column_manager.columns()
+
+    def registered_columns_by_order(self):
+        """
+        Return a *list* with :class:`libturpial.api.models.column.Column` objects
+        per each column in the same order they have been registered.
+        """
+        return self.column_manager.columns_by_order()
 
     def registered_accounts(self):
         """

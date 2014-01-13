@@ -108,6 +108,21 @@ class ColumnManager:
         """
         return self.__registered_columns
 
+    def columns_by_order(self):
+        i = 1
+        columns = []
+        while True:
+            column_num = "column%s" % i
+            column_id = self.config.read('Columns', column_num)
+            if column_id:
+                account_id = get_account_id_from(column_id)
+                column_slug = get_column_slug_from(column_id)
+                columns.append(Column(account_id, column_slug))
+                i += 1
+            else:
+                break
+        return columns
+
     def is_registered(self, column_id):
         """
         Return `True` if column identified by *column_id* is registered. 
