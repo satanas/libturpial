@@ -71,6 +71,12 @@ class Status:
         self.original_status_id = None
         self.created_at = None
 
+    def __eq__(self, status):
+        return self.id_ == status.id_
+
+    def __ne__(self, status):
+        return self.id_ != status.id_
+
     def get_mentions(self):
         """
         Returns all usernames mentioned in status (even the author of the 
