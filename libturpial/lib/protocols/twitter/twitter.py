@@ -12,6 +12,7 @@ from libturpial.api.models.trend import TrendLocation
 
 from libturpial.lib.http import TurpialHTTPOAuth
 from libturpial.lib.interfaces.protocol import Protocol
+from libturpial.common.tools import timestamp_to_localtime
 from libturpial.lib.protocols.twitter.params import OAUTH_OPTIONS
 from libturpial.common import NUM_STATUSES, StatusColumn, build_account_id
 
@@ -476,13 +477,6 @@ class Main(Protocol):
                 if not resp:
                     continue
                 status = self.json_to_status(resp, column_id, type_)
-                if status.repeated_by:
-                    # TODO: Handle this
-                    #users = self.get_retweet_users(status.id_)
-                    #status.repeated_by = users
-                    #count = self.get_retweet_count(status.id_)
-                    #status.repeated_count = count
-                    pass
                 statuses.append(status)
             return statuses
         else:
@@ -551,6 +545,7 @@ class Main(Protocol):
             status.is_own = (username.lower() == self.uname.lower())
             status.repeated = repeated
             status.repeated_count = int(post['retweet_count'])
+            status.local_timestamp = timestamp_to_localtime(status.timestamp)
             status.get_source(source)
             return status
 

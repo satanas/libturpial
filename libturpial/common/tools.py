@@ -7,6 +7,7 @@
 
 import os
 import sys
+import time
 
 from libturpial.common import *
 
@@ -53,3 +54,11 @@ def get_urls(text):
             url = url[:-1]
         urls.append(url)
     return urls
+
+def timestamp_to_localtime(timestamp):
+    """
+    Take the long integer *timestamp* that represents an Unix timestamp and adjust it to
+    local time, considering time zone and stuff.
+    """
+    offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
+    return timestamp - offset

@@ -63,13 +63,14 @@ class Status:
         self.repeated = False   # Status has been repeated by user
         self.repeated_by = None     # Indicates if it is a repeated status
         self.repeated_count = None  # How much repeats get the status
-        self.datetime = None    # Store the date/time showed for the view
+        self.datetime = None    # Store the date/time in GMT
         self.is_own = False     # Indicate if the user is the author of the status
         self.type_ = None
         self.account_id = None
         self.entities = {}
         self.original_status_id = None
         self.created_at = None
+        self.local_datetime = None # Store the timestamp as long integer in local time
 
     def __eq__(self, status):
         return self.id_ == status.id_
