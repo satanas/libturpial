@@ -41,6 +41,9 @@ APP_CFG = {
         'socket-timeout': '20',
         'show-user-avatars': 'on',
     },
+    'Window': {
+        'size': '320,480',
+    },
 }
 
 ACCOUNT_CFG = {
