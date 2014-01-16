@@ -2,7 +2,10 @@
 
 """Imgur show media content service"""
 
-import json
+try:
+    import simplejson as json
+except:
+    import json
 
 from libturpial.api.models.media import *
 from libturpial.lib.services.media.preview.base import *

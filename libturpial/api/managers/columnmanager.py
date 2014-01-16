@@ -82,6 +82,18 @@ class ColumnManager:
         self.__load_registered()
         return column_id
 
+    def get(self, column_id):
+        """
+        Obtain the column identified by *column_id* and return a 
+        :class:`libturpial.api.models.column.Column` object on success. None
+        otherwise.
+        """
+        for account_id, columns in self.__registered_columns.iteritems():
+            for col in columns:
+                if col.id_ == column_id:
+                    return col
+        return None
+
     def columns(self):
         """
         Return a dict where each key represents an account_id and it value is 
@@ -95,6 +107,21 @@ class ColumnManager:
             <libturpial.api.models.column.Column instance at 0x10a9cb6c8>]}
         """
         return self.__registered_columns
+
+    def columns_by_order(self):
+        i = 1
+        columns = []
+        while True:
+            column_num = "column%s" % i
+            column_id = self.config.read('Columns', column_num)
+            if column_id:
+                account_id = get_account_id_from(column_id)
+                column_slug = get_column_slug_from(column_id)
+                columns.append(Column(account_id, column_slug))
+                i += 1
+            else:
+                break
+        return columns
 
     def is_registered(self, column_id):
         """

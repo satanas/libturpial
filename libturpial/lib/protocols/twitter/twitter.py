@@ -4,19 +4,21 @@
 
 from libturpial.exceptions import *
 from libturpial.api.models.list import List
+from libturpial.api.models.trend import Trend
 from libturpial.api.models.status import Status
 from libturpial.api.models.entity import Entity
 from libturpial.api.models.profile import Profile
+from libturpial.api.models.trend import TrendLocation
 
 from libturpial.lib.http import TurpialHTTPOAuth
 from libturpial.lib.interfaces.protocol import Protocol
+from libturpial.common.tools import timestamp_to_localtime
 from libturpial.lib.protocols.twitter.params import OAUTH_OPTIONS
 from libturpial.common import NUM_STATUSES, StatusColumn, build_account_id
 
 
 # TODO:
 # * Use trim_user wherever we can to improve performance
-# * Implement trends
 
 class Main(Protocol):
     """Twitter implementation for libturpial"""
@@ -312,13 +314,18 @@ class Main(Protocol):
         self.check_for_errors(rtn)
         return self.json_to_profile(rtn)
 
-    def update_status(self, text, in_reply_id=None):
+    def update_status(self, text, in_reply_id=None, media=None):
         if in_reply_id:
             args = {'status': text, 'in_reply_to_status_id': in_reply_id}
         else:
             args = {'status': text}
         args['include_entities'] = True
-        rtn = self.http.post('/statuses/update', args)
+
+        if media is not None:
+            files = {'media[]': open(media, 'rb')}
+            rtn = self.http.post('/statuses/update_with_media', args, files=files)
+        else:
+            rtn = self.http.post('/statuses/update', args)
         self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
@@ -410,6 +417,20 @@ class Main(Protocol):
         rtn = self.http.get('/users/show', {'screen_name': user})
         return rtn['profile_image_url'].replace('_normal', '')
 
+    def available_trend_locations(self):
+        rtn = self.http.get('/trends/available')
+        return self.json_to_trend_location(rtn)
+
+    def trends(self, location_id):
+        rtn = self.http.get('/trends/place', {'id': location_id}, id_in_url=False)
+        return self.json_to_trend(rtn[0]['trends'])
+
+    def update_profile_image(self, image_path):
+        with open(image_path, 'rb') as fd:
+            image = fd.read()
+        rtn = self.http.post('/account/update_profile_image', files={'image': image})
+        return self.json_to_profile(rtn)
+
     #################################################################
     # Methods to convert JSON responses into objects
     #################################################################
@@ -456,13 +477,6 @@ class Main(Protocol):
                 if not resp:
                     continue
                 status = self.json_to_status(resp, column_id, type_)
-                if status.repeated_by:
-                    # TODO: Handle this
-                    #users = self.get_retweet_users(status.id_)
-                    #status.repeated_by = users
-                    #count = self.get_retweet_count(status.id_)
-                    #status.repeated_count = count
-                    pass
                 statuses.append(status)
             return statuses
         else:
@@ -530,6 +544,8 @@ class Main(Protocol):
             status.account_id = self.account_id
             status.is_own = (username.lower() == self.uname.lower())
             status.repeated = repeated
+            status.repeated_count = int(post['retweet_count'])
+            status.local_timestamp = timestamp_to_localtime(status.timestamp)
             status.get_source(source)
             return status
 
@@ -560,12 +576,28 @@ class Main(Protocol):
                 trends.append(trend)
             return trends
         else:
-            trend = Trend()
-            trend.name = response['name']
-            trend.promoted = False
+            trend = Trend(response['name'])
+            trend.query = response['query']
+            trend.url = response['url']
             if response['promoted_content']:
-                trend.promoted = True
+                trend.is_promoted = True
             return trend
+
+    def json_to_trend_location(self, response):
+        if isinstance(response, list):
+            locations = []
+            for tr in response:
+                location = self.json_to_trend_location(tr)
+                locations.append(location)
+            return locations
+        else:
+            location = TrendLocation(response['name'], response['woeid'])
+            location.country = response['country']
+            location.country_code = response['countryCode']
+            location.parent_id = response['parentid']
+            location.placetype_code = int(response['placeType']['code'])
+            location.placetype_name = response['placeType']['name']
+            return location
 
     def get_entities(self, tweet):
         if 'entities' in tweet:
