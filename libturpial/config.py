@@ -44,6 +44,14 @@ APP_CFG = {
     'Window': {
         'size': '320,480',
     },
+    'Notifications': {
+        'on-updates': 'on',
+        'on-actions': 'on',
+    },
+    'Sounds': {
+        'on-login': 'on',
+        'on-updates': 'on',
+    },
 }
 
 ACCOUNT_CFG = {
