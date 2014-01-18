@@ -1,3 +1,16 @@
+v1.5.9
+	* Support to upload images with pic.twitter.com
+	* Support for Instagram preview
+	* Fixed filters
+	* Added comparision methods to status model
+	* Added param to enable/disable cache when getting profile image
+	* Implemented retweet count in status model
+	* Method to get a single column or a single account from id
+	* Support to change profile image
+	* Added methods to fetch trend locations and trending topics
+	* Added timestamp in local time to status model
+	* Fixed issue with Window configuration option
+
 v1.1.16
 	* Added method to handle socket timeout
 	* Added method to handle proxy configuration using proxy model
