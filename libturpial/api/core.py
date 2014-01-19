@@ -699,15 +699,13 @@ class Core:
         Return a :class:`libturpial.api.models.proxy.Proxy` object with
         the configuration stored in disk.
         """
-        temp = self.config.read_section('Proxy')
-        secure = True if temp['protocol'].lower() == 'https' else False
-        return Proxy(temp['server'], temp['port'], temp['username'], temp['password'], secure)
+        return self.config.get_proxy()
 
     def get_socket_timeout(self):
         """
         Return the timeout set for the socket connections
         """
-        return int(self.config.read('Advanced', 'socket-timeout'))
+        return self.config.get_socket_timeout()
 
     # WARN: Will be deprecated on next mayor version
     def get_update_interval(self):

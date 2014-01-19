@@ -3,6 +3,7 @@
 """ Twitter implementation for Turpial"""
 
 from libturpial.exceptions import *
+from libturpial.config import AppConfig
 from libturpial.api.models.list import List
 from libturpial.api.models.trend import Trend
 from libturpial.api.models.status import Status
@@ -74,7 +75,11 @@ class Main(Protocol):
 
 
     def initialize_http(self):
-        self.http = TurpialHTTPOAuth(self.base_url, OAUTH_OPTIONS)
+        app_config = AppConfig()
+        proxy = app_config.get_proxy()
+        timeout = app_config.get_socket_timeout()
+        self.http = TurpialHTTPOAuth(self.base_url, OAUTH_OPTIONS, proxies=proxy.to_url_config(),
+                timeout=timeout)
 
     def setup_user_info(self, account_id):
         self.account_id = account_id

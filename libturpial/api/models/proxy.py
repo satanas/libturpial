@@ -22,9 +22,29 @@ class Proxy:
     :ivar password: (Optional) Password for authentication
     :ivar secure: Indicate whether proxy uses HTTP or HTTPS (Default `False`)
     """
-    def __init__(self, host, port, username='', password='', secure=False):
+    def __init__(self, host, port, username=None, password=None, secure=False):
         self.host = host
         self.port = port
         self.username = username
         self.password = password
         self.secure = secure
+
+    def to_url_config(self):
+        if self.host == '' and self.port == '':
+            return {}
+
+        key = 'https' if self.secure else 'http'
+
+        value = ''
+        if self.host.find('http') < 0:
+            value = "%s://" % key
+
+        if self.username and self.password:
+            value += "%s:%s@" % (self.username, self.password)
+
+        value += self.host
+
+        if self.port != '':
+            value += ":%s" % self.port
+
+        return {key: value}

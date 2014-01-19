@@ -8,6 +8,7 @@ import shutil
 import logging
 import ConfigParser
 
+from libturpial.api.models.proxy import Proxy
 from libturpial.common import get_username_from, get_protocol_from
 from libturpial.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials, \
         ExpressionAlreadyFiltered
@@ -22,6 +23,7 @@ APP_CFG = {
     'General':{
         'update-interval': '5',
         'queue-interval': '30',
+        'minimize-on-close': 'on', # TODO: Deprecate in next mayor version
         'statuses': '60',
     },
     'Columns':{
@@ -41,6 +43,7 @@ APP_CFG = {
         'socket-timeout': '20',
         'show-user-avatars': 'on',
     },
+    # TODO: Deprecate all of this config options in next mayor version
     'Window': {
         'size': '320,480',
     },
@@ -51,6 +54,9 @@ APP_CFG = {
     'Sounds': {
         'on-login': 'on',
         'on-updates': 'on',
+    },
+    'Browser': {
+        'cmd': '',
     },
 }
 
@@ -278,6 +284,14 @@ class AppConfig(ConfigBase):
             if value != '':
                 columns.append(value)
         return columns
+
+    def get_proxy(self):
+        temp = self.read_section('Proxy')
+        secure = True if temp['protocol'].lower() == 'https' else False
+        return Proxy(temp['server'], temp['port'], temp['username'], temp['password'], secure)
+
+    def get_socket_timeout(self):
+        return int(self.read('Advanced', 'socket-timeout'))
 
     def delete(self):
         os.remove(self.configpath)

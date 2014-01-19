@@ -109,11 +109,11 @@ class Protocol:
 
         For OAuth do:
 
-        >>> self.http = TurpialHTTPOAuth(base_url, oauth_options)
+        >>> self.http = TurpialHTTPOAuth(base_url, oauth_options, proxies, timeout)
 
         For Basic Auth do:
 
-        >>> self.http = TurpialHTTPBasicAuth(base_url)
+        >>> self.http = TurpialHTTPBasicAuth(base_url, proxies, timeout)
         """
         raise NotImplementedError
 
