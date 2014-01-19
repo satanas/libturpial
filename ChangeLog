@@ -1,6 +1,7 @@
 v1.6.0
 	* Fixed proxy support
 	* Reverted default values for config file to avoid breaking backward compatibility
+	* Fixed error loading direct messages
 
 v1.5.9
 	* Support to upload images with pic.twitter.com

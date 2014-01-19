@@ -529,6 +529,10 @@ class Main(Protocol):
             if 'source' in post:
                 source = post['source']
 
+            retweet_count = None
+            if 'retweet_count' in post:
+                retweet_count = int(post['retweet_count'])
+
             status = Status()
             status.id_ = str(post['id'])
             status.original_status_id = retweeted_id
@@ -549,7 +553,7 @@ class Main(Protocol):
             status.account_id = self.account_id
             status.is_own = (username.lower() == self.uname.lower())
             status.repeated = repeated
-            status.repeated_count = int(post['retweet_count'])
+            status.repeated_count = retweet_count
             status.local_timestamp = timestamp_to_localtime(status.timestamp)
             status.get_source(source)
             return status
