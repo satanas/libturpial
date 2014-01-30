@@ -62,7 +62,7 @@ class Core:
 
     def __init__(self):
         self.config = AppConfig()
-        self.account_manager = AccountManager(self.config)
+        self.accman = AccountManager(self.config)
         self.column_manager = ColumnManager(self.config)
 
     def filter_statuses(self, statuses):
@@ -104,7 +104,7 @@ class Core:
 
         >>> ['foo-twitter', 'foo-identica']
         """
-        return self.account_manager.list()
+        return self.accman.list()
 
     def register_account(self, account):
         # TODO: Add documention/reference for account validation
@@ -117,7 +117,7 @@ class Core:
 
         Return a string with the id of the account registered.
         """
-        return self.account_manager.register(account)
+        return self.accman.register(account)
 
     def unregister_account(self, account_id, delete_all=False):
         """
@@ -128,7 +128,7 @@ class Core:
 
         Return a string with the id of the account unregistered.
         """
-        return self.account_manager.unregister(account_id, delete_all)
+        return self.accman.unregister(account_id, delete_all)
 
     def all_columns(self):
         """
@@ -203,7 +203,7 @@ class Core:
         Return a *dict* with all registered accounts as an array of
         :class:`libturpial.api.models.account.Account` objects registered
         """
-        return self.account_manager.accounts()
+        return self.accman.accounts()
 
     def get_single_column(self, column_id):
         """
@@ -217,7 +217,7 @@ class Core:
         Return the :class:`libturpial.api.models.account.Account` object identified
         with *account_id*
         """
-        return self.account_manager.get(account_id)
+        return self.accman.get(account_id)
 
 
     ###########################################################################
@@ -237,7 +237,7 @@ class Core:
             criteria = column_id[len(ColumnType.SEARCH) + 1:]
             return self.search(account_id, criteria, count, since_id)
 
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         if column_id == ColumnType.TIMELINE:
             rtn = account.get_timeline(count, since_id)
         elif column_id == ColumnType.REPLIES:
@@ -264,7 +264,7 @@ class Core:
         account *account_id*. *count* and *since_id* work in the same way
         that in :meth:`libturpial.api.core.Core.get_column_statuses`
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.get_public_timeline(count, since_id)
 
     def get_followers(self, account_id, only_id=False):
@@ -272,7 +272,7 @@ class Core:
         Return a :class:`libturpial.api.models.profile.Profile` list with 
         all the followers of the account *account_id*
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.get_followers(only_id)
 
     def get_following(self, account_id, only_id=False):
@@ -280,7 +280,7 @@ class Core:
         Return a :class:`libturpial.api.models.profile.Profile` list of 
         all the accounts that *account_id* follows
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.get_following(only_id)
 
     def get_all_friends_list(self):
@@ -289,7 +289,7 @@ class Core:
         accounts.
         """
         friends = []
-        for account in self.account_manager.accounts():
+        for account in self.accman.accounts():
             for profile in account.get_following():
                 if profile.username not in friends:
                     friends.append(profile.username)
@@ -304,7 +304,7 @@ class Core:
         Return the profile of the *user*, using the *account_id*,
         if user is None, it returns the profile of account_id itself.
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         if user:
             profile = account.get_profile(user)
             profile.followed_by = account.is_friend(user)
@@ -314,7 +314,7 @@ class Core:
         return profile
 
     def get_conversation(self, account_id, status_id):
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.get_conversation(status_id)
 
     def update_status(self, account_id, text, in_reply_id=None, media=None):
@@ -326,7 +326,7 @@ class Core:
         *media* can specify the filepath of an image. If not None, the status is posted with
         the image attached. At this moment, this method is only valid for Twitter.
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.update_status(text, in_reply_id, media)
 
     def broadcast_status(self, account_id_array, text):
@@ -342,7 +342,7 @@ class Core:
         response = {}
         for account_id in account_id_array:
             try:
-                account = self.account_manager.get(account_id)
+                account = self.accman.get(account_id)
                 response[account_id] = account.update_status(text)
             except Exception, exc:
                 response[account_id] = exc
@@ -352,49 +352,49 @@ class Core:
         """
         Deletes status of *account_id* specified by *status_id*
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.destroy_status(status_id)
 
     def get_single_status(self, account_id, status_id):
         """
         Retrieves a single status with *account_id* that corresponds with *status_id*
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.get_status(status_id)
 
     def repeat_status(self, account_id, status_id):
         """
         Allows to send the same status again by using repeat option in API
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.repeat_status(status_id)
 
     def mark_status_as_favorite(self, account_id, status_id):
         """
         Marks status of *account_id* specified by *status_id* as favorite
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.mark_as_favorite(status_id)
 
     def unmark_status_as_favorite(self, account_id, status_id):
         """
         Unmarks status of *account_id* specified by *status_id* as favorite
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.unmark_as_favorite(status_id)
 
     def send_direct_message(self, account_id, username, message):
         """
         Sends a direct update with the contant of *message* to *username* using *account_id*
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.send_direct_message(username, message)
 
     def destroy_direct_message(self, account_id, status_id):
         """
         Deletes a direct update from *account_id* defined by its *status_id*
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.destroy_direct_message(status_id)
 
     def update_profile(self, account_id, fullname=None, url=None, bio=None,
@@ -406,7 +406,7 @@ class Core:
         bio = Small resume
         location = Geographic location
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.update_profile(fullname, url, bio, location)
 
     def follow(self, account_id, username, by_id=False):
@@ -414,7 +414,7 @@ class Core:
         Makes *account_id* a follower of *username*.
         Return a :class:`libturpial.api.models.profile.Profile` object with the user profile
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         response = account.follow(username, by_id)
         self.add_friend(username)
         return response
@@ -424,7 +424,7 @@ class Core:
         Stops *account_id* from being a follower of *username*.
         Return a :class:`libturpial.api.models.profile.Profile` object with the user profile
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         response = account.unfollow(username)
         self.remove_friend(username)
         return response
@@ -434,7 +434,7 @@ class Core:
         Blocks *username* in *account_id*.
         Return a :class:`libturpial.api.models.profile.Profile` object with the user profile
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         response = account.block(username)
         self.remove_friend(username)
         return response
@@ -444,7 +444,7 @@ class Core:
         Unblocks *username* in *account_id*.
         Return a :class:`libturpial.api.models.profile.Profile` object with the user profile
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.unblock(username)
 
     def report_as_spam(self, account_id, username):
@@ -452,7 +452,7 @@ class Core:
         Reports *username* as SPAM using *account_id*.
         Return a :class:`libturpial.api.models.profile.Profile` object with the user profile
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         response = account.report_as_spam(username)
         self.remove_friend(username)
         return response
@@ -478,7 +478,7 @@ class Core:
         Return *True* if the owner of *account_id* and *username* are following each other.
         *False* otherwise.
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.is_friend(username)
 
     def search(self, account_id, query, count=NUM_STATUSES, since_id=None, extra=None):
@@ -489,7 +489,7 @@ class Core:
         acount = Max number of results
         since_id = if limited to a status id and on.
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         # The unquote is to ensure that the query is not url-encoded. The
         # encoding will be done automatically by the http module
         unquoted_query = urllib2.unquote(query)
@@ -501,7 +501,7 @@ class Core:
         If use_cache is *True* it will try to return the cached file, otherwise it 
         will fetch the real image.
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         basename = "%s-%s-profile-image" % (account_id, username)
         img_destination_path = os.path.join(account.config.imgdir, basename)
         if not os.path.isfile(img_destination_path) or use_cache == False:
@@ -515,7 +515,7 @@ class Core:
         """
         Return the local path to a the profile image of the username to post *status* in 48x48 px size
         """
-        account = self.account_manager.get(status.account_id)
+        account = self.accman.get(status.account_id)
         basename = "%s-%s-avatar-%s" % (status.account_id, status.username, os.path.basename(status.avatar))
         img_destination_path = os.path.join(account.config.imgdir, basename)
         if not os.path.isfile(img_destination_path):
@@ -529,7 +529,7 @@ class Core:
         Return an array of :class:`libturpial.api.models.trend.TrendLocation` objects with all the
         locations with trending topics registered.
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.available_trend_locations()
 
     def get_trending_topics(self, account_id, location_id):
@@ -537,7 +537,7 @@ class Core:
         Return an array of :class:`libturpial.api.models.trend.Trend` objects with trending topics
         for the specified location. *location_id* is the Yahoo! Where On Earth ID for the location.
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.trends(location_id)
 
     def update_profile_image(self, account_id, image_path):
@@ -546,7 +546,7 @@ class Core:
         Return a :class:`libturpial.api.models.profile.Profile` object
         with the user profile updated.
         """
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.update_profile_image(image_path)
 
     ###########################################################################
@@ -592,7 +592,7 @@ class Core:
 
     def upload_media(self, account_id, filepath, message=None):
         service = self.get_upload_media_service()
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         uploader = UPLOAD_MEDIA_SERVICES[service]
         return uploader.do_service(account, filepath, message)
 
@@ -632,7 +632,7 @@ class Core:
         return self.config.write('Services', 'upload-pic', value)
 
     def has_stored_passwd(self, account_id):
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         if account.profile.password is None:
             return False
         if account.profile.password == '':
@@ -640,7 +640,7 @@ class Core:
         return True
 
     def is_account_logged_in(self, account_id):
-        account = self.account_manager.get(account_id)
+        account = self.accman.get(account_id)
         return account.logged_in
 
     def is_muted(self, username):

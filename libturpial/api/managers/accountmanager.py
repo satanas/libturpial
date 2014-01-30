@@ -15,14 +15,14 @@ class AccountManager:
     This manager can be iterated and each element will have the account id 
     and the respective object. For example:
 
-    >>> for item in account_manager:
+    >>> for item in accman:
             print item
     ('foo-twitter', <libturpial.api.models.account.Account object at 0x10c5c2e10>)
     ('bar-twitter', <libturpial.api.models.account.Account object at 0x10c5c2910>)
 
     To check how much accounts are registered simply use the `len` function:
 
-    >>> len(account_manager)
+    >>> len(accman)
     2
     """
     def __init__(self, config):
