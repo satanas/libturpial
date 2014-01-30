@@ -85,3 +85,15 @@ class TestCore:
             for col in value:
                 assert (isinstance(col, Column) or isinstance(col, List))
 
+    def test_registered_columns_by_order(self):
+        columns = self.core.registered_columns_by_order()
+        assert isinstance(columns, list)
+        for col in columns:
+            assert (isinstance(col, Column) or isinstance(col, List))
+
+    def test_registered_accounts(self):
+        accounts = self.core.registered_accounts()
+        assert isinstance(accounts, list)
+        for acc in accounts:
+            assert isinstance(acc, Account)
+
