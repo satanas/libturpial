@@ -134,7 +134,11 @@ class Core:
         """
         Return a dictionary with all columns per account. Example:
 
-        >>> {'foo-twitter': ['timeline', 'direct', 'sent', 'favorites']}
+        >>> {'foo-twitter': [libturpial.api.models.Column foo-twitter-timeline,
+            libturpial.api.models.Column foo-twitter-replies,
+            libturpial.api.models.Column foo-twitter-direct,
+            libturpial.api.models.Column foo-twitter-sent,
+            libturpial.api.models.Column foo-twitter-favorites]}
         """
         columns = {}
         for account in self.registered_accounts():
@@ -172,7 +176,9 @@ class Core:
         Return a dictionary with all available (non-registered-yet)
         columns per account. Example:
 
-        >>> {'foo-twitter': ['timeline', 'direct', 'sent', 'favorites']}
+        >>> {'foo-twitter': [libturpial.api.models.Column foo-twitter-direct,
+            libturpial.api.models.Column foo-twitter-replies,
+            libturpial.api.models.Column foo-twitter-sent]}
         """
         columns = {}
         for account in self.registered_accounts():
