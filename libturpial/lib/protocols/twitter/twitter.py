@@ -277,7 +277,7 @@ class Main(Protocol):
         return following
 
     def get_profile(self, user):
-        rtn = self.http.get('/users/show', {'screen_name': user})
+        rtn = self.http.get('/users/show', {'screen_name': user, 'include_entities': True})
         profile = self.json_to_profile(rtn)
         rtn = self.http.get('/statuses/user_timeline',
                            {'screen_name': user, 'count': 10,
