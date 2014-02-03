@@ -461,6 +461,7 @@ class Main(Protocol):
             profile.location = response['location']
             profile.url = response['url']
             profile.bio = response['description']
+            profile.entities = self.get_entities(response['entities']['url'])
             profile.following = response['following']
             profile.followers_count = response['followers_count']
             profile.friends_count = response['friends_count']
