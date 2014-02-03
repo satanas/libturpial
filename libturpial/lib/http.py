@@ -76,7 +76,12 @@ class TurpialHTTPBase:
         port = 443
 
         ip = socket.getaddrinfo(host, port)[0][4][0]
-        sock = socket.socket()
+        if ':' in ip:
+            family = socket.AF_INET6
+        else:
+            family = socket.AF_INET
+
+        sock = socket.socket(family)
         sock.connect((ip, port))
 
         sock = ssl.wrap_socket(sock, cert_reqs=ssl.CERT_REQUIRED,
