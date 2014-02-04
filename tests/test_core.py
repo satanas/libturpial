@@ -12,8 +12,11 @@ from libturpial.api.managers.accountmanager import AccountManager
 
 class TestCore:
     @classmethod
-    def setup_class(self):
-        self.core = Core()
+    @pytest.fixture(autouse=True)
+    def setup_class(self, monkeypatch):
+        self.core = Core(load_accounts=False)
+        self.account = Account.new("twitter")
+        monkeypatch.setattr(self.core.accman, "get", lambda x: self.account)
 
     @classmethod
     def teardown_class(self):
@@ -113,11 +116,7 @@ class TestCore:
         column = self.core.get_single_column("dummy-twitter-column")
         assert isinstance(column, Column)
 
-    @pytest.fixture(autouse=True)
-    def test_get_single_account(self, monkeypatch):
-        dummy = Account('twitter')
-        monkeypatch.setattr(self.core.accman, "get", lambda x: dummy)
-
+    def test_get_single_account(self):
         account = self.core.get_single_account("dummy-twitter")
         assert isinstance(account, Account)
 
@@ -125,51 +124,47 @@ class TestCore:
     def test_get_column_statuses(self, monkeypatch):
         status = Status()
         result = [status]
-        account = Account.new("twitter")
-        monkeypatch.setattr(self.core.accman, "get", lambda x: account)
 
         status.id_ = "123"
-        monkeypatch.setattr(account, "get_timeline", lambda x, y: result)
+        monkeypatch.setattr(self.account, "get_timeline", lambda x, y: result)
         response = self.core.get_column_statuses("dummy-twitter", "timeline")
         assert isinstance(response, list)
         assert response[0].id_, "123"
 
         status.id_ = "124"
-        monkeypatch.setattr(account, "get_replies", lambda x, y: result)
+        monkeypatch.setattr(self.account, "get_replies", lambda x, y: result)
         response = self.core.get_column_statuses("dummy-twitter", "replies")
         assert isinstance(response, list)
         assert response[0].id_, "124"
 
         status.id_ = "125"
-        monkeypatch.setattr(account, "get_directs", lambda x, y: result)
+        monkeypatch.setattr(self.account, "get_directs", lambda x, y: result)
         response = self.core.get_column_statuses("dummy-twitter", "directs")
         assert isinstance(response, list)
         assert response[0].id_, "125"
 
         status.id_ = "126"
-        monkeypatch.setattr(account, "get_favorites", lambda x: result)
+        monkeypatch.setattr(self.account, "get_favorites", lambda x: result)
         response = self.core.get_column_statuses("dummy-twitter", "favorites")
         assert isinstance(response, list)
         assert response[0].id_, "126"
 
         list_ = List()
         list_.id_ = "666"
-        monkeypatch.setattr(account, "get_list_id", lambda x: list_)
+        monkeypatch.setattr(self.account, "get_list_id", lambda x: list_)
         status.id_ = "127"
-        monkeypatch.setattr(account, "get_list_statuses", lambda x, y, z: result)
+        monkeypatch.setattr(self.account, "get_list_statuses", lambda x, y, z: result)
         response = self.core.get_column_statuses("dummy-twitter", "my-list")
         assert isinstance(response, list)
         assert response[0].id_, "127"
 
     @pytest.fixture(autouse=True)
     def test_get_followers(self, monkeypatch):
-        account = Account.new("twitter")
         profile = Profile()
         profile.id_ = "dummy"
         result = [profile]
 
-        monkeypatch.setattr(self.core.accman, "get", lambda x: account)
-        monkeypatch.setattr(account, "get_followers", lambda x: result)
+        monkeypatch.setattr(self.account, "get_followers", lambda x: result)
 
         response = self.core.get_followers("dummy-twitter")
         assert isinstance(response, list)
@@ -177,13 +172,11 @@ class TestCore:
 
     @pytest.fixture(autouse=True)
     def test_get_following(self, monkeypatch):
-        account = Account.new("twitter")
         profile = Profile()
         profile.id_ = "dummy"
         result = [profile]
 
-        monkeypatch.setattr(self.core.accman, "get", lambda x: account)
-        monkeypatch.setattr(account, "get_following", lambda x: result)
+        monkeypatch.setattr(self.account, "get_following", lambda x: result)
 
         response = self.core.get_following("dummy-twitter")
         assert isinstance(response, list)
@@ -209,6 +202,44 @@ class TestCore:
         assert isinstance(result, list)
         for friend in result:
             assert isinstance(friend, str)
+
+
+    @pytest.fixture(autouse=True)
+    def test_get_user_profile(self, monkeypatch):
+        profile = Profile()
+        self.account.profile = profile
+        result = [profile]
+
+        monkeypatch.setattr(self.account, "get_profile", lambda x: profile)
+        monkeypatch.setattr(self.account, "is_friend", lambda x: True)
+        monkeypatch.setattr(self.core, "is_muted", lambda x: False)
+
+        profile.id_ = "dummy"
+        response = self.core.get_user_profile("dummy-twitter")
+        assert isinstance(response, Profile)
+        assert response.id_, "dummy"
+
+        profile.id_ = "user"
+        response = self.core.get_user_profile("dummy-twitter", "user")
+        assert isinstance(response, Profile)
+        assert response.id_, "user"
+        assert response.followed_by, True
+        assert not response.muted, True
+
+    @pytest.fixture(autouse=True)
+    def test_get_conversation(self, monkeypatch):
+        status = Status()
+        status.id_ = "321"
+        conversation = [status]
+
+        monkeypatch.setattr(self.account, "get_conversation", lambda x: conversation)
+
+        response = self.core.get_conversation("dummy-twitter", "123")
+        assert isinstance(response, list)
+        assert isinstance(response[0], Status)
+        assert response[0].id_, "321"
+
+
 
 
 
