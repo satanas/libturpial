@@ -60,9 +60,9 @@ class Core:
         *column_id* must be a string ("columnname-username-service")
     """
 
-    def __init__(self):
+    def __init__(self, load_accounts=True):
         self.config = AppConfig()
-        self.accman = AccountManager(self.config)
+        self.accman = AccountManager(self.config, load_accounts)
         self.column_manager = ColumnManager(self.config)
 
     def filter_statuses(self, statuses):

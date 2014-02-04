@@ -25,10 +25,11 @@ class AccountManager:
     >>> len(accman)
     2
     """
-    def __init__(self, config):
+    def __init__(self, config, load=True):
         self.config = config
         self.__accounts = {}
-        self.__load_registered()
+        if load:
+            self.__load_registered()
 
     def __len__(self):
         return len(self.__accounts)
