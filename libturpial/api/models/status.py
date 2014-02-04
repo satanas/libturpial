@@ -95,7 +95,7 @@ class Status:
         """
         Return `True` if this status is a direct message
         """
-        return self.type_ == DIRECT
+        return self.type_ == self.DIRECT
 
     def get_protocol_id(self):
         """
