@@ -461,7 +461,8 @@ class Main(Protocol):
             profile.location = response['location']
             profile.url = response['url']
             profile.bio = response['description']
-            profile.entities = self.get_entities(response['entities']['url'])
+            if 'url' in response['entities']:
+                profile.entities = self.get_entities(response['entities']['url'])
             profile.following = response['following']
             profile.followers_count = response['followers_count']
             profile.friends_count = response['friends_count']
@@ -617,25 +618,27 @@ class Main(Protocol):
                 'mentions': [],
                 'groups': [],
             }
-            for mention in raw_entities['user_mentions']:
-                text = '@' + mention['screen_name']
-                entities['mentions'].append(Entity(self.account_id,
-                                            mention['screen_name'], text,
-                                            text))
+            if 'user_mentions' in raw_entities:
+                for mention in raw_entities['user_mentions']:
+                    text = '@' + mention['screen_name']
+                    entities['mentions'].append(Entity(self.account_id,
+                                                mention['screen_name'], text,
+                                                text))
 
-            for url in raw_entities['urls']:
-                try:
-                    expanded_url = url['expanded_url']
-                except KeyError:
-                    expanded_url = url['url']
-
-                try:
-                    display_url = ''.join(['http://', url['display_url']])
-                except KeyError:
-                    display_url = url['url']
-
-                entities['urls'].append(Entity(self.account_id, expanded_url,
-                                        display_url, url['url']))
+            if 'urls' in raw_entities:
+                for url in raw_entities['urls']:
+                    try:
+                        expanded_url = url['expanded_url']
+                    except KeyError:
+                        expanded_url = url['url']
+    
+                    try:
+                        display_url = ''.join(['http://', url['display_url']])
+                    except KeyError:
+                        display_url = url['url']
+    
+                    entities['urls'].append(Entity(self.account_id, expanded_url,
+                                            display_url, url['url']))
 
             if 'media' in raw_entities:
                 for url in raw_entities['media']:
@@ -644,9 +647,10 @@ class Main(Protocol):
                                             url['media_url'], display_url,
                                             url['url']))
 
-            for ht in raw_entities['hashtags']:
-                text = ''.join(['#', ht['text']])
-                url = "%s%s" % (self.hashtags_url, ht['text'])
-                entities['hashtags'].append(Entity(self.account_id, url, text,
-                                            text))
+            if 'hashtags' in raw_entities:
+                for ht in raw_entities['hashtags']:
+                    text = ''.join(['#', ht['text']])
+                    url = "%s%s" % (self.hashtags_url, ht['text'])
+                    entities['hashtags'].append(Entity(self.account_id, url, text,
+                                                text))
         return entities
