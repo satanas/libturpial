@@ -403,6 +403,7 @@ class Core:
         account = self.accman.get(account_id)
         return account.destroy_direct_message(status_id)
 
+    # TODO: Validate at least one of the parameters
     def update_profile(self, account_id, fullname=None, url=None, bio=None,
             location=None):
         """
