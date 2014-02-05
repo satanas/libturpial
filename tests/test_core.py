@@ -585,3 +585,21 @@ class TestCore:
         monkeypatch.setattr(self.core.config, "read", lambda x, y: 'chromium')
         response = self.core.get_default_browser()
         assert response == 'chromium'
+
+    def test_show_notifications_in_login(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: 'on')
+        response = self.core.show_notifications_in_login()
+        assert response == True
+
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: 'off')
+        response = self.core.show_notifications_in_login()
+        assert response == False
+
+    def test_show_notifications_in_updates(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: 'on')
+        response = self.core.show_notifications_in_updates()
+        assert response == True
+
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: 'off')
+        response = self.core.show_notifications_in_updates()
+        assert response == False
