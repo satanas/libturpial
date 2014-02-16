@@ -8,8 +8,6 @@ class TestStatus:
         self.status = Status()
         self.status.account_id = "dummy-twitter"
         self.status.username = "dummy"
-
-    def test_structure(self):
         self.status.id_ = "123"
         self.status.original_status_id = "123"
         self.status.created_at = ""
@@ -23,18 +21,37 @@ class TestStatus:
         self.status.repeated_by = "baz"
         self.status.datetime = "01-01-1900 00:00"
         self.status.timestamp = 123456789
-        self.status.entities =  {
-            'urls': [],
-            'hashtags': [],
-            'mentions': [],
-            'groups': [],
-        }
+        self.status.entities =  {}
         self.status.type_ = Status.NORMAL
         self.status.is_own = True
         self.status.repeated = False
         self.status.repeated_count = None
         self.status.local_timestamp = 123456789
         self.status.source = None
+
+    def test_structure(self):
+        assert self.status.account_id == "dummy-twitter"
+        assert self.status.username == "dummy"
+        assert self.status.id_ == "123"
+        assert self.status.original_status_id == "123"
+        assert self.status.created_at == ""
+        assert self.status.avatar == "my_avatar.png"
+        assert self.status.text == "Tweet text"
+        assert self.status.in_reply_to_id == "123"
+        assert self.status.in_reply_to_user == "bar"
+        assert self.status.is_favorite == False
+        assert self.status.is_protected == False
+        assert self.status.is_verified == True
+        assert self.status.repeated_by == "baz"
+        assert self.status.datetime == "01-01-1900 00:00"
+        assert self.status.timestamp == 123456789
+        assert self.status.entities == {}
+        assert self.status.type_ == Status.NORMAL
+        assert self.status.is_own == True
+        assert self.status.repeated == False
+        assert self.status.repeated_count == None
+        assert self.status.local_timestamp == 123456789
+        assert self.status.source == None
 
     def test_is_direct(self):
         assert self.status.is_direct() == False
@@ -72,7 +89,7 @@ class TestStatus:
 
     def test_get_source(self):
         self.status.get_source(None)
-        assert self.status.source is None
+        assert self.status.source == None
 
         self.status.get_source('web')
         assert isinstance(self.status.source, Client)
@@ -92,7 +109,7 @@ class TestStatus:
     def test_equality(self):
         status = Status()
         status.id_ = "456"
-        assert not status == self.status
+        assert status != self.status
 
         status.id_ = "123"
         assert status == self.status

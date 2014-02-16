@@ -16,6 +16,7 @@ class List:
     :ivar single_unit: Singularized unit ('tweet' for example)
     :ivar plural_unit: Pluralized unit ('tweet' for example)
     """
+    # TODO: Initialize with some values (like column)
     def __init__(self):
         self.id_ = None
         self.user = None
