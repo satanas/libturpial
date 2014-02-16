@@ -4,9 +4,11 @@ import tempfile
 
 from libturpial.exceptions import *
 from libturpial.api.core import Core
+from libturpial.config import APP_CFG
 from libturpial.config import AppConfig
 from libturpial.config import AccountConfig
 from libturpial.api.models.list import List
+from libturpial.api.models.proxy import Proxy
 from libturpial.api.models.media import Media
 from libturpial.api.models.trend import Trend
 from libturpial.api.models.status import Status
@@ -44,6 +46,30 @@ class TestCore:
         assert isinstance(self.core.accman, AccountManager)
         assert self.core.column_manager != None
         assert isinstance(self.core.column_manager, ColumnManager)
+
+    def test_filter_statuses(self, monkeypatch):
+        status = Status()
+        status.id_ = "123"
+        status.username = "foo"
+        status.repeated_by = "bar"
+        status.text = "Please, filter me"
+        statuses = [status]
+
+        monkeypatch.setattr(self.core.config, "load_filters", lambda: [])
+        response = self.core.filter_statuses(statuses)
+        assert response == statuses
+
+        monkeypatch.setattr(self.core.config, "load_filters", lambda: ['@foo'])
+        response = self.core.filter_statuses(statuses)
+        assert response == []
+
+        monkeypatch.setattr(self.core.config, "load_filters", lambda: ['@bar'])
+        response = self.core.filter_statuses(statuses)
+        assert response == []
+
+        monkeypatch.setattr(self.core.config, "load_filters", lambda: ['filter'])
+        response = self.core.filter_statuses(statuses)
+        assert response == []
 
     def test_list_methods(self):
         accounts = self.core.list_accounts()
@@ -166,6 +192,21 @@ class TestCore:
         assert isinstance(response, list)
         assert response[0].id_, "127"
 
+        monkeypatch.setattr(self.account, "get_list_id", lambda x: None)
+        with pytest.raises(UserListNotFound):
+            self.core.get_column_statuses(self.acc_id, "unknown-list")
+
+    def test_get_public_timeline(self, monkeypatch):
+        status = Status()
+        status.id_ = "123"
+        result = [status]
+
+        monkeypatch.setattr(self.account, "get_public_timeline", lambda x, y: result)
+
+        response = self.core.get_public_timeline(self.acc_id)
+        assert isinstance(response, list)
+        assert response[0].id_, "123"
+
     def test_get_followers(self, monkeypatch):
         profile = Profile()
         profile.id_ = "dummy"
@@ -208,7 +249,6 @@ class TestCore:
         for friend in result:
             assert isinstance(friend, str)
 
-
     def test_get_user_profile(self, monkeypatch):
         profile = Profile()
         self.account.profile = profile
@@ -242,7 +282,6 @@ class TestCore:
         assert isinstance(response[0], Status)
         assert response[0].id_, "321"
 
-    # Tested by lines
     def test_update_status(self, monkeypatch):
         status = Status()
         monkeypatch.setattr(self.account, "update_status", lambda x, y, z: status)
@@ -272,6 +311,10 @@ class TestCore:
         assert response["foo-twitter"] == status
         assert isinstance(response["bar-twitter"], Status)
         assert response["bar-twitter"] == status
+
+        monkeypatch.delattr(self.core.accman, "get")
+        response = self.core.broadcast_status(["foo-twitter"], "Dummy message")
+        assert isinstance(response["foo-twitter"], ErrorLoadingAccount)
 
     def test_destroy_status(self, monkeypatch):
         status = Status()
@@ -569,6 +612,38 @@ class TestCore:
         response = self.core.set_upload_media_service('foo')
         assert response is None
 
+    def test_has_stored_passwwd(self, monkeypatch):
+        account = Account.new("twitter")
+        profile = Profile()
+        profile.username = "dummy"
+        account.profile = profile
+
+        monkeypatch.setattr(self.core.accman, "get", lambda x: account)
+
+        profile.password = None
+        response = self.core.has_stored_passwd("foo")
+        assert response == False
+
+        profile.password = ''
+        response = self.core.has_stored_passwd("foo")
+        assert response == False
+
+        profile.password = '123'
+        response = self.core.has_stored_passwd("foo")
+        assert response == True
+
+    def test_is_account_logged_in(self, monkeypatch):
+        account = Account.new("twitter")
+        monkeypatch.setattr(self.core.accman, "get", lambda x: account)
+
+        account.logged_in = False
+        response = self.core.is_account_logged_in("foo")
+        assert response == False
+
+        account.logged_in = True
+        response = self.core.is_account_logged_in("foo")
+        assert response == True
+
     def test_is_muted(self, monkeypatch):
         monkeypatch.setattr(self.core.config, "load_filters", lambda: ['@foo', '@bar'])
 
@@ -603,3 +678,121 @@ class TestCore:
         monkeypatch.setattr(self.core.config, "read", lambda x, y: 'off')
         response = self.core.show_notifications_in_updates()
         assert response == False
+
+    def test_play_sounds_in_login(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: 'on')
+        response = self.core.play_sounds_in_login()
+        assert response == True
+
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: 'off')
+        response = self.core.play_sounds_in_login()
+        assert response == False
+
+    def test_play_sounds_in_updates(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: 'on')
+        response = self.core.play_sounds_in_updates()
+        assert response == True
+
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: 'off')
+        response = self.core.play_sounds_in_updates()
+        assert response == False
+
+    def test_get_max_statuses_per_column(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: '200')
+
+        response = self.core.get_max_statuses_per_column()
+        assert isinstance(response, int)
+
+    def test_get_proxy(self, monkeypatch):
+        proxy = Proxy('1.2.3.4', '666')
+        monkeypatch.setattr(self.core.config, "get_proxy", lambda: proxy)
+
+        response = self.core.get_proxy()
+        assert isinstance(response, Proxy)
+
+    def test_get_socket_timeout(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "get_socket_timeout", lambda: '20')
+
+        response = self.core.get_socket_timeout()
+        assert isinstance(response, int)
+
+    def test_get_update_interval(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: '200')
+
+        response = self.core.get_update_interval()
+        assert isinstance(response, int)
+
+    def test_minimize_on_close(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: 'on')
+        response = self.core.minimize_on_close()
+        assert response == True
+
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: 'off')
+        response = self.core.minimize_on_close()
+        assert response == False
+
+    def test_get_config(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "read_all", lambda: APP_CFG)
+
+        response = self.core.config.read_all()
+        assert isinstance(response, dict)
+
+    def test_read_config_value(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "read", lambda x, y: "foo")
+
+        response = self.core.read_config_value("bar", "baz")
+        assert response == "foo"
+
+    def test_write_config_value(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "write", lambda x, y, z: None)
+
+        response = self.core.write_config_value("foo", "bar", "baz")
+        assert response is None
+
+    def test_save_all_config(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "save", lambda x: None)
+
+        response = self.core.save_all_config({})
+        assert response is None
+
+    def test_list_filters(self):
+        response = self.core.list_filters()
+        assert isinstance(response, list)
+
+    def test_save_filters(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "save_filters", lambda x: None)
+
+        response = self.core.save_filters([])
+        assert response is None
+
+    def test_delete_current_config(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "delete", lambda: None)
+
+        response = self.core.delete_current_config()
+        assert response is None
+
+    def test_delete_cache(self, monkeypatch):
+        monkeypatch.setattr(self.account, "delete_cache", lambda: None)
+        monkeypatch.setattr(self.core, "registered_accounts", lambda: [self.account])
+
+        response = self.core.delete_cache()
+        assert response is None
+
+    def test_get_cache_size(self, monkeypatch):
+        monkeypatch.setattr(self.account, "get_cache_size", lambda: 10)
+        monkeypatch.setattr(self.core, "registered_accounts", lambda: [self.account])
+
+        response = self.core.get_cache_size()
+        assert response == 10
+
+    def test_add_friend(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "save_friends", lambda x: None)
+
+        response = self.core.add_friend("foo")
+        assert response is None
+
+    def test_remove_friend(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, "save_friends", lambda x: None)
+
+        response = self.core.remove_friend("foo")
+        assert response is None
