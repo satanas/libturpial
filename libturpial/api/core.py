@@ -638,6 +638,7 @@ class Core:
     def set_upload_media_service(self, value):
         return self.config.write('Services', 'upload-pic', value)
 
+    # WARN: Will be deprecated on next mayor version
     def has_stored_passwd(self, account_id):
         account = self.accman.get(account_id)
         if account.profile.password is None:
@@ -646,6 +647,7 @@ class Core:
             return False
         return True
 
+    # WARN: Will be deprecated on next mayor version
     def is_account_logged_in(self, account_id):
         account = self.accman.get(account_id)
         return account.logged_in
@@ -712,7 +714,7 @@ class Core:
         """
         Return the timeout set for the socket connections
         """
-        return self.config.get_socket_timeout()
+        return int(self.config.get_socket_timeout())
 
     # WARN: Will be deprecated on next mayor version
     def get_update_interval(self):
@@ -745,18 +747,21 @@ class Core:
         """
         return self.config.load_filters()
 
+    # TODO: Return saved filters or True
     def save_filters(self, lst):
         """
         Save *lst* a the new filters list
         """
         self.config.save_filters(lst)
 
+    # TODO: Return True on success
     def delete_current_config(self):
         """
         Delete current configuration file. This action can not be undone
         """
         self.config.delete()
 
+    # TODO: Return True on success
     def delete_cache(self):
         """
         Delete all files in cache
@@ -773,6 +778,7 @@ class Core:
             total_size += account.get_cache_size()
         return total_size
 
+    # TODO: Return added friend
     def add_friend(self, username):
         """
         Save *username* into the friends list
@@ -781,6 +787,7 @@ class Core:
         friends.append(username)
         self.config.save_friends(friends)
 
+    # TODO: Return removed friend
     def remove_friend(self, username):
         """
         Remove *username* from friends list
