@@ -7,13 +7,13 @@ class TestExceptions:
         exc = ErrorLoadingAccount("Dummy message")
         temp = "%s" % exc
         assert exc.message == "Dummy message"
-        assert temp == "Dummy message"
+        assert temp == "'Dummy message'"
 
     def test_dirrect_message_exception(self):
         exc = ErrorSendingDirectMessage("Dummy message")
         temp = "%s" % exc
         assert exc.message == "Dummy message"
-        assert temp == "Dummy message"
+        assert temp == "'Dummy message'"
 
     def test_url_shorten_exception(self):
         exc = URLShortenError("Dummy message")
