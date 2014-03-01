@@ -124,7 +124,6 @@ class ConfigBase:
         if on_disk != on_memory:
             self.save()
 
-
     def load_failsafe(self):
         self.__config = self.default
 
@@ -175,14 +174,12 @@ class ConfigBase:
             return None
 
     def read_section(self, section):
-        #self.log.debug('Reading section %s' % section)
         try:
             return self.__config[section]
         except Exception:
             return None
 
     def read_all(self):
-        self.log.debug('Reading all')
         try:
             return self.__config
         except Exception:
@@ -190,11 +187,11 @@ class ConfigBase:
 
 class AppConfig(ConfigBase):
     """ Handle app configuration """
-    def __init__(self):
-        ConfigBase.__init__(self)
+    def __init__(self, basedir=BASEDIR, default=None):
+        ConfigBase.__init__(self, default)
         self.log = logging.getLogger('AppConfig')
         self.log.debug('Started')
-        self.basedir = BASEDIR
+        self.basedir = basedir
 
         self.configpath = os.path.join(self.basedir, 'config')
         self.filterpath = os.path.join(self.basedir, 'filtered')
@@ -225,12 +222,14 @@ class AppConfig(ConfigBase):
         _fd.close()
         return muted
 
+    # TODO: Return saved filters?
     def save_filters(self, filter_list):
         _fd = open(self.filterpath, 'w')
         for expression in filter_list:
             _fd.write(expression + '\n')
         _fd.close()
 
+    # TODO: Return added expresion?
     def append_filter(self, expression):
         for term in self.load_filters():
             if term == expression:
@@ -239,6 +238,7 @@ class AppConfig(ConfigBase):
         _fd.write(expression + '\n')
         _fd.close()
 
+    # TODO: Return removed expression?
     def remove_filter(self, expression):
         new_list = []
         for term in self.load_filters():
@@ -257,6 +257,7 @@ class AppConfig(ConfigBase):
         _fd.close()
         return friends
 
+    # TODO: Return saved friends?
     def save_friends(self, lst):
         _fd = open(self.friendspath, 'w')
         for friend in lst:
@@ -293,6 +294,7 @@ class AppConfig(ConfigBase):
     def get_socket_timeout(self):
         return int(self.read('Advanced', 'socket-timeout'))
 
+    # TODO: Return True when success?
     def delete(self):
         os.remove(self.configpath)
         self.log.debug('Deleted current config. Please restart Turpial')
