@@ -1,3 +1,4 @@
+import types
 import pytest
 
 from libturpial.exceptions import *
@@ -12,7 +13,7 @@ class TestAccountManager:
         config = AppConfig()
         self.account = Account.new("twitter", "foo")
         self.accman = AccountManager(config, load=False)
-        monkeypatch.setattr(Account, "load", lambda x: account)
+        #monkeypatch.setattr(Account, "load", lambda x: account)
         #self.core = Core(load_accounts=False)
         #self.account = Account.new("twitter", "dummy")
         #monkeypatch.setattr(self.core.accman, "get", lambda x: self.account)
@@ -27,9 +28,14 @@ class TestAccountManager:
         #monkeypatch.setattr(Account, "load", lambda x: account)
         #accman = AccountManager(config)
 
-    def test_load(self, monkeypatch):
-        monkeypatch.setattr(Account, "load", lambda x: self.account)
-        assert self.accman.load(self.account.id_) == self.account.id_
+    #def test_load(self, monkeypatch):
+    #    monkeypatch.setattr(Account, "load", lambda x: self.account)
+    #    assert self.accman.load(self.account.id_) == self.account.id_
+
+    def test_load_registered(self, monkeypatch):
+        monkeypatch.setattr(self.accman.config, 'get_stored_accounts', lambda: [self.account])
+        monkeypatch.setattr(self.accman, 'load', lambda x: None)
+        assert self.accman._AccountManager__load_registered() == None
 
 
     def test_register(self, monkeypatch):
@@ -81,4 +87,7 @@ class TestAccountManager:
         accounts = {self.account.id_: self.account, 'bar-twitter': account2}
         monkeypatch.setattr(self.accman, '_AccountManager__accounts', accounts)
         assert account2 in self.accman.accounts()
+
+    def test_iter(self):
+        assert isinstance((x for x in self.accman), types.GeneratorType)
 
