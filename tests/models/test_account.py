@@ -146,12 +146,19 @@ class TestAccount:
         with pytest.raises(AccountNotAuthenticated):
             self.account.save()
 
+        # Monkeypatching AppConfig create
+        monkeypatch.setattr(os, 'makedirs', lambda x: None)
+        monkeypatch.setattr(AccountConfig, 'create', lambda x: None)
+        monkeypatch.setattr(AccountConfig, 'load', lambda x: None)
+        monkeypatch.setattr(AccountConfig, 'load_failsafe', lambda x: None)
+        monkeypatch.setattr(AccountConfig, 'exists', lambda x, y: True)
+        monkeypatch.setattr(AccountConfig, 'save_oauth_credentials', lambda x, y, z: None)
+
         monkeypatch.setattr(self.account, 'is_authenticated', lambda: True)
-        monkeypatch.setattr('libturpial.config.AccountConfig', DummyConfig)
         monkeypatch.setattr(self.account, 'get_oauth_token', lambda: DummyToken())
 
         # TODO: How to test that this works?
-        #assert self.account.save() == None
+        assert self.account.save() == None
 
     def test_fetch(self, monkeypatch):
         monkeypatch.setattr(self.account, 'protocol', DummyProtocol())
