@@ -360,9 +360,9 @@ class TestCore:
         assert isinstance(response["bar-twitter"], Status)
         assert response["bar-twitter"] == status
 
-        monkeypatch.delattr(self.core.accman, "get")
+        monkeypatch.setattr(self.core.accman, "get", lambda x: 'whatever')
         response = self.core.broadcast_status(["foo-twitter"], "Dummy message")
-        assert isinstance(response["foo-twitter"], ErrorLoadingAccount)
+        assert isinstance(response["foo-twitter"], Exception)
 
     def test_destroy_status(self, monkeypatch):
         status = Status()
@@ -631,7 +631,8 @@ class TestCore:
         with pytest.raises(PreviewServiceNotSupported):
             self.core.preview_media('http://unsupported.service.com/ble')
 
-        monkeypatch.setattr('libturpial.common.get_preview_service_from_url', lambda x: DummyService())
+        monkeypatch.setattr('libturpial.lib.services.media.preview.pictwitter.PicTwitterMediaContent._get_content_from_url',
+                lambda x, y: '123')
         response = self.core.preview_media('http://pic.twitter.com/ble')
         assert isinstance(response, Media)
 
