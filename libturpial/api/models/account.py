@@ -169,6 +169,7 @@ class Account(object):
         self.profile = self.protocol.authorize_token(pin)
         self.__setup(self.profile.username)
 
+    # TODO: Return True if success?
     def save(self):
         """
         Save to disk the configuration and credentials for the account. If the 
@@ -223,12 +224,14 @@ class Account(object):
                 return li.id_
         return None
 
+    # TODO: Return True?
     def purge_config(self):
         """
         Delete all config files related to this account
         """
         self.config.dismiss()
 
+    # TODO: Return True?
     def delete_cache(self):
         """
         Delete all files cached for this account
