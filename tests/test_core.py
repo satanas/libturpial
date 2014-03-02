@@ -1,11 +1,14 @@
 import os
 import pytest
+import requests
 import tempfile
+import __builtin__
 
 from libturpial.exceptions import *
 from libturpial.api.core import Core
 from libturpial.config import APP_CFG
 from libturpial.config import AppConfig
+from libturpial.common import ColumnType
 from libturpial.config import AccountConfig
 from libturpial.api.models.list import List
 from libturpial.api.models.proxy import Proxy
@@ -18,10 +21,40 @@ from libturpial.api.models.account import Account
 from libturpial.api.models.trend import TrendLocation
 from libturpial.api.managers.columnmanager import ColumnManager
 from libturpial.api.managers.accountmanager import AccountManager
+#from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
 
 class DummyConfig:
     def __init__(self):
         self.imgdir = "/path/to/ble"
+
+class DummyResponse:
+    def __init__(self, content):
+        self.content = content
+
+class DummyService:
+    def __init__(self, default=None):
+        self.default = default or 'dummy-service'
+    def do_service(self, arg1, arg2=None, arg3=None):
+        return self.default
+
+class DummyAccount:
+    def __init__(self):
+        self.config = DummyConfig()
+    def get_profile_image(self, arg):
+        return "http://dummy.url"
+
+class DummyFileHandler:
+    def __init__(self, array=None):
+        if array:
+            self.array = array
+        else:
+            self.array = []
+    def __iter__(self):
+        return iter(self.array)
+    def close(self):
+        pass
+    def write(self, argument):
+        pass
 
 class TestCore:
     @classmethod
@@ -30,11 +63,11 @@ class TestCore:
         self.acc_id = "dummy-twitter"
         self.core = Core(load_accounts=False)
         self.account = Account.new("twitter", "dummy")
+        self.account.columns = [Column(self.account.id_, ColumnType.TIMELINE)]
+        self.account2 = Account.new("twitter", "qux")
+        self.account2.columns = [Column(self.account2.id_, ColumnType.TIMELINE)]
+        self.all_accounts = [self.account, self.account2]
         monkeypatch.setattr(self.core.accman, "get", lambda x: self.account)
-
-    @classmethod
-    def teardown_class(self):
-        pass
 
     def test_core_is_a_valid_instance(self):
         assert isinstance(self.core, Core)
@@ -70,6 +103,15 @@ class TestCore:
         monkeypatch.setattr(self.core.config, "load_filters", lambda: ['filter'])
         response = self.core.filter_statuses(statuses)
         assert response == []
+
+        monkeypatch.setattr(self.core.config, "load_filters", lambda: ['dummy'])
+        response = self.core.filter_statuses(statuses)
+        assert response == statuses
+
+    def test_fetch_image(self, monkeypatch):
+        monkeypatch.setattr(requests, 'get', lambda x: DummyResponse('binarydata'))
+        assert self.core.fetch_image('http://my_image.png') == 'binarydata'
+
 
     def test_list_methods(self):
         accounts = self.core.list_accounts()
@@ -108,7 +150,8 @@ class TestCore:
         result = self.core.unregister_column("dummy-twitter-column1")
         assert isinstance(result, str)
 
-    def test_all_columns(self):
+    def test_all_columns(self, monkeypatch):
+        monkeypatch.setattr(self.core, 'registered_accounts', lambda: self.all_accounts)
         columns = self.core.all_columns()
         assert isinstance(columns, dict)
         for key, value in columns.iteritems():
@@ -116,7 +159,8 @@ class TestCore:
             for col in value:
                 assert (isinstance(col, Column) or isinstance(col, List))
 
-    def test_available_columns(self):
+    def test_available_columns(self, monkeypatch):
+        monkeypatch.setattr(self.core, 'registered_accounts', lambda: self.all_accounts)
         columns = self.core.available_columns()
         assert isinstance(columns, dict)
         for key, value in columns.iteritems():
@@ -159,29 +203,29 @@ class TestCore:
         status = Status()
         result = [status]
 
-        status.id_ = "123"
         monkeypatch.setattr(self.account, "get_timeline", lambda x, y: result)
         response = self.core.get_column_statuses(self.acc_id, "timeline")
-        assert isinstance(response, list)
-        assert response[0].id_, "123"
+        assert response == result
 
-        status.id_ = "124"
         monkeypatch.setattr(self.account, "get_replies", lambda x, y: result)
         response = self.core.get_column_statuses(self.acc_id, "replies")
-        assert isinstance(response, list)
-        assert response[0].id_, "124"
+        assert response == result
 
-        status.id_ = "125"
         monkeypatch.setattr(self.account, "get_directs", lambda x, y: result)
         response = self.core.get_column_statuses(self.acc_id, "directs")
-        assert isinstance(response, list)
-        assert response[0].id_, "125"
+        assert response == result
 
-        status.id_ = "126"
         monkeypatch.setattr(self.account, "get_favorites", lambda x: result)
         response = self.core.get_column_statuses(self.acc_id, "favorites")
-        assert isinstance(response, list)
-        assert response[0].id_, "126"
+        assert response == result
+
+        monkeypatch.setattr(self.account, "get_sent", lambda x, y: result)
+        response = self.core.get_column_statuses(self.acc_id, "sent")
+        assert response == result
+
+        monkeypatch.setattr(self.account, "get_public_timeline", lambda x, y: result)
+        response = self.core.get_column_statuses(self.acc_id, "public")
+        assert response == result
 
         list_ = List()
         list_.id_ = "666"
@@ -195,6 +239,10 @@ class TestCore:
         monkeypatch.setattr(self.account, "get_list_id", lambda x: None)
         with pytest.raises(UserListNotFound):
             self.core.get_column_statuses(self.acc_id, "unknown-list")
+
+        monkeypatch.setattr(self.core, 'search', lambda w, x, y, z: result)
+        response = self.core.get_column_statuses(self.acc_id, "search-dummy")
+        assert response == result
 
     def test_get_public_timeline(self, monkeypatch):
         status = Status()
@@ -479,39 +527,40 @@ class TestCore:
 
 
     def test_get_profile_image(self, monkeypatch):
-        monkeypatch.setattr(self.core, "get_profile_image", lambda x, y, z: "/path/to/ble")
+        monkeypatch.setattr(os.path, "join", lambda x, y: '/path/to/ble')
+        monkeypatch.setattr(os.path, "isfile", lambda x: True)
+        monkeypatch.setattr(self.core.accman, 'get', lambda x: DummyAccount())
+        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler())
 
-        response = self.core.get_profile_image(self.acc_id, "foo", True)
+        response = self.core.get_profile_image(self.acc_id, "foo")
         assert response == "/path/to/ble"
 
+        monkeypatch.setattr(self.core, 'fetch_image', lambda x: 'binary')
+        monkeypatch.setattr(os.path, "join", lambda x, y: '/path/to/bla')
         response = self.core.get_profile_image(self.acc_id, "foo", False)
-        assert response == "/path/to/ble"
-
-        # TODO: Make this work
-        #account = Account("twitter", "dummy")
-        #account.config = DummyConfig()
-        #(handler, path) = tempfile.mkstemp()
-        #monkeypatch.setattr(os.path, "join", lambda x, y: path)
-        #monkeypatch.setattr(os.path, "isfile", lambda x: True)
-
-        ## Using cache
-        #response = self.core.get_profile_image(self.acc_id, "foo")
-        #assert response == path
-
-        ## Not using cache
-        #monkeypatch.setattr(account, "get_profile_image", lambda x: "/path/to/bla")
-        #monkeypatch.setattr(self.core, "fetch_image", lambda x: "123test")
-        #response = self.core.get_profile_image(self.acc_id, "foo", False)
-        #assert response == path
+        assert response == "/path/to/bla"
 
     def test_get_status_avatar(self, monkeypatch):
-        monkeypatch.setattr(self.core, "get_status_avatar", lambda x: "/path/to/ble")
+        status = Status()
+        status.id_ = "123456789"
+        status.account_id = "foo-twitter"
+        status.username = "foo"
+        status.avatar = "http://my.dummy/avatar"
 
-        response = self.core.get_status_avatar("123")
+        monkeypatch.setattr(os.path, "join", lambda x, y: '/path/to/ble')
+        monkeypatch.setattr(os.path, "isfile", lambda x: True)
+        monkeypatch.setattr(self.core.accman, 'get', lambda x: DummyAccount())
+
+        response = self.core.get_status_avatar(status)
         assert response == "/path/to/ble"
 
-        response = self.core.get_status_avatar("123")
-        assert response == "/path/to/ble"
+        monkeypatch.setattr(os.path, "join", lambda x, y: '/path/to/bla')
+        monkeypatch.setattr(os.path, "isfile", lambda x: False)
+        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler())
+        monkeypatch.setattr(self.core, 'fetch_image', lambda x: 'binary')
+
+        response = self.core.get_status_avatar(status)
+        assert response == "/path/to/bla"
 
     def test_get_available_trend_locations(self, monkeypatch):
         location = TrendLocation('Global', 1)
@@ -547,7 +596,7 @@ class TestCore:
         with pytest.raises(URLAlreadyShort):
             self.core.short_single_url('http://is.gd/blable')
 
-        monkeypatch.setattr(self.core, "short_single_url", lambda x: 'http://is.gd/ble')
+        monkeypatch.setattr(self.core, "_Core__get_short_url_object", lambda x: DummyService('http://is.gd/ble'))
         response = self.core.short_single_url('http://my.looooon.url')
         assert response == 'http://is.gd/ble'
 
@@ -566,6 +615,12 @@ class TestCore:
         response = self.core.short_url_in_message(message)
         assert response == message_expected
 
+        def raise_ex():
+            raise URLAlreadyShort
+
+        response = self.core.short_url_in_message(message_with_short_url)
+        assert response == message_with_short_url
+
     def test_available_preview_media_services(self):
         response = self.core.available_preview_media_services()
         assert isinstance(response, list)
@@ -576,7 +631,7 @@ class TestCore:
         with pytest.raises(PreviewServiceNotSupported):
             self.core.preview_media('http://unsupported.service.com/ble')
 
-        monkeypatch.setattr(self.core, "preview_media", lambda x: media)
+        monkeypatch.setattr('libturpial.common.get_preview_service_from_url', lambda x: DummyService())
         response = self.core.preview_media('http://pic.twitter.com/ble')
         assert isinstance(response, Media)
 
@@ -586,12 +641,18 @@ class TestCore:
         assert isinstance(response[0], str)
 
     def test_upload_media(self, monkeypatch):
-        monkeypatch.setattr(self.core, "upload_media", lambda x, y, z: 'http://ima.ge/bla')
+        monkeypatch.setattr(self.core, "get_upload_media_service", lambda: 'ima.ge')
+        monkeypatch.setattr(self.core, "_Core__get_upload_media_object", lambda x: DummyService('http://ima.ge/bla'))
 
         response = self.core.upload_media(self.acc_id, '/path/to/file', "Dummy message")
         assert response == 'http://ima.ge/bla'
 
     # Configuration
+    def test_register_new_config_option(self, monkeypatch):
+        monkeypatch.setattr(self.core.config, 'register_extra_option', lambda x, y, z: None)
+        # TODO: How to test that this works? Return 0 maybe?
+        assert self.core.register_new_config_option('foo', 'bar', 'baz') == None
+
     def test_get_shorten_url_service(self):
         response = self.core.get_shorten_url_service()
         assert isinstance(response, str)
@@ -645,7 +706,7 @@ class TestCore:
         assert response == True
 
     def test_is_muted(self, monkeypatch):
-        monkeypatch.setattr(self.core.config, "load_filters", lambda: ['@foo', '@bar'])
+        monkeypatch.setattr(self.core.config, "load_filters", lambda: ['@foo', '@bar', 'baz'])
 
         response = self.core.is_muted('foo')
         assert response == True
@@ -734,7 +795,7 @@ class TestCore:
     def test_get_config(self, monkeypatch):
         monkeypatch.setattr(self.core.config, "read_all", lambda: APP_CFG)
 
-        response = self.core.config.read_all()
+        response = self.core.get_config()
         assert isinstance(response, dict)
 
     def test_read_config_value(self, monkeypatch):
@@ -793,6 +854,7 @@ class TestCore:
 
     def test_remove_friend(self, monkeypatch):
         monkeypatch.setattr(self.core.config, "save_friends", lambda x: None)
+        monkeypatch.setattr(self.core.config, "load_friends", lambda: ['foo'])
 
         response = self.core.remove_friend("foo")
         assert response is None
