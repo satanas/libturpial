@@ -4,19 +4,8 @@ import __builtin__
 
 from libturpial.config import *
 
+from tests.helpers import DummyFileHandler
 
-class DummyFileHandler:
-    def __init__(self, array=None):
-        if array:
-            self.array = array
-        else:
-            self.array = []
-    def __iter__(self):
-        return iter(self.array)
-    def close(self):
-        pass
-    def write(self, argument):
-        pass
 
 class DummyConfigParser:
     def read(self, value):

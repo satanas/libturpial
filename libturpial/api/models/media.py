@@ -49,6 +49,7 @@ class Media(object):
         """
         return Media(Media.IMAGE, name, content, path, info)
 
+    # TODO: Return True when success?
     def save_content(self):
         """
         Saves the content of the media in the path specified.
