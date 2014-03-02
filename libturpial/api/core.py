@@ -65,6 +65,12 @@ class Core:
         self.accman = AccountManager(self.config, load_accounts)
         self.column_manager = ColumnManager(self.config)
 
+    def __get_upload_media_object(self, service):
+        return UPLOAD_MEDIA_SERVICES[service]
+
+    def __get_short_url_object(self, service):
+        return URL_SERVICES[service]
+
     def filter_statuses(self, statuses):
         filtered_statuses = []
         filtered_terms = self.config.load_filters()
@@ -567,7 +573,7 @@ class Core:
         service = self.get_shorten_url_service()
         if os.path.split(long_url)[0].find(service) >= 0:
             raise URLAlreadyShort
-        urlshorter = URL_SERVICES[service]
+        urlshorter = self.__get_short_url_object(service)
         return urlshorter.do_service(long_url)
 
     def short_url_in_message(self, message):
@@ -600,13 +606,14 @@ class Core:
     def upload_media(self, account_id, filepath, message=None):
         service = self.get_upload_media_service()
         account = self.accman.get(account_id)
-        uploader = UPLOAD_MEDIA_SERVICES[service]
+        uploader = self.__get_upload_media_object(service)
         return uploader.do_service(account, filepath, message)
 
     ###########################################################################
     # Configuration API
     ###########################################################################
 
+    # TODO: Return added option?
     def register_new_config_option(self, section, option, default_value):
         """
         Register a new configuration *option* in *section* to be handled by 
