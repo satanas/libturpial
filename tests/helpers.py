@@ -14,13 +14,15 @@ class DummyFileHandler:
         pass
 
 class DummyAccount:
-    def __init__(self, arg1, arg2):
+    def __init__(self, arg1=None, arg2=None):
         self.id_ = arg1
-        self.config = None
+        self.config = DummyConfig()
     def setup_user_credentials(self, arg1, arg2, arg3):
         pass
     def fetch(self):
         pass
+    def get_profile_image(self, arg):
+        return "http://dummy.url"
     @staticmethod
     def new(arg1, arg2):
         return DummyAccount(arg1, arg2)
@@ -49,6 +51,7 @@ class DummyProtocol:
 class DummyConfig:
     def __init__(self, arg=None):
         self.cache_size = 0
+        self.imgdir = "/path/to/ble"
     @staticmethod
     def exists(value):
         return False
@@ -71,3 +74,13 @@ class DummyToken:
 class DummyProfile:
     def is_me(self):
         return True
+
+class DummyResponse:
+    def __init__(self, content):
+        self.content = content
+
+class DummyService:
+    def __init__(self, default=None):
+        self.default = default or 'dummy-service'
+    def do_service(self, arg1, arg2=None, arg3=None):
+        return self.default

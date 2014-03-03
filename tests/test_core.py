@@ -21,40 +21,9 @@ from libturpial.api.models.account import Account
 from libturpial.api.models.trend import TrendLocation
 from libturpial.api.managers.columnmanager import ColumnManager
 from libturpial.api.managers.accountmanager import AccountManager
-#from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
 
-class DummyConfig:
-    def __init__(self):
-        self.imgdir = "/path/to/ble"
-
-class DummyResponse:
-    def __init__(self, content):
-        self.content = content
-
-class DummyService:
-    def __init__(self, default=None):
-        self.default = default or 'dummy-service'
-    def do_service(self, arg1, arg2=None, arg3=None):
-        return self.default
-
-class DummyAccount:
-    def __init__(self):
-        self.config = DummyConfig()
-    def get_profile_image(self, arg):
-        return "http://dummy.url"
-
-class DummyFileHandler:
-    def __init__(self, array=None):
-        if array:
-            self.array = array
-        else:
-            self.array = []
-    def __iter__(self):
-        return iter(self.array)
-    def close(self):
-        pass
-    def write(self, argument):
-        pass
+from tests.helpers import DummyResponse, DummyConfig, DummyAccount, \
+        DummyFileHandler, DummyService
 
 class TestCore:
     @classmethod
