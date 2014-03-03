@@ -1,8 +1,10 @@
 import os
+import shutil
 import pytest
 import __builtin__
 
 from libturpial.config import *
+from libturpial.exceptions import EmptyOAuthCredentials
 
 from tests.helpers import DummyFileHandler
 
@@ -108,6 +110,24 @@ class TestConfigBase:
         self.config_base.create()
         assert self.config_base._ConfigBase__config['foo']['bar'] == 987
 
+    def test_load(self, monkeypatch):
+        default = {
+            'foo': {
+                'bar': 987,
+            },
+            'bla': {
+                'ble': 'on',
+                'bli': 'off',
+            },
+            'dummy': {},
+        }
+        monkeypatch.setattr(self.config_base.cfg, 'read', lambda x: None)
+        monkeypatch.setattr(self.config_base, 'default', default)
+        monkeypatch.setattr(self.config_base, 'save', lambda: None)
+        # TODO: How to test this?
+        assert self.config_base.load() == None
+
+
     def test_load_failsafe(self):
         config_base = ConfigBase(self.default)
         config_base.load_failsafe()
@@ -127,8 +147,14 @@ class TestConfigBase:
         assert self.config_base._ConfigBase__config['foo']['qux'] == 99
 
     def test_write_section(self, monkeypatch):
-        monkeypatch.setattr(self.config_base.cfg, 'remove_section', lambda x: False)
+        monkeypatch.setattr(self.config_base.cfg, 'remove_section', lambda x: None)
         monkeypatch.setattr(self.config_base.cfg, 'has_section', lambda x: False)
+
+        self.config_base.write_section('foo', {'ble': 2})
+        assert len(self.config_base._ConfigBase__config['foo']) == 1
+        assert self.config_base._ConfigBase__config['foo']['ble'] == 2
+
+        monkeypatch.setattr(self.config_base.cfg, 'has_section', lambda x: True)
 
         self.config_base.write_section('foo', {'ble': 2})
         assert len(self.config_base._ConfigBase__config['foo']) == 1
@@ -139,11 +165,15 @@ class TestConfigBase:
         value = self.config_base.read('foo', 'bar')
         assert value == 987
         value = self.config_base.read('bla', 'ble', True)
-        assert value
+        assert value == True
         value = self.config_base.read('bla', 'bli', False)
         assert value == 'off'
+        value = self.config_base.read('bla', 'bli', True)
+        assert value == False
         value = self.config_base.read('dummy', 'var')
-        assert value is None
+        assert value == None
+        value = self.config_base.read('foo', 'bar', True)
+        assert value == 987
 
     def test_read_section(self):
         self.config_base.create()
@@ -153,10 +183,12 @@ class TestConfigBase:
         section = self.config_base.read_section('faa')
         assert section is None
 
-    def test_read_all(self):
+    def test_read_all(self, monkeypatch):
         self.config_base.create()
-        all_ = self.config_base.read_all()
-        assert all_ == self.default
+        assert self.config_base.read_all() == self.default
+
+        monkeypatch.delattr(self.config_base, '_ConfigBase__config')
+        assert self.config_base.read_all() == None
 
 
 class TestAppConfig:
@@ -256,5 +288,67 @@ class TestAppConfig:
     def test_delete(self, monkeypatch):
         monkeypatch.setattr(os, 'remove', lambda x: None)
         assert self.app_config.delete() == None
+
+class TestAccountConfig:
+    @classmethod
+    @pytest.fixture(autouse=True)
+    def setup_class(self, monkeypatch):
+        monkeypatch.setattr(os, 'makedirs', lambda x: None)
+        monkeypatch.setattr(os.path, 'isdir', lambda x: False)
+        monkeypatch.setattr(os, 'remove', lambda x: None)
+        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler())
+        monkeypatch.setattr('libturpial.config.AccountConfig.write', lambda w, x, y, z: None)
+        monkeypatch.setattr('libturpial.config.AccountConfig.exists', lambda x, y: False)
+        monkeypatch.setattr('libturpial.config.AccountConfig.create', lambda x: None)
+
+        self.account_config = AccountConfig('foo-twitter')
+
+    def test_init(self, monkeypatch):
+        assert isinstance(self.account_config, AccountConfig)
+
+    def test_save_oauth_credentials(self, monkeypatch):
+        monkeypatch.setattr(self.account_config, 'write', lambda x, y, z: None)
+        assert self.account_config.save_oauth_credentials('123', '456', '789') == None
+
+    def test_load_oauth_credentials(self, monkeypatch):
+        monkeypatch.setattr(self.account_config, 'read', lambda x, y: 'dummy')
+        key, secret = self.account_config.load_oauth_credentials()
+        assert (key == 'dummy' and secret == 'dummy')
+
+        monkeypatch.setattr(self.account_config, 'read', lambda x, y: None)
+        with pytest.raises(EmptyOAuthCredentials):
+            self.account_config.load_oauth_credentials()
+
+    def test_forget_oauth_credentials(self, monkeypatch):
+        monkeypatch.setattr(self.account_config, 'write', lambda x, y, z: None)
+        assert self.account_config.forget_oauth_credentials() == None
+
+    def test_transform(self):
+        assert self.account_config.transform('123', 'foo') == 'm1TP9YzVa10RTpVTDRlWZ10b'
+
+    def test_revert(self):
+        assert self.account_config.revert('m1TP9YzVa10RTpVTDRlWZ10b', 'foo') == '123'
+        assert self.account_config.revert('', 'foo') == None
+
+    def test_dismiss(self, monkeypatch):
+        monkeypatch.setattr(os.path, 'isdir', lambda x: True)
+        monkeypatch.setattr(os.path, 'isfile', lambda x: True)
+        monkeypatch.setattr(shutil, 'rmtree', lambda x: None)
+
+        # TODO: How to test this?
+        assert self.account_config.dismiss() == None
+
+    def test_delete_cache(self, monkeypatch):
+        monkeypatch.setattr(os, 'walk', lambda x: [('/tmp', ['my_dir'], ['file1', 'file2'])])
+
+        # TODO: How to test this?
+        assert self.account_config.delete_cache() == None
+
+    def test_calculate_cache_size(self, monkeypatch):
+        monkeypatch.setattr(os, 'walk', lambda x: [('/tmp', ['my_dir'], ['file1', 'file2'])])
+        monkeypatch.setattr(os.path, 'getsize', lambda x: 10)
+
+        assert self.account_config.calculate_cache_size() == 20
+
 
 

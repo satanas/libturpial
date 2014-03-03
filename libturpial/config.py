@@ -97,6 +97,7 @@ class ConfigBase:
             for option, value in self.default[section].iteritems():
                 self.write(section, option, value)
 
+    # TODO: Return True on success?
     def load(self):
         self.__config = dict(self.default)
         self.__config.update(self.extra_sections)
@@ -383,6 +384,7 @@ class AccountConfig(ConfigBase):
         u = ('%s' % v[:len(v) - 1])[1:]
         return base64.b16decode(u)
 
+    # TODO: Return True on success?
     def dismiss(self):
         if os.path.isdir(self.imgdir):
             shutil.rmtree(self.imgdir)
@@ -394,6 +396,7 @@ class AccountConfig(ConfigBase):
             shutil.rmtree(self.basedir)
             self.log.debug('Removed base directory')
 
+    # TODO: Return True on success?
     def delete_cache(self):
         for root, dirs, files in os.walk(self.imgdir):
             for f in files:
