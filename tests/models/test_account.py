@@ -11,7 +11,8 @@ from libturpial.lib.protocols.twitter.twitter import Main as MainTwitter
 from libturpial.lib.protocols.identica.identica import Main as MainIdentica
 from libturpial.exceptions import AccountNotAuthenticated, ErrorLoadingAccount
 
-from tests.helpers import DummyFileHandler, DummyAccount, DummyProtocol, DummyConfig, DummyToken, DummyProfile
+from tests.helpers import DummyFileHandler, DummyAccount, DummyProtocol, DummyConfig,\
+        DummyToken, DummyProfile
 
 class TestAccount:
     @classmethod
