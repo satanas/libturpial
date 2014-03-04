@@ -17,20 +17,29 @@ class DummyAccount:
     def __init__(self, arg1=None, arg2=None):
         self.id_ = arg1
         self.config = DummyConfig()
+        self.protocol = None
     def setup_user_credentials(self, arg1, arg2, arg3):
         pass
     def fetch(self):
         pass
     def get_profile_image(self, arg):
         return "http://dummy.url"
+    def verify_credentials_provider(self):
+        return 'http://provider.com'
     @staticmethod
     def new(arg1, arg2):
         return DummyAccount(arg1, arg2)
+
+class DummyHttp:
+    def sign_request(self, req):
+        req.headers['Authorization'] = 'Dummy OAuth'
+        return req
 
 class DummyProtocol:
     def __init__(self):
         self.profile = Profile()
         self.friends = []
+        self.http = DummyHttp()
     def request_token(self):
         return 'token'
     def authorize_token(self, pin):
@@ -78,6 +87,7 @@ class DummyProfile:
 class DummyResponse:
     def __init__(self, content):
         self.content = content
+        self.text = content
 
 class DummyService:
     def __init__(self, default=None):
