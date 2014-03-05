@@ -1,3 +1,7 @@
+v1.7.0
+	* Added tests for core, managers, models, tools, config, interfaces and
+	service bases
+
 v1.6.0
 	* Fixed proxy support
 	* Reverted default values for config file to avoid breaking backward compatibility
