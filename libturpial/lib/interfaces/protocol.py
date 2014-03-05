@@ -131,6 +131,7 @@ class Protocol:
         *verifier* for the OAuth case and *username*, *password* in the Basic
         case
         """
+        raise NotImplementedError
 
     def json_to_profile(self, response):
         """
@@ -442,9 +443,14 @@ class Protocol:
         raise NotImplementedError
 
     def send_direct_message(self, user, text):
-        # FIXME: Implementar
-        #raise NotImplementedError
-        pass
+        """
+        Send a direct message
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
+        raise NotImplementedError
 
     def destroy_direct_message(self, direct_message_id):
         """
