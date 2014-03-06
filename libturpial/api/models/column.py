@@ -24,3 +24,6 @@ class Column:
         self.updating = False
         self.singular_unit = singular_unit
         self.plural_unit = plural_unit
+
+    def __repr__(self):
+        return "libturpial.api.models.Column %s" % (self.id_)

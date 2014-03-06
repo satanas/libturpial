@@ -109,11 +109,11 @@ class Protocol:
 
         For OAuth do:
 
-        >>> self.http = TurpialHTTPOAuth(base_url, oauth_options)
+        >>> self.http = TurpialHTTPOAuth(base_url, oauth_options, proxies, timeout)
 
         For Basic Auth do:
 
-        >>> self.http = TurpialHTTPBasicAuth(base_url)
+        >>> self.http = TurpialHTTPBasicAuth(base_url, proxies, timeout)
         """
         raise NotImplementedError
 
@@ -371,7 +371,7 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def update_status(self, text, in_reply_to_id=None):
+    def update_status(self, text, in_reply_to_id=None, media=None):
         """
         Post an update
 
@@ -496,16 +496,6 @@ class Protocol:
         """
         raise NotImplementedError
 
-    def trends(self):
-        """
-        Search for trends
-
-        .. warning::
-            This is an empty method and must be reimplemented on child class,
-            otherwise it will raise a **NotImplementedError** exception
-        """
-        raise NotImplementedError
-
     def is_friend(self, user):
         """
         Returns True is user follows current account, False otherwise
@@ -519,6 +509,36 @@ class Protocol:
     def get_profile_image(self, user):
         """
         Returns the URL for the profile image of the given user
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
+        raise NotImplementedError
+
+    def trends(self, location_id):
+        """
+        Search for trending topics in *location_id*
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
+        raise NotImplementedError
+
+    def available_trend_locations(self):
+        """
+        Search for trend locations
+
+        .. warning::
+            This is an empty method and must be reimplemented on child class,
+            otherwise it will raise a **NotImplementedError** exception
+        """
+        raise NotImplementedError
+
+    def update_profile_image(self, image_path):
+        """
+        Update user profile image and return user profile object
 
         .. warning::
             This is an empty method and must be reimplemented on child class,

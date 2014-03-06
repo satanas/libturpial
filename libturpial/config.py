@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """Module to handle basic configuration of Turpial"""
-#
-# Author: Wil Alvarez (aka Satanas)
-# Sep 26, 2011
 
 import os
 import base64
@@ -11,6 +8,7 @@ import shutil
 import logging
 import ConfigParser
 
+from libturpial.api.models.proxy import Proxy
 from libturpial.common import get_username_from, get_protocol_from
 from libturpial.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials, \
         ExpressionAlreadyFiltered
@@ -24,49 +22,46 @@ except:
 APP_CFG = {
     'General':{
         'update-interval': '5',
-        'profile-color': 'on',
-        'minimize-on-close': 'on',
+        'queue-interval': '30',
+        'minimize-on-close': 'on', # TODO: Deprecate in next mayor version
         'statuses': '60',
     },
-    'Window': {
-        'size': '320,480',
-        'position': '-1,-1',
-        'state': 'windowed',
-        'visibility': 'show',
-    },
     'Columns':{
-    },
-    'Notifications':{
-        'updates': 'on',
-        'login': 'on',
-        'icon': 'on',
-    },
-    'Sounds':{
-        'updates': 'on',
-        'login': 'on',
     },
     'Services':{
         'shorten-url': 'is.gd',
         'upload-pic': 'twitpic',
-    },
-    'Browser':{
-        'cmd': ''
     },
     'Proxy':{
         'username': '',
         'password': '',
         'server': '',
         'port': '',
+        'protocol': 'http',
     },
     'Advanced': {
         'socket-timeout': '20',
         'show-user-avatars': 'on',
     },
+    # TODO: Deprecate all of this config options in next mayor version
+    'Window': {
+        'size': '320,480',
+    },
+    'Notifications': {
+        'on-updates': 'on',
+        'on-actions': 'on',
+    },
+    'Sounds': {
+        'on-login': 'on',
+        'on-updates': 'on',
+    },
+    'Browser': {
+        'cmd': '',
+    },
 }
 
 ACCOUNT_CFG = {
     'OAuth':{
-        'verifier': '',
         'key': '',
         'secret': '',
     },
@@ -89,77 +84,93 @@ class ConfigBase:
             self.default = default
         self.cfg = ConfigParser.ConfigParser()
         self.filepath = ''
+        self.extra_sections = {}
+
+    def register_extra_option(self, section, option, default_value):
+        if not self.extra_sections.has_key(section):
+            self.extra_sections[section] = {}
+        self.extra_sections[section][option] = default_value
+        self.write(section, option, default_value)
 
     def create(self):
-        self.log.debug('Creating configuration file')
-        _fd = open(self.configpath, 'w')
         for section, v in self.default.iteritems():
-            self.cfg.add_section(section)
             for option, value in self.default[section].iteritems():
-                self.cfg.set(section, option, value)
-        self.cfg.write(_fd)
-        _fd.close()
+                self.write(section, option, value)
 
     def load(self):
+        self.__config = dict(self.default)
+        self.__config.update(self.extra_sections)
+
+        on_disk = {}
+
         self.cfg.read(self.configpath)
 
-        for section, _v in self.default.iteritems():
-            if not self.__config.has_key(section):
-                self.__config[section] = {}
-            if not self.cfg.has_section(section):
-                self.write_section(section, self.default[section])
-            if section == 'Columns':
-                for item in self.cfg.items(section):
-                    self.__config[section][item[0]] = item[1]
-                continue
-            for option, value in self.default[section].iteritems():
-                if self.cfg.has_option(section, option):
-                    self.__config[section][option] = self.cfg.get(section, option)
-                else:
-                    self.write(section, option, value)
+        for section in self.cfg.sections():
+            if not on_disk.has_key(section):
+                on_disk[section] = {}
 
-        self.log.debug('Loaded configuration')
+            for option in self.cfg.options(section):
+                on_disk[section][option] = self.cfg.get(section, option)
+
+        self.__config.update(on_disk)
+
+        # ConfigParser doesn't store on disk empty sections, so we need to remove them
+        # just to compare against saved on disk
+        on_memory = dict(self.__config)
+        for key in on_memory.keys():
+            if on_memory[key] == {}:
+                del on_memory[key]
+
+        if on_disk != on_memory:
+            self.save()
+
 
     def load_failsafe(self):
         self.__config = self.default
-        self.log.debug('Loaded failsafe configuration')
 
-    def save(self, config):
-        self.log.debug('Saving configuration')
-        _fd = open(self.configpath, 'w')
+    def save(self, config=None):
+        if config is None:
+            config = dict(self.__config)
+
         self.__config = {}
         for section, _v in config.iteritems():
-            if not self.__config.has_key(section):
-                self.__config[section] = {}
             for option, value in config[section].iteritems():
-                self.cfg.set(section, option, value)
-                self.__config[section][option] = value
-        self.cfg.write(_fd)
-        _fd.close()
+                self.write(section, option, value)
 
     def write(self, section, option, value):
+        if not self.__config.has_key(section):
+            self.__config[section] = {}
+
+        self.__config[section][option] = value
+
         _fd = open(self.configpath, 'w')
+        if not self.cfg.has_section(section):
+            self.cfg.add_section(section)
         self.cfg.set(section, option, value)
         self.cfg.write(_fd)
         _fd.close()
-        self.__config[section][option] = value
 
     def write_section(self, section, items):
-        #self.log.debug('Writing section %s' % section)
-        _fd = open(self.configpath, 'w')
         if self.cfg.has_section(section):
             self.cfg.remove_section(section)
             self.__config[section] = {}
-        self.cfg.add_section(section)
-        for option, value in items.iteritems():
-            self.cfg.set(section, option, value)
-            self.__config[section][option] = value
-        self.cfg.write(_fd)
-        _fd.close()
 
-    def read(self, section, option):
+        for option, value in items.iteritems():
+            self.write(section, option, value)
+
+    # WARN: Next version boolean will be the default answer
+    def read(self, section, option, boolean=False):
         try:
-            return self.__config[section][option]
+            value = self.__config[section][option]
+            if boolean:
+                if value == 'on':
+                    return True
+                elif value == 'off':
+                    return False
+                else:
+                    return value
+            else:
+                return value
         except Exception:
             return None
 
@@ -274,7 +285,15 @@ class AppConfig(ConfigBase):
                 columns.append(value)
         return columns
 
-    def delete_current_config(self):
+    def get_proxy(self):
+        temp = self.read_section('Proxy')
+        secure = True if temp['protocol'].lower() == 'https' else False
+        return Proxy(temp['server'], temp['port'], temp['username'], temp['password'], secure)
+
+    def get_socket_timeout(self):
+        return int(self.read('Advanced', 'socket-timeout'))
+
+    def delete(self):
         os.remove(self.configpath)
         self.log.debug('Deleted current config. Please restart Turpial')
 
@@ -305,7 +324,7 @@ class AccountConfig(ConfigBase):
 
         try:
             self.load()
-        except Except, exc:
+        except Exception, exc:
             self.load_failsafe()
 
         if not self.exists(account_id):
@@ -322,24 +341,23 @@ class AccountConfig(ConfigBase):
         return True
 
 
-    def save_oauth_credentials(self, key, secret, verifier):
+    # DEPRECATE: Remove verifier in the next stable version
+    def save_oauth_credentials(self, key, secret, verifier=None):
         self.write('OAuth', 'key', key)
         self.write('OAuth', 'secret', secret)
-        self.write('OAuth', 'verifier', verifier)
 
+    # DEPRECATE: Remove verifier in the next stable version
     def load_oauth_credentials(self):
         key = self.read('OAuth', 'key')
         secret = self.read('OAuth', 'secret')
-        verifier = self.read('OAuth', 'verifier')
-        if key and secret and verifier:
-            return key, secret, verifier
+        if key and secret:
+            return key, secret
         else:
             raise EmptyOAuthCredentials
 
     def forget_oauth_credentials(self):
         self.write('OAuth', 'key', '')
         self.write('OAuth', 'secret', '')
-        self.write('OAuth', 'verifier', '')
 
     def transform(self, pw, us):
         a = base64.b16encode(pw)

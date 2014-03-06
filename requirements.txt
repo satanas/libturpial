@@ -1,2 +1,4 @@
-oauth==1.0.1
-simplejson==2.6.2
+setuptools
+oauth>=1.0.1
+simplejson>=3.3.1
+requests>=2.0.0

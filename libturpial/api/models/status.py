@@ -19,13 +19,14 @@ class Status:
     :ivar timestamp: Time of publishing of this status (Unix time)
     :ivar in_reply_to_id: Contains the id of the status answered (if any)
     :ivar in_reply_to_user: Contains the user answered with status (if any)
-    :ivar favorited: `True` if this status has been marked as favorite. `False` otherwise
-    :ivar protected: `True` if this status is from a protected account. `False` otherwise
-    :ivar verified: `True` if this status is from a verified account. `False` otherwise
+    :ivar is_favorite: `True` if this status has been marked as favorite. `False` otherwise
+    :ivar is_protected: `True` if this status is from a protected account. `False` otherwise
+    :ivar is_verified: `True` if this status is from a verified account. `False` otherwise
     :ivar repeated: `True` if this status has been repeated (retweeted) by you. `False` otherwise
     :ivar repeated_by: More users that have repeated this status
     :ivar repeated_count: How much times this status has been repeated
     :ivar original_status_id: Id of the original status (not-repeated)
+    :ivar created_at: Original timestamp from the service
     :ivar datetime: Humanized representation of the date/time of this status
     :ivar is_own: `True` if the status belongs to the same user of the associated account. `False` otherwise
     :ivar entities: A dict with all the entities found in status
@@ -56,18 +57,26 @@ class Status:
         self.timestamp = None   # Store the timestamp in Unix time
         self.in_reply_to_id = None
         self.in_reply_to_user = None
-        self.favorited = False  # Status has been favorited
-        self.protected = False  # Status comes from a protected account
-        self.verified = False   # Status comes from a verified account
+        self.is_favorite = False  # Status has been favorited
+        self.is_protected = False  # Status comes from a protected account
+        self.is_verified = False   # Status comes from a verified account
         self.repeated = False   # Status has been repeated by user
         self.repeated_by = None     # Indicates if it is a repeated status
         self.repeated_count = None  # How much repeats get the status
-        self.datetime = None    # Store the date/time showed for the view
+        self.datetime = None    # Store the date/time in GMT
         self.is_own = False     # Indicate if the user is the author of the status
         self.type_ = None
         self.account_id = None
         self.entities = {}
         self.original_status_id = None
+        self.created_at = None
+        self.local_datetime = None # Store the timestamp as long integer in local time
+
+    def __eq__(self, status):
+        return self.id_ == status.id_
+
+    def __ne__(self, status):
+        return self.id_ != status.id_
 
     def get_mentions(self):
         """

@@ -89,6 +89,9 @@ class Account(object):
         elif self.protocol_id == Protocol.IDENTICA:
             self.protocol = identica.Main()
 
+    def __repr__(self):
+        return "libturpial.api.models.Account %s-%s" % (self.username, self.protocol_id)
+
     def __setup(self, username):
         self.id_ = build_account_id(username, self.protocol_id)
         self.username = username
@@ -124,7 +127,7 @@ class Account(object):
             None information is stored at disk at this point.
         """
         account = Account(protocol_id, username)
-        account.setup_user_credentials(account.id_, key, secret, verifier)
+        account.setup_user_credentials(account.id_, key, secret)
         return account
 
     @staticmethod
@@ -146,8 +149,8 @@ class Account(object):
 
         account = Account.new(protocol_id, username)
         account.config = AccountConfig(account_id)
-        key, secret, verifier = account.config.load_oauth_credentials()
-        account.setup_user_credentials(account.id_, key, secret, verifier)
+        key, secret = account.config.load_oauth_credentials()
+        account.setup_user_credentials(account.id_, key, secret)
         account.fetch()
         return account
 
@@ -178,7 +181,7 @@ class Account(object):
         self.config = AccountConfig(self.id_)
         token = self.get_oauth_token()
         if token:
-            self.config.save_oauth_credentials(token.key, token.secret, token.verifier)
+            self.config.save_oauth_credentials(token.key, token.secret)
 
     def fetch(self):
         """
@@ -212,8 +215,11 @@ class Account(object):
         return self.columns
 
     def get_list_id(self, list_name):
+        if not self.lists:
+            return None
+
         for li in self.lists:
-            if li.name == list_name:
+            if li.slug == list_name:
                 return li.id_
         return None
 

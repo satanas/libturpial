@@ -1,3 +1,34 @@
+v1.6.0
+	* Fixed proxy support
+	* Reverted default values for config file to avoid breaking backward compatibility
+	* Fixed error loading direct messages
+
+v1.5.9
+	* Support to upload images with pic.twitter.com
+	* Support for Instagram preview
+	* Fixed filters
+	* Added comparision methods to status model
+	* Added param to enable/disable cache when getting profile image
+	* Implemented retweet count in status model
+	* Method to get a single column or a single account from id
+	* Support to change profile image
+	* Added methods to fetch trend locations and trending topics
+	* Added timestamp in local time to status model
+	* Fixed issue with Window configuration option
+
+v1.1.16
+	* Added method to handle socket timeout
+	* Added method to handle proxy configuration using proxy model
+	* Fixed cache calculation
+	* Support for secure key in proxy configuration
+	* Implemented new config module
+	* Deleted values from default config not used by libturpial
+	* Not storing OAuth PIN in the user credentials
+	* Added/removed friends after follow, unfollow, block and report as spam
+	* Fixed broadcast when passing None as argment
+	* Added followed_by field to profile models
+	* Fixed minor issues
+
 v1.0
     * Restructured Core with new and better methods
     * Added ColumnManager to handle columns

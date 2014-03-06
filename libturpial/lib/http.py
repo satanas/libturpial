@@ -92,7 +92,7 @@ class TurpialHTTPBase:
 
         self.log.debug('Validated SSL cert for host: %s' % host)
 
-    def __build_request(self, method, uri, args, _format, secure, id_in_url):
+    def __build_request(self, method, uri, args, _format, secure, id_in_url, files):
         if 'id' in args and id_in_url:
             uri = "%s/%s" % (uri, args['id'])
             del args['id']
@@ -103,17 +103,16 @@ class TurpialHTTPBase:
             uri = "%s.%s" % (uri, _format)
 
         return TurpialHTTPRequest(method, uri, _format=_format, params=args,
-                secure=secure)
+                secure=secure, files=files)
 
     def __fetch_resource(self, httpreq):
         if httpreq.method == 'GET':
-            req = requests.get(httpreq.uri, params=httpreq.params,
-                    headers=httpreq.headers, verify=httpreq.secure,
-                    proxies=self.proxies, timeout=self.timeout)
+            req = requests.get(httpreq.uri, params=httpreq.params, headers=httpreq.headers,
+                    verify=httpreq.secure, proxies=self.proxies, timeout=self.timeout)
         elif httpreq.method == 'POST':
-            req = requests.post(httpreq.uri, params=httpreq.params,
-                    headers=httpreq.headers, verify=httpreq.secure,
-                    proxies=self.proxies, timeout=self.timeout)
+            req = requests.post(httpreq.uri, params=httpreq.params, headers=httpreq.headers,
+                    verify=httpreq.secure, proxies=self.proxies, timeout=self.timeout,
+                    files=httpreq.files)
         if httpreq._format == FORMAT_JSON:
             return req.json()
         else:
@@ -170,7 +169,7 @@ class TurpialHTTPBase:
         """
         return self.request('GET', uri, args, _format, base_url, secure, id_in_url)
 
-    def post(self, uri, args=None, _format=FORMAT_JSON, base_url=None, secure=False, id_in_url=True):
+    def post(self, uri, args=None, _format=FORMAT_JSON, base_url=None, secure=False, id_in_url=True, files=None):
         """
         Performs a POST request against the *uri* resource with *args*. You
         can specify the *_format* ('json' or 'xml') and can specify a different
@@ -179,10 +178,10 @@ class TurpialHTTPBase:
 
         This method is an alias for **request** function using 'POST' as method.
         """
-        return self.request('POST', uri, args, _format, base_url, secure, id_in_url)
+        return self.request('POST', uri, args, _format, base_url, secure, id_in_url, files)
 
     def request(self, method, uri, args=None, _format=FORMAT_JSON,
-            alt_base_url=None, secure=False, id_in_url=True):
+            alt_base_url=None, secure=False, id_in_url=True, files=None):
         """
         Performs a GET or POST request against the *uri* resource with
         *args*. You can specify the *_format* ('json' or 'xml') and can specify
@@ -199,7 +198,7 @@ class TurpialHTTPBase:
 
         request_url = "%s%s" % (base_url, uri)
 
-        httpreq = self.__build_request(method, request_url, args, _format, secure, id_in_url)
+        httpreq = self.__build_request(method, request_url, args, _format, secure, id_in_url, files)
         self.sign_request(httpreq)
         return self.__fetch_resource(httpreq)
 
@@ -402,7 +401,7 @@ class TurpialHTTPRequest:
     Encapsulate an URL request into a python object
     """
     def __init__(self, method, uri, headers=None, params=None,
-            _format=FORMAT_JSON, secure=False):
+            _format=FORMAT_JSON, secure=False, files=None):
 
         self.uri = uri
         self.method = method
@@ -410,3 +409,4 @@ class TurpialHTTPRequest:
         self.secure = secure
         self.params = params or {}
         self.headers = headers or {}
+        self.files = files
