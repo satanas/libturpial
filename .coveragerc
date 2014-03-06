@@ -1,0 +1,6 @@
+[run]
+source = libturpial
+omit = libturpial/lib/services/url/shortypython/*, libturpial/lib/protocols/identica/*
+
+[report]
+show_missing = true
