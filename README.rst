@@ -1,6 +1,12 @@
 libturpial
 ==========
 
+.. image:: https://travis-ci.org/milmazz/libturpial.png?branch=development
+	:target: https://travis-ci.org/milmazz/libturpial
+
+.. image:: https://coveralls.io/repos/milmazz/libturpial/badge.png?branch=development
+	:target: https://coveralls.io/r/milmazz/libturpial?branch=development
+
 **Summary:** A powerful microblogging library written in Python
 
 *libturpial* is a library that handles multiple microblogging protocols. It 
