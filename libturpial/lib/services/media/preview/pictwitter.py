@@ -12,5 +12,9 @@ class PicTwitterMediaContent(PreviewMediaService):
         self.url_pattern = "(http(s)?://)?(twimg.com|pic.twitter.com)"
 
     def do_service(self, url):
+        info_ = {
+            'source_url': url,
+            'original_url': url,
+        }
         rawimg = self._get_content_from_url(url)
-        return Media.new_image(url, rawimg)
+        return Media.new_image(url, rawimg, info=info_)

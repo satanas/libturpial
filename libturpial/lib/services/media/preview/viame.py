@@ -21,5 +21,9 @@ class ViameMediaContent(PreviewMediaService):
                                                                    CLIENT_ID)
         resp = json.loads(self._get_content_from_url(req_url))
         media_content_url = resp['response']['post']['media_url']
+        info_ = {
+            'source_url': media_content_url,
+            'original_url': url,
+        }
         rawimg = self._get_content_from_url(media_content_url)
-        return Media.new_image(url, rawimg)
+        return Media.new_image(url, rawimg, info=info_)

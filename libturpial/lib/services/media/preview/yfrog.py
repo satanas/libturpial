@@ -13,5 +13,9 @@ class YfrogMediaContent(PreviewMediaService):
 
     def do_service(self, url):
         media_content_url = "%s:medium" % url
+        info_ = {
+            'source_url': media_content_url,
+            'original_url': url,
+        }
         rawimg = self._get_content_from_url(media_content_url)
-        return Media.new_image(name, rawimg)
+        return Media.new_image(name, rawimg, info=info_)

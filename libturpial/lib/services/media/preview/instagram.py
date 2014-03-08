@@ -25,6 +25,9 @@ class InstagramMediaContent(PreviewMediaService):
         req_url = 'https://api.instagram.com/v1/media/%s?client_id=%s' % (media_id, CLIENT_ID)
         response = json.loads(self._get_content_from_url(req_url))
         image_url = response['data']['images']['standard_resolution']['url']
-        print image_url
+        info_ = {
+            'source_url': image_url,
+            'original_url': url,
+        }
         rawimg = self._get_content_from_url(image_url)
-        return Media.new_image(url, rawimg)
+        return Media.new_image(url, rawimg, info=info_)

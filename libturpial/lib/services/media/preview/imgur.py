@@ -24,7 +24,11 @@ class ImgurMediaContent(PreviewMediaService):
         resp = json.loads(self._get_content_from_url(req_url))
         media_content_url = resp['image']['links']['original']
         rawimg = self._get_content_from_url(media_content_url)
-        return Media.new_image(url, rawimg)
+        info_ = {
+            'source_url': media_content_url,
+            'original_url': url,
+        }
+        return Media.new_image(url, rawimg, info=info_)
 
     def __find_url_in_html(self, html):
         path = '<link rel="image_src" href="'
