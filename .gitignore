@@ -1,5 +1,8 @@
 build/
 dist/
+venv/
+.tox
+.coverage
 *.egg-info/
 *.pyc
 *.pyo
