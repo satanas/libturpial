@@ -44,8 +44,8 @@ class TestProtocol:
         protocol = Protocol()
         protocol.hashtags_url = 'http://hashtags.url.com'
 
-        response = protocol.get_int_time("Tue Mar 13 00:12:41 +0000 2007")
-        assert int(response) == 1173759161
+        response = int(protocol.get_int_time("Tue Mar 13 00:12:41 +0000 2007"))
+        assert response == 1173759161
 
     def test_get_entities(self, monkeypatch):
         monkeypatch.setattr('libturpial.lib.interfaces.protocol.Protocol.initialize_http', lambda x: None)
