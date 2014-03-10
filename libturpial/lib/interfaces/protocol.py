@@ -75,6 +75,8 @@ class Protocol:
         """
         Converts the *strdate* into a Unix time long integer (GMT 0)
         """
+        # FIXME: This function doesn't return the same int in different
+        # systems
         t = self.convert_time(strdate)
         return time.mktime(t)
 

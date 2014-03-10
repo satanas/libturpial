@@ -2,10 +2,7 @@
 
 """ Twitter implementation for Turpial"""
 
-<<<<<<< HEAD
-from libturpial.exceptions import *
 from libturpial.config import AppConfig
-=======
 from libturpial.exceptions import (AccountSuspended,
                                    StatusMessageTooLong,
                                    StatusDuplicated,
@@ -19,7 +16,6 @@ from libturpial.exceptions import (AccountSuspended,
                                    ErrorSendingDirectMessage,
                                    RateLimitExceeded,
                                    InvalidOAuthToken)
->>>>>>> milmazz/fix_bug_33
 from libturpial.api.models.list import List
 from libturpial.api.models.trend import Trend
 from libturpial.api.models.status import Status
