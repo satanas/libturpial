@@ -13,7 +13,7 @@ and is the backend used for Turpial_.
 libturpial is currently under heavy development, so probably you will find bugs or undesired behavior. In 
 this cases please report issues at:
 
-http://github.com/satanas/libturpial/issues
+https://github.com/satanas/libturpial/issues
 
 We will be very graceful for your contributions.
 
@@ -48,6 +48,7 @@ This part of the documentation shows you details about specific functions, metho
    api
    lib
    config
+   common
    exceptions
 
 Further information
@@ -59,5 +60,5 @@ http://wiki.turpial.org.ve/dev:welcome
 
 
 .. _Turpial: http://turpial.org.ve
-.. _Twitter: http://twitter.com
-.. _Identi.ca: http://identi.ca
+.. _Twitter: https://twitter.com
+.. _Identi.ca: https://identi.ca

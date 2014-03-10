@@ -27,9 +27,9 @@ class Core:
     instantiate to use libturpial. Most important arguments used in Core are
     *account_id* and *column_id*.
 
-    * account_id: Is a composite string formed by the **username** and the 
+    * account_id: Is a composite string formed by the **username** and the
       **protocol_id** that identify every single account.
-    * column_id: Is composite string formed by **account_id** and the 
+    * column_id: Is composite string formed by **account_id** and the
       **column_name** that identify one column of one account.
 
     Examples of account_id:
@@ -46,8 +46,8 @@ class Core:
     automatically, so you don't need to worry about it. If you already registered the
     accounts before, they will be available after you create the core object.
 
-    All the Core methods will return an object defined in 
-    :class:`libturpial.api.models` or a valid python object if request is 
+    All the Core methods will return an object defined in
+    :class:`libturpial.api.models` or a valid python object if request is
     successful, otherwise they will raise an exception.
 
     If the request returns an array, you can iterate over the elements with:
@@ -121,8 +121,8 @@ class Core:
 
     def unregister_account(self, account_id, delete_all=False):
         """
-        Removes the account identified by *account_id* from memory. If 
-        *delete_all* is **True** it deletes all the files asociated to 
+        Removes the account identified by *account_id* from memory. If
+        *delete_all* is **True** it deletes all the files asociated to
         that account from disk otherwise the account will be available
         the next time you load Core.
 
@@ -146,7 +146,7 @@ class Core:
 
     def register_column(self, column_id):
         """
-        Register a column identified by *column_id* column and return a string 
+        Register a column identified by *column_id* column and return a string
         with the id of the column registered on success.
         """
         return self.column_manager.register(column_id)
@@ -187,7 +187,7 @@ class Core:
         Return a *dict* with :class:`libturpial.api.models.column.Column` objects
         per column registered. This method DO NOT return columns in the order they
         have been registered. For ordered columns check
-        :method:`registered_columns_by_order()`
+        :meth:`registered_columns_by_order()`
         """
         return self.column_manager.columns()
 
@@ -269,7 +269,7 @@ class Core:
 
     def get_followers(self, account_id, only_id=False):
         """
-        Return a :class:`libturpial.api.models.profile.Profile` list with 
+        Return a :class:`libturpial.api.models.profile.Profile` list with
         all the followers of the account *account_id*
         """
         account = self.account_manager.get(account_id)
@@ -277,7 +277,7 @@ class Core:
 
     def get_following(self, account_id, only_id=False):
         """
-        Return a :class:`libturpial.api.models.profile.Profile` list of 
+        Return a :class:`libturpial.api.models.profile.Profile` list of
         all the accounts that *account_id* follows
         """
         account = self.account_manager.get(account_id)
@@ -285,7 +285,7 @@ class Core:
 
     def get_all_friends_list(self):
         """
-        Return a list with all the username friends of all the registered 
+        Return a list with all the username friends of all the registered
         accounts.
         """
         friends = []
@@ -333,7 +333,7 @@ class Core:
         """
         Updates all the accounts in account_id_array with the content of *text*
 
-        if account_id_array is None or an empty list all registered accounts 
+        if account_id_array is None or an empty list all registered accounts
         get updated.
         """
         if not account_id_array:
@@ -467,7 +467,7 @@ class Core:
 
     def unmute(self, username):
         """
-        Removes *username* from the muted list, so that statuses from 
+        Removes *username* from the muted list, so that statuses from
         that account are now shown
         """
         self.config.remove_filter('@%s' % username)
@@ -498,7 +498,7 @@ class Core:
     def get_profile_image(self, account_id, username, use_cache=True):
         """
         Return the local path to a the profile image of *username* in original size.
-        If use_cache is *True* it will try to return the cached file, otherwise it 
+        If use_cache is *True* it will try to return the cached file, otherwise it
         will fetch the real image.
         """
         account = self.account_manager.get(account_id)
@@ -602,8 +602,8 @@ class Core:
 
     def register_new_config_option(self, section, option, default_value):
         """
-        Register a new configuration *option* in *section* to be handled by 
-        external modules. libturpial will set *default_value* as value if 
+        Register a new configuration *option* in *section* to be handled by
+        external modules. libturpial will set *default_value* as value if
         the option doesn't exist.
 
         This method should be used if a module that uses libturpial needs to

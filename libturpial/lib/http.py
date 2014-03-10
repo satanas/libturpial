@@ -34,7 +34,7 @@ class TurpialHTTPBase:
     not supported.
 
     *base_url* is the part of the URL common for all your requests
-    (http://api.twitter.com/1.1 for example). *proxies* is a dict where you
+    (api.twitter.com/1.1 for example). *proxies* is a dict where you
     define HTTP/HTTPS proxies.
 
     >>> proxies = {
@@ -207,7 +207,7 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
     """
     Implementation of TurpialHTTPBase for OAuth. *base_url* is the part of
     the URL common for all your requests
-    (http://api.twitter.com/1.1 for example). *oauth_options* is a dict with
+    (api.twitter.com/1.1 for example). *oauth_options* is a dict with
     all the OAuth configuration parameters. It must looks like:
 
     >>> oauth_options = {
@@ -293,7 +293,7 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
     def set_token_info(self, user_key, user_secret, verifier):
         """
         Creates a new token using the existing *user_key*, *user_secret* and
-        *verifier*. Use this method 
+        *verifier*. Use this method
         """
         self.token = oauth.OAuthToken(user_key, user_secret)
         self.token.set_verifier(verifier)
@@ -358,7 +358,7 @@ class TurpialHTTPBasicAuth(TurpialHTTPBase):
     """
     Implementation of TurpialHTTPBase for the HTTP Basic Authentication.
     *base_url* is the part of the URL common for all your requests
-    (http://identi.ca/api for example). *username* and *password* are the username
+    (identi.ca/api for example). *username* and *password* are the username
     credentials. *proxies* and *timeout* work in the same way that in
     :class:`libturpial.api.interfaces.http.TurpialHTTPBase`.
 
