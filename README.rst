@@ -1,11 +1,11 @@
 libturpial
 ==========
 
-.. image:: https://travis-ci.org/milmazz/libturpial.png?branch=development
-	:target: https://travis-ci.org/milmazz/libturpial
+.. image:: https://travis-ci.org/satanas/libturpial.png?branch=development
+	:target: https://travis-ci.org/satanas/libturpial
 
-.. image:: https://coveralls.io/repos/milmazz/libturpial/badge.png?branch=development
-	:target: https://coveralls.io/r/milmazz/libturpial?branch=development
+.. image:: https://coveralls.io/repos/satanas/libturpial/badge.png?branch=development
+	:target: https://coveralls.io/r/satanas/libturpial?branch=development
 
 **Summary:** A powerful microblogging library written in Python
 

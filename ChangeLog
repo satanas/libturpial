@@ -1,5 +1,6 @@
 v1.7.0
 	* Added tests for core, managers, models, tools, config, interfaces and service bases
+	* Fixed source URL in media objects through info field
 
 v1.6.0
 	* Fixed proxy support
