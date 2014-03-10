@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class Client:
     """
     This class models the information of the client of a given status

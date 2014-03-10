@@ -10,8 +10,8 @@ import ConfigParser
 
 from libturpial.api.models.proxy import Proxy
 from libturpial.common import get_username_from, get_protocol_from
-from libturpial.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials, \
-        ExpressionAlreadyFiltered
+from libturpial.exceptions import EmptyOAuthCredentials, \
+    ExpressionAlreadyFiltered
 
 try:
     from xdg import BaseDirectory
@@ -20,7 +20,7 @@ except:
     XDG_CACHE = False
 
 APP_CFG = {
-    'General':{
+    'General': {
         'update-interval': '5',
         'queue-interval': '30',
         'minimize-on-close': 'on', # TODO: Deprecate in next mayor version
@@ -65,7 +65,7 @@ ACCOUNT_CFG = {
         'key': '',
         'secret': '',
     },
-    'Login':{
+    'Login': {
         'username': '',
         'protocol': '',
     }
@@ -73,6 +73,7 @@ ACCOUNT_CFG = {
 
 USERDIR = os.path.expanduser('~')
 BASEDIR = os.path.join(USERDIR, '.config', 'turpial')
+
 
 class ConfigBase:
     """Base configuration"""
@@ -185,6 +186,7 @@ class ConfigBase:
             return self.__config
         except Exception:
             return None
+
 
 class AppConfig(ConfigBase):
     """ Handle app configuration """
@@ -300,6 +302,7 @@ class AppConfig(ConfigBase):
         os.remove(self.configpath)
         self.log.debug('Deleted current config. Please restart Turpial')
 
+
 class AccountConfig(ConfigBase):
 
     def __init__(self, account_id):
@@ -309,7 +312,8 @@ class AccountConfig(ConfigBase):
 
         if XDG_CACHE:
             cachedir = BaseDirectory.xdg_cache_home
-            self.imgdir = os.path.join(cachedir, 'turpial', account_id, 'images')
+            self.imgdir = os.path.join(cachedir, 'turpial',
+                                       account_id, 'images')
         else:
             self.imgdir = os.path.join(self.basedir, 'images')
 
@@ -342,7 +346,6 @@ class AccountConfig(ConfigBase):
         if not os.path.isfile(configpath):
             return False
         return True
-
 
     # DEPRECATE: Remove verifier in the next stable version
     def save_oauth_credentials(self, key, secret, verifier=None):

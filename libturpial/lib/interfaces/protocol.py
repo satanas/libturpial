@@ -6,11 +6,10 @@ import time
 import logging
 import datetime
 
-from libturpial.common import *
-from libturpial.common.tools import *
+from libturpial.common import HASHTAG_PATTERN, MENTION_PATTERN
+from libturpial.common.tools import get_urls
 from libturpial.exceptions import NotSupported
 from libturpial.api.models.entity import Entity
-from libturpial.lib.http import TurpialHTTPBase
 
 
 class Protocol:
@@ -93,10 +92,12 @@ class Protocol:
 
         for item in HASHTAG_PATTERN.findall(text):
             url = "%s/%s" % (self.hashtags_url, item[1:])
-            entities['hashtags'].append(Entity(self.account_id, url, item, item))
+            entities['hashtags'].append(Entity(self.account_id,
+                                               url, item, item))
 
         for item in MENTION_PATTERN.findall(text):
-            entities['mentions'].append(Entity(self.account_id, item[1:], item, item))
+            entities['mentions'].append(Entity(self.account_id, item[1:],
+                                               item, item))
         return entities
 
     # ------------------------------------------------------------
@@ -109,14 +110,17 @@ class Protocol:
 
         For OAuth do:
 
-        >>> self.http = TurpialHTTPOAuth(base_url, oauth_options, proxies, timeout)
+        >>> from libturpial.lib.http import TurpialHTTPOAuth
+        >>> base_url = 'http://api.twitter.com/1.1'
+        >>> oauth_options = { 'consumer_key': 'APP_CONSUMER_KEY'}
+        >>> http = TurpialHTTPOAuth(base_url, oauth_options)
 
         For Basic Auth do:
 
-        >>> self.http = TurpialHTTPBasicAuth(base_url, proxies, timeout)
+        >>> from libturpial.lib.http import TurpialHTTPBasicAuth
+        >>> http = TurpialHTTPBasicAuth(base_url)
         """
         raise NotImplementedError
-
 
     def request_access(self):
         """

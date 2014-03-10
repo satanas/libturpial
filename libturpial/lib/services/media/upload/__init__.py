@@ -4,11 +4,11 @@
 #
 # Author: Andrea Stagi (4ndreaSt4gi)
 
-from libturpial.lib.services.media.upload.yfrog import YfrogUploader
-from libturpial.lib.services.media.upload.twitpic import TwitpicUploader
-from libturpial.lib.services.media.upload.imgly import ImglyUploader
-from libturpial.lib.services.media.upload.mobypicture import MobypictureUploader
-from libturpial.lib.services.media.upload.twitgoo import TwitgooUploader
+from .yfrog import YfrogUploader
+from .twitpic import TwitpicUploader
+from .imgly import ImglyUploader
+from .mobypicture import MobypictureUploader
+from .twitgoo import TwitgooUploader
 
 
 UPLOAD_MEDIA_SERVICES = {

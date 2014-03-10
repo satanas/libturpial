@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class List:
     """
     This class handles the information about a user list. It receives the

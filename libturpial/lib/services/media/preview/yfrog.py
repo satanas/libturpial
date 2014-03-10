@@ -2,8 +2,8 @@
 
 """Yfrog show media content service"""
 
-from libturpial.api.models.media import *
-from libturpial.lib.services.media.preview.base import *
+from libturpial.api.models.media import Media
+from libturpial.lib.services.media.preview.base import PreviewMediaService
 
 
 class YfrogMediaContent(PreviewMediaService):

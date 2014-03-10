@@ -7,6 +7,7 @@ from libturpial.lib.services.media.upload.base import UploadService
 
 YFROG_KEY = '189ACHINb967317adad418caebd9a22615d00cb7'
 
+
 class YfrogUploader(UploadService):
     def __init__(self):
         UploadService.__init__(self, "yfrog.com", "/api/xauth_upload")

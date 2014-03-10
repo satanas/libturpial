@@ -5,9 +5,7 @@
 # Author: Andrea Stagi (4ndreaSt4gi)
 # 2010-07-28
 
-import traceback
-
-from libturpial.lib.interfaces.service import *
+from libturpial.lib.interfaces.service import GenericService
 
 
 class ShortUrlAdapter(GenericService):

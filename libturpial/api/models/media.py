@@ -6,13 +6,13 @@ import tempfile
 
 class Media(object):
     """
-    This class represents a media object (image, video or map) that can be 
-    rendered on the UI. *type_* could be 
+    This class represents a media object (image, video or map) that can be
+    rendered on the UI. *type_* could be
     :py:attr:`libturpial.api.models.media.IMAGE`,
     :py:attr:`libturpial.api.models.media.VIDEO` or
     :py:attr:`libturpial.api.models.media.MAP`, *name* is the filename and
     *content* holds the binary data of the media. If *path* is `None` a
-    temporary path will be created using the filename. *info* stores any 
+    temporary path will be created using the filename. *info* stores any
     additional information about the resource.
     """
 

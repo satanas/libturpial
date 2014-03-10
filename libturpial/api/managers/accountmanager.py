@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from libturpial.common import build_account_id
 from libturpial.api.models.account import Account
-from libturpial.exceptions import ErrorCreatingAccount, \
-        ErrorLoadingAccount, AccountNotAuthenticated, \
-        AccountAlreadyRegistered
+from libturpial.exceptions import (AccountNotAuthenticated,
+                                   AccountAlreadyRegistered)
 
 
 class AccountManager:
@@ -12,13 +10,13 @@ class AccountManager:
     This class has methods to manage accounts. You can register new accounts,
     load and unregister existing accounts.
 
-    This manager can be iterated and each element will have the account id 
+    This manager can be iterated and each element will have the account id
     and the respective object. For example:
 
-    >>> for item in accman:
-            print item
-    ('foo-twitter', <libturpial.api.models.account.Account object at 0x10c5c2e10>)
-    ('bar-twitter', <libturpial.api.models.account.Account object at 0x10c5c2910>)
+    >>> from libturpial.config import AppConfig
+    >>> config = AppConfig()
+    >>> account_manager = AccountManager(config)
+    >>> [item for item in account_manager]
 
     To check how much accounts are registered simply use the `len` function:
 
@@ -58,8 +56,8 @@ class AccountManager:
     def register(self, account):
         """
         Register the *account* object passed as argument. If the account hasn't
-        been authenticated it will raise a 
-        :class:`libturpial.exceptions.AccountNotAuthenticated` exception. If 
+        been authenticated it will raise a
+        :class:`libturpial.exceptions.AccountNotAuthenticated` exception. If
         the account is already registered a
         :class:`libturpial.exceptions.AccountAlreadyRegistered` exception will
         raise. Return the id of the account registered on success
@@ -77,10 +75,11 @@ class AccountManager:
 
     def unregister(self, account_id, delete_all):
         """
-        Remove the account identified by *account_id* from memory. If *delete_all*
-        is `True` all configuration files are deleted from disk. Be careful
-        because this operation can not be undone. Return the id of the 
-        unregistered column on success, `None` otherwise
+        Remove the account identified by *account_id* from memory.
+        If *delete_all* is `True` all configuration files are deleted
+        from disk. Be careful because this operation can not be undone.
+        Return the id of the unregistered column on success,
+        `None` otherwise
         """
         if account_id in self.__accounts:
             if delete_all:
@@ -92,7 +91,7 @@ class AccountManager:
     def get(self, account_id):
         """
         Obtain the account identified by *account_id*. If the account is not
-        loaded yet, it will be loaded immediately. Return a 
+        loaded yet, it will be loaded immediately. Return a
         :class:`libturpial.api.models.account.Account` object on success
         """
         try:

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+
 class Entity:
     """
     Sometimes a :class:`libturpial.api.models.status.Status` can content
-    mentions, URLs, hashtags and other class of interactuable objects, so 
+    mentions, URLs, hashtags and other class of interactuable objects, so
     this class models that data in a structured way
 
     :ivar account_id: Id of the account that holds the status

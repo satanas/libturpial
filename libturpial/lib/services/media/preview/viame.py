@@ -4,8 +4,8 @@
 
 import json
 
-from libturpial.api.models.media import *
-from libturpial.lib.services.media.preview.base import *
+from libturpial.api.models.media import Media
+from libturpial.lib.services.media.preview.base import PreviewMediaService
 
 CLIENT_ID = '3ycgz7gzer80068s80t4xl1cs'
 

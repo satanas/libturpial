@@ -19,23 +19,29 @@ class Status:
     :ivar timestamp: Time of publishing of this status (Unix time)
     :ivar in_reply_to_id: Contains the id of the status answered (if any)
     :ivar in_reply_to_user: Contains the user answered with status (if any)
-    :ivar is_favorite: `True` if this status has been marked as favorite. `False` otherwise
-    :ivar is_protected: `True` if this status is from a protected account. `False` otherwise
-    :ivar is_verified: `True` if this status is from a verified account. `False` otherwise
-    :ivar repeated: `True` if this status has been repeated (retweeted) by you. `False` otherwise
+    :ivar is_favorite: `True` if this status has been marked as favorite.
+                       `False` otherwise
+    :ivar is_protected: `True` if this status is from a protected account.
+                        `False` otherwise
+    :ivar is_verified: `True` if this status is from a verified account.
+                       `False` otherwise
+    :ivar repeated: `True` if this status has been repeated (retweeted) by you.
+                    `False` otherwise
     :ivar repeated_by: More users that have repeated this status
     :ivar repeated_count: How much times this status has been repeated
     :ivar original_status_id: Id of the original status (not-repeated)
     :ivar created_at: Original timestamp from the service
     :ivar datetime: Humanized representation of the date/time of this status
-    :ivar is_own: `True` if the status belongs to the same user of the associated account. `False` otherwise
+    :ivar is_own: `True` if the status belongs to the same user of the
+                  associated account. `False` otherwise
     :ivar entities: A dict with all the entities found in status
     :ivar type_: Status type.
 
-    Sometimes a status can hold one or more entities (URLs, hashtags, etc). In this 
-    case the entities variable will store a dict with lists for each category.
-    For example:
+    Sometimes a status can hold one or more entities (URLs, hashtags, etc).
+    In this case the entities variable will store a dict with lists for each
+    category. For example:
 
+    >>> status = Status()
     >>> status.entities
     {'urls': [], 'hashtags': [], 'mentions': [], 'groups': []}
 
@@ -54,7 +60,7 @@ class Status:
         self.username = None
         self.avatar = None
         self.source = None
-        self.timestamp = None   # Store the timestamp in Unix time
+        self.timestamp = None  # Store the timestamp in Unix time
         self.in_reply_to_id = None
         self.in_reply_to_user = None
         self.is_favorite = False  # Status has been favorited
@@ -80,13 +86,14 @@ class Status:
 
     def get_mentions(self):
         """
-        Returns all usernames mentioned in status (even the author of the 
+        Returns all usernames mentioned in status (even the author of the
         status)
         """
         account = self.account_id.split('-')[0]
         mentions = [self.username]
         if 'mentions' in self.entities:
-            for user in map(lambda x: x.display_text[1:], self.entities['mentions']):
+            for user in map(lambda x: x.display_text[1:],
+                            self.entities['mentions']):
                 if user.lower() != account.lower() and user not in mentions:
                     mentions.append(user)
         return mentions
@@ -105,7 +112,7 @@ class Status:
 
     def get_source(self, source):
         """
-        Parse the source text in the status and store it in a 
+        Parse the source text in the status and store it in a
         :class:`libturpial.api.models.client.Client` object.
         """
         if not source:
