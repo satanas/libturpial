@@ -9,8 +9,7 @@ import os
 import sys
 import time
 
-from libturpial.common import (OS_LINUX, OS_WINDOWS, OS_MAC, OS_JAVA,
-                               OS_UNKNOWN, URL_PATTERN)
+from libturpial.common import *
 
 
 def clean_bytecodes(root_path, logger=None):

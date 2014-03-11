@@ -16,12 +16,9 @@ from libturpial.exceptions import (URLAlreadyShort,
                                    UserListNotFound)
 from libturpial.config import AppConfig
 from libturpial.common.tools import get_urls
-<<<<<<< HEAD
 from libturpial.api.models.proxy import Proxy
 from libturpial.api.models.column import Column
 from libturpial.api.models.account import Account
-=======
->>>>>>> milmazz/fix_bug_33
 from libturpial.lib.interfaces.protocol import Protocol
 from libturpial.lib.services.url import URL_SERVICES
 from libturpial.lib.services.media.upload import UPLOAD_MEDIA_SERVICES
@@ -148,11 +145,8 @@ class Core:
         return self.accman.unregister(account_id, delete_all)
 
     def all_columns(self):
-<<<<<<< HEAD
-=======
         # TODO: add __str__ function to libturpial.api.models.column.Column
         # objects
->>>>>>> milmazz/fix_bug_33
         """
         Return a dictionary with all columns per account. Example:
 
@@ -192,12 +186,8 @@ class Core:
         return Protocol.availables()
 
     def available_columns(self):
-<<<<<<< HEAD
         """
         Return a dictionary with all available (non-registered-yet)
-=======
-        """Returns a dictionary with all registered (non-registered-yet)
->>>>>>> milmazz/fix_bug_33
         columns per account. Example:
 
         >>> {'foo-twitter': [libturpial.api.models.Column foo-twitter-direct,
@@ -257,18 +247,10 @@ class Core:
     def get_column_statuses(self, account_id, column_id,
                             count=NUM_STATUSES, since_id=None):
         """
-<<<<<<< HEAD
-        Fetch the statuses for the account *account_id* and the column *column_id*.
-        *count* let you specify how many statuses do you want to fetch, values
-        range goes from 0-200. If *since_id* is not **None** libturpial will
-        only fetch statuses newer than that.
-
-=======
         Fetch the statuses for the account *account_id* and the column
         *column_id*. *count* let you specify how many statuses do you want to
         fetch, values range goes from 0-200. If *since_id* is not **None**
         libturpial will only fetch statuses newer than that.
->>>>>>> milmazz/fix_bug_33
         """
         if column_id.find(ColumnType.SEARCH) == 0:
             criteria = column_id[len(ColumnType.SEARCH) + 1:]
@@ -306,15 +288,10 @@ class Core:
         return account.get_public_timeline(count, since_id)
 
     def get_followers(self, account_id, only_id=False):
-<<<<<<< HEAD
-        """
-        Return a :class:`libturpial.api.models.profile.Profile` list with
-=======
         # TODO: define __str__ function for
         # in libturpial.api.models.profile.Profile Class
         """
         Returns a :class:`libturpial.api.models.profile.Profile` list with
->>>>>>> milmazz/fix_bug_33
         all the followers of the account *account_id*
         """
         account = self.accman.get(account_id)
@@ -322,29 +299,16 @@ class Core:
 
     def get_following(self, account_id, only_id=False):
         """
-<<<<<<< HEAD
-        Return a :class:`libturpial.api.models.profile.Profile` list of
-=======
         Returns a :class:`libturpial.api.models.profile.Profile` list of
->>>>>>> milmazz/fix_bug_33
         all the accounts that *account_id* follows
         """
         account = self.accman.get(account_id)
         return account.get_following(only_id)
 
     def get_all_friends_list(self):
-<<<<<<< HEAD
         """
         Return a list with all the username friends of all the registered
         accounts.
-=======
-        # TODO: actual error: AttributeError: AccountManager instance has no
-        # attribute 'get_all'
-        """
-        Returns a list with all the
-        :class:`libturpial.api.models.profile.Profile` objects of all the
-        users that follow all the registered accounts.
->>>>>>> milmazz/fix_bug_33
         """
         friends = []
         for account in self.accman.accounts():
@@ -379,24 +343,17 @@ class Core:
         """
         Updates the account *account_id* with content of *text*
 
-<<<<<<< HEAD
-        if *in_reply_id* is not None, specifies the tweets that is being answered.
+        if *in_reply_id* is not None, specifies the tweets that is being
+        answered.
 
         *media* can specify the filepath of an image. If not None, the status is posted with
         the image attached. At this moment, this method is only valid for Twitter.
-=======
-        if in_reply_id is not None, specifies the tweets that is being
-        answered.
->>>>>>> milmazz/fix_bug_33
         """
         account = self.accman.get(account_id)
         return account.update_status(text, in_reply_id, media)
 
     def broadcast_status(self, account_id_array, text):
-<<<<<<< HEAD
-=======
         # TODO: add __str__ to libturpial.api.models.account.Account
->>>>>>> milmazz/fix_bug_33
         """
         Updates all the accounts in account_id_array with the content of *text*
 
@@ -404,11 +361,7 @@ class Core:
         get updated.
         """
         if not account_id_array:
-<<<<<<< HEAD
             account_id_array = [acc.id_ for acc in self.registered_accounts()]
-=======
-            account_id_array = self.registered_accounts()
->>>>>>> milmazz/fix_bug_33
 
         response = {}
         for account_id in account_id_array:
@@ -550,13 +503,8 @@ class Core:
 
     def verify_friendship(self, account_id, username):
         """
-<<<<<<< HEAD
-        Return *True* if the owner of *account_id* and *username* are following each other.
-        *False* otherwise.
-=======
         Check if *username* is on only followed by *account_id* but if he also
         follows *account_id*
->>>>>>> milmazz/fix_bug_33
         """
         account = self.accman.get(account_id)
         return account.is_friend(username)
@@ -578,14 +526,9 @@ class Core:
 
     def get_profile_image(self, account_id, username, use_cache=True):
         """
-<<<<<<< HEAD
-        Return the local path to a the profile image of *username* in original size.
-        If use_cache is *True* it will try to return the cached file, otherwise it
-        will fetch the real image.
-=======
         Returns the local path to a the profile image of *username* in original
-        size
->>>>>>> milmazz/fix_bug_33
+        size. If use_cache is *True* it will try to return the cached file,
+        otherwise it will fetch the real image.
         """
         account = self.accman.get(account_id)
         basename = "%s-%s-profile-image" % (account_id, username)
@@ -599,12 +542,8 @@ class Core:
 
     def get_status_avatar(self, status):
         """
-<<<<<<< HEAD
-        Return the local path to a the profile image of the username to post *status* in 48x48 px size
-=======
         Returns the local path to a the profile image of the username to post
         *status* in 48x48 px size
->>>>>>> milmazz/fix_bug_33
         """
         account = self.accman.get(status.account_id)
         basename = "%s-%s-avatar-%s" % (status.account_id, status.username,
