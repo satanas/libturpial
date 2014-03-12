@@ -10,8 +10,8 @@ import ConfigParser
 
 from libturpial.api.models.proxy import Proxy
 from libturpial.common import get_username_from, get_protocol_from
-from libturpial.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials, \
-        ExpressionAlreadyFiltered
+from libturpial.exceptions import (EmptyOAuthCredentials,
+    EmptyBasicCredentials, ExpressionAlreadyFiltered)
 
 try:
     from xdg import BaseDirectory

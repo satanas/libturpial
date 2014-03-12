@@ -8,9 +8,8 @@ from libturpial.lib.protocols.identica import identica
 from libturpial.lib.interfaces.protocol import Protocol
 
 from libturpial.common import *
-from libturpial.exceptions import EmptyOAuthCredentials, \
-        EmptyBasicCredentials, ErrorLoadingAccount, \
-        AccountNotAuthenticated
+from libturpial.exceptions import (EmptyOAuthCredentials,
+    EmptyBasicCredentials, ErrorLoadingAccount, AccountNotAuthenticated)
 
 
 class Account(object):
