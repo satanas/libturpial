@@ -20,19 +20,19 @@ except:
     XDG_CACHE = False
 
 APP_CFG = {
-    'General':{
+    'General': {
         'update-interval': '5',
         'queue-interval': '30',
         'minimize-on-close': 'on', # TODO: Deprecate in next mayor version
         'statuses': '60',
     },
-    'Columns':{
+    'Columns': {
     },
-    'Services':{
+    'Services': {
         'shorten-url': 'is.gd',
         'upload-pic': 'twitpic',
     },
-    'Proxy':{
+    'Proxy': {
         'username': '',
         'password': '',
         'server': '',
@@ -61,11 +61,11 @@ APP_CFG = {
 }
 
 ACCOUNT_CFG = {
-    'OAuth':{
+    'OAuth': {
         'key': '',
         'secret': '',
     },
-    'Login':{
+    'Login': {
         'username': '',
         'protocol': '',
     }
