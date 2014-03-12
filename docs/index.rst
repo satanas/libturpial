@@ -7,7 +7,7 @@ libturpial: A microblogging client writen in Python, light and functional
 =========================================================================
 
 *libturpial* is a library that handles multiple microblogging protocols. It implements a lot of features 
-and aims to support all the features for each protocol. At the moment it supports Twitter_ and `Identi.ca`_ 
+and aims to support all the features for each protocol. At the moment it supports only Twitter_ 
 and is the backend used for Turpial_.
 
 libturpial is currently under heavy development, so probably you will find bugs or undesired behavior. In 
@@ -15,7 +15,7 @@ this cases please report issues at:
 
 https://github.com/satanas/libturpial/issues
 
-We will be very graceful for your contributions.
+We will be grateful for your contributions.
 
 Features
 --------
