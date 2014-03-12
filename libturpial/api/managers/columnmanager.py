@@ -133,4 +133,3 @@ class ColumnManager:
                 if col.id_ == column_id:
                     return True
         return False
-

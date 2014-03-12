@@ -411,4 +411,3 @@ class Main(Protocol):
             url = "%s/%s" % (self.groups_url, item[1:])
             entities['groups'].append(Entity(self.account_id, url, item, item))
         return entities
-
