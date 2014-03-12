@@ -388,10 +388,10 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
 class TurpialHTTPBasicAuth(TurpialHTTPBase):
     """
     Implementation of TurpialHTTPBase for the HTTP Basic Authentication.
-    *base_url* is the part of the URL common for all your requests
-    (https://api.twitter.com/1.1 for example). *username* and *password* are the
-    username credentials. *proxies* and *timeout* work in the same way
-    that in :class:`libturpial.api.interfaces.http.TurpialHTTPBase`.
+    *base_url* is the part of the URL common for all your requests.
+    *username* and *password* are the username credentials.
+    *proxies* and *timeout* work in the same way that in
+    :class:`libturpial.api.interfaces.http.TurpialHTTPBase`.
 
     *proxies* and *timeout* work in the same way that in
     :class:`libturpial.api.interfaces.http.TurpialHTTPBase`.
