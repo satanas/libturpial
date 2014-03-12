@@ -88,6 +88,10 @@ class ConfigBase:
         self.extra_sections = {}
 
     def register_extra_option(self, section, option, default_value):
+        if section in self.__config:
+            if option in self.__config[section]:
+                return
+
         if not self.extra_sections.has_key(section):
             self.extra_sections[section] = {}
         self.extra_sections[section][option] = default_value
