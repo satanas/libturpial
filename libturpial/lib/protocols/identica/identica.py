@@ -40,7 +40,7 @@ class Main(Protocol):
         """
         Receives a json response and raise an exception if there are errors
         """
-        if response.has_key('error'):
+        if 'error' in response:
             print response
             message = response['error']
             if message.find('Could not authenticate you') >= 0:
@@ -295,7 +295,7 @@ class Main(Protocol):
     def is_friend(self, user):
         args = {'source_screen_name': self.uname, 'target_screen_name': user}
         result = self.http.get('/friendships/show', args)
-        if result.has_key('error'):
+        if 'error' in result:
             return None
         else:
             return result['relationship']['target']['following']
@@ -411,4 +411,3 @@ class Main(Protocol):
             url = "%s/%s" % (self.groups_url, item[1:])
             entities['groups'].append(Entity(self.account_id, url, item, item))
         return entities
-

@@ -14,7 +14,7 @@ class ColumnManager:
 
     >>> for item in column_manager:
             print item
-    ('foo-twitter', [<libturpial.api.models.column.Column instance at 0x10a9ce368>, 
+    ('foo-twitter', [<libturpial.api.models.column.Column instance at 0x10a9ce368>,
         <libturpial.api.models.column.Column instance at 0x10a9ce8c0>])
 
     """
@@ -34,7 +34,7 @@ class ColumnManager:
         for column_id in self.config.get_stored_columns():
             account_id = get_account_id_from(column_id)
             column_slug = get_column_slug_from(column_id)
-            if not self.__registered_columns.has_key(account_id):
+            if not account_id in self.__registered_columns:
                 self.__registered_columns[account_id] = []
             self.__registered_columns[account_id].append(Column(account_id, column_slug))
 
@@ -47,7 +47,7 @@ class ColumnManager:
 
     def register(self, column_id):
         """
-        Register a new column identified by *column_id*. If the column is 
+        Register a new column identified by *column_id*. If the column is
         already registered a
         :class:`libturpial.exceptions.ColumnAlreadyRegistered` exception will
         raise. Return the id of the column registered on success
@@ -66,7 +66,7 @@ class ColumnManager:
 
     def unregister(self, column_id):
         """
-        Remove the column identified by *column_id* from memory. Return the id 
+        Remove the column identified by *column_id* from memory. Return the id
         of the unregistered column.
         """
         index = 0
@@ -84,7 +84,7 @@ class ColumnManager:
 
     def get(self, column_id):
         """
-        Obtain the column identified by *column_id* and return a 
+        Obtain the column identified by *column_id* and return a
         :class:`libturpial.api.models.column.Column` object on success. None
         otherwise.
         """
@@ -96,14 +96,14 @@ class ColumnManager:
 
     def columns(self):
         """
-        Return a dict where each key represents an account_id and it value is 
+        Return a dict where each key represents an account_id and it value is
         a list of :class:`libturpial.api.models.column.Column` objects
         with all the columns registered.
 
         For example:
 
         >>> column_manager.columns()
-        {'foo-twitter': [<libturpial.api.models.column.Column instance at 0x10a9cbb48>, 
+        {'foo-twitter': [<libturpial.api.models.column.Column instance at 0x10a9cbb48>,
             <libturpial.api.models.column.Column instance at 0x10a9cb6c8>]}
         """
         return self.__registered_columns
@@ -125,7 +125,7 @@ class ColumnManager:
 
     def is_registered(self, column_id):
         """
-        Return `True` if column identified by *column_id* is registered. 
+        Return `True` if column identified by *column_id* is registered.
         `False` otherwise.
         """
         for account_id, columns in self.__registered_columns.iteritems():
@@ -133,4 +133,3 @@ class ColumnManager:
                 if col.id_ == column_id:
                     return True
         return False
-

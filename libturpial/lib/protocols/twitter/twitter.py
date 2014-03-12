@@ -45,7 +45,7 @@ class Main(Protocol):
         if type(response) == list:
             return
 
-        if response.has_key('errors'):
+        if 'errors' in response:
             print response
             code = response['errors'][0]['code']
             if code == 32 or code == 215 or code == 401:

@@ -32,7 +32,7 @@ class Status:
     :ivar entities: A dict with all the entities found in status
     :ivar type_: Status type.
 
-    Sometimes a status can hold one or more entities (URLs, hashtags, etc). In this 
+    Sometimes a status can hold one or more entities (URLs, hashtags, etc). In this
     case the entities variable will store a dict with lists for each category.
     For example:
 
@@ -70,7 +70,7 @@ class Status:
         self.entities = {}
         self.original_status_id = None
         self.created_at = None
-        self.local_datetime = None # Store the timestamp as long integer in local time
+        self.local_datetime = None  # Store the timestamp as long integer in local time
 
     def __eq__(self, status):
         return self.id_ == status.id_
@@ -80,7 +80,7 @@ class Status:
 
     def get_mentions(self):
         """
-        Returns all usernames mentioned in status (even the author of the 
+        Returns all usernames mentioned in status (even the author of the
         status)
         """
         account = self.account_id.split('-')[0]
@@ -105,7 +105,7 @@ class Status:
 
     def get_source(self, source):
         """
-        Parse the source text in the status and store it in a 
+        Parse the source text in the status and store it in a
         :class:`libturpial.api.models.client.Client` object.
         """
         if not source:

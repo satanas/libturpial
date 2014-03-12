@@ -17,7 +17,7 @@ OS_MAC = 'darwin'  #: Constant to identify Mac operating systems
 OS_JAVA = 'java'  #: Constant to identify Java based operating systems
 
 #: Constant to identify operating systems that does not belong to any
-#: of the previous categories 
+#: of the previous categories
 OS_UNKNOWN = 'unknown'
 
 #: Regex pattern to match microblogging hashtags (for example: #hashtags)
@@ -57,17 +57,17 @@ def get_preview_service_from_url(url):
     return None
 
 def is_preview_service_supported(url):
-    if get_preview_service_from_url(url) != None:
+    if get_preview_service_from_url(url) is not None:
         return True
     return False
 
 class StatusColumn:
     """Status column"""
-    TIMELINE = 'timeline' #: Timeline column
+    TIMELINE = 'timeline'  #: Timeline column
     REPLIES = 'replies'  #: Replies column
     DIRECTS = 'directs'  #: Directs column
-    FAVORITES = 'favorites' #: Favs column
-    PUBLIC = 'public' #: Public column
+    FAVORITES = 'favorites'  #: Favs column
+    PUBLIC = 'public'  #: Public column
     SENT = 'sent'
     CONVERSATION = 'conversation'
     PROFILE = 'profile'

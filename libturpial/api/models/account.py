@@ -8,24 +8,23 @@ from libturpial.lib.protocols.identica import identica
 from libturpial.lib.interfaces.protocol import Protocol
 
 from libturpial.common import *
-from libturpial.exceptions import EmptyOAuthCredentials, \
-        EmptyBasicCredentials, ErrorLoadingAccount, \
-        AccountNotAuthenticated
+from libturpial.exceptions import (EmptyOAuthCredentials,
+    EmptyBasicCredentials, ErrorLoadingAccount, AccountNotAuthenticated)
 
 
 class Account(object):
     """
     This class represents an user account and holds all it related methods.
-    This is done thanks to one :class:`libturpial.lib.interfaces.protocol.Protocol` 
-    instance associated to the user account that handles all the dirty work 
-    against the service (Twitter, Identi.ca, etc) as well as one 
-    :class:`libturpial.api.models.profile.Profile` model that store the user 
+    This is done thanks to one :class:`libturpial.lib.interfaces.protocol.Protocol`
+    instance associated to the user account that handles all the dirty work
+    against the service (Twitter, Identi.ca, etc) as well as one
+    :class:`libturpial.api.models.profile.Profile` model that store the user
     details.
 
-    This is the class you must instanciate if you want to handle/authenticate 
+    This is the class you must instanciate if you want to handle/authenticate
     a user account.
 
-    *Account* let you perform three actions to build an account: create a new 
+    *Account* let you perform three actions to build an account: create a new
     account from scratch, create a new account from params and load a
     previously registered account. To create a new account from scratch do:
 
@@ -35,13 +34,13 @@ class Account(object):
 
     >>> account = Account.new('twitter', 'username')
 
-    At this point, that account is not a valid account yet because it 
+    At this point, that account is not a valid account yet because it
     hasn't been authenticated. You should do the authentication by yourself.
     This is, request OAuth access:
 
     >>> url = account.request_oauth_access()
 
-    That method will return an URL that your user must visit to authorize the 
+    That method will return an URL that your user must visit to authorize the
     app. After that, you must to ask for the PIN returned by the service and
     execute:
 
@@ -51,7 +50,7 @@ class Account(object):
     registered in :class:`libturpial.api.core.Core`.
 
     But *Account* let you create accounts passing all the params needed for
-    the OAuth authentication. If you already know those params (user key, 
+    the OAuth authentication. If you already know those params (user key,
     user secret and PIN) then you just need to execute:
 
     >>> account = Account.new_from_params('twitter', 'username', 'key', 'secret', 'the_pin')
@@ -100,7 +99,7 @@ class Account(object):
     def new(protocol_id, username=None):
         """
         Return a new account object associated to the protocol identified by
-        *protocol_id*. If *username* is not None it will build the account_id 
+        *protocol_id*. If *username* is not None it will build the account_id
         for the account.
 
         This account is empty and must be authenticated before it can be registered
@@ -117,7 +116,7 @@ class Account(object):
         """
         Return a new account object associated to the protocol identified by
         *protocol_id* and authenticated against the respective service (Twitter,
-        Identi.ca, etc) using *username*, *key*, *secret* and *verifier* (aka 
+        Identi.ca, etc) using *username*, *key*, *secret* and *verifier* (aka
         PIN).
 
         This account is authenticated after creation, so it can be registered
@@ -138,7 +137,7 @@ class Account(object):
         valid account it returns a
         :class:`libturpial.exceptions.ErrorLoadingAccount` exception.
 
-        If credentials in configuration file are empty it returns a 
+        If credentials in configuration file are empty it returns a
         :class:`libturpial.exceptions.EmptyOAuthCredentials` exception.
         """
         if not AccountConfig.exists(account_id):
@@ -163,7 +162,7 @@ class Account(object):
 
     def authorize_oauth_access(self, pin):
         """
-        Take the *pin* returned by OAuth service and authenticate the token 
+        Take the *pin* returned by OAuth service and authenticate the token
         requested with *request_oauth_access*
         """
         self.profile = self.protocol.authorize_token(pin)
@@ -172,8 +171,8 @@ class Account(object):
     # TODO: Return True if success?
     def save(self):
         """
-        Save to disk the configuration and credentials for the account. If the 
-        account hasn't been authenticated it will raise an 
+        Save to disk the configuration and credentials for the account. If the
+        account hasn't been authenticated it will raise an
         :class:`libturpial.exceptions.AccountNotAuthenticated` exception.
         """
         if not self.is_authenticated():
@@ -186,7 +185,7 @@ class Account(object):
 
     def fetch(self):
         """
-        Retrieve the user profile information and return the id of the account 
+        Retrieve the user profile information and return the id of the account
         on success. This method authenticate the account.
         """
         self.profile = self.protocol.verify_credentials()
@@ -249,13 +248,13 @@ class Account(object):
         Return `True` if the current account has been logged in, `False`
         otherwise
         """
-        return self.profile != None and self.id_ != None
+        return self.profile is not None and self.id_ is not None
 
     def update_profile(self, fullname=None, url=None, bio=None, location=None):
         """
         Update the *fullname*, *url*, *bio* or *location* of the user profile.
-        You may specify one or more arguments. Return an 
-        :class:`libturpial.api.models.profile.Profile` object containing the 
+        You may specify one or more arguments. Return an
+        :class:`libturpial.api.models.profile.Profile` object containing the
         user profile
         """
         self.profile = self.protocol.update_profile(fullname, url, bio, location)

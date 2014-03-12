@@ -340,7 +340,7 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
         request = oauth.OAuthRequest.from_consumer_and_token(
             oauth_consumer=self.consumer,
             http_method='POST', http_url=self.access_token_url,
-            parameters = {
+            parameters={
                 'x_auth_mode': 'client_auth',
                 'x_auth_username': username,
                 'x_auth_password': password

@@ -10,8 +10,8 @@ import ConfigParser
 
 from libturpial.api.models.proxy import Proxy
 from libturpial.common import get_username_from, get_protocol_from
-from libturpial.exceptions import EmptyOAuthCredentials, EmptyBasicCredentials, \
-        ExpressionAlreadyFiltered
+from libturpial.exceptions import (EmptyOAuthCredentials,
+    EmptyBasicCredentials, ExpressionAlreadyFiltered)
 
 try:
     from xdg import BaseDirectory
@@ -20,19 +20,19 @@ except:
     XDG_CACHE = False
 
 APP_CFG = {
-    'General':{
+    'General': {
         'update-interval': '5',
         'queue-interval': '30',
-        'minimize-on-close': 'on', # TODO: Deprecate in next mayor version
+        'minimize-on-close': 'on',  # TODO: Deprecate in next mayor version
         'statuses': '60',
     },
-    'Columns':{
+    'Columns': {
     },
-    'Services':{
+    'Services': {
         'shorten-url': 'is.gd',
         'upload-pic': 'twitpic',
     },
-    'Proxy':{
+    'Proxy': {
         'username': '',
         'password': '',
         'server': '',
@@ -61,11 +61,11 @@ APP_CFG = {
 }
 
 ACCOUNT_CFG = {
-    'OAuth':{
+    'OAuth': {
         'key': '',
         'secret': '',
     },
-    'Login':{
+    'Login': {
         'username': '',
         'protocol': '',
     }
@@ -87,7 +87,7 @@ class ConfigBase:
         self.extra_sections = {}
 
     def register_extra_option(self, section, option, default_value):
-        if not self.extra_sections.has_key(section):
+        if not section in self.extra_sections:
             self.extra_sections[section] = {}
         self.extra_sections[section][option] = default_value
         self.write(section, option, default_value)
@@ -107,7 +107,7 @@ class ConfigBase:
         self.cfg.read(self.configpath)
 
         for section in self.cfg.sections():
-            if not on_disk.has_key(section):
+            if not section in on_disk:
                 on_disk[section] = {}
 
             for option in self.cfg.options(section):
@@ -138,7 +138,7 @@ class ConfigBase:
                 self.write(section, option, value)
 
     def write(self, section, option, value):
-        if not self.__config.has_key(section):
+        if not section in self.__config:
             self.__config[section] = {}
 
         self.__config[section][option] = value
