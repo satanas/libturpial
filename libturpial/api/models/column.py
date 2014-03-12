@@ -2,8 +2,8 @@
 
 class Column:
     """
-    This model represents a column that holds 
-    :class:`libturpial.api.models.status.Status` objects. You need to specify 
+    This model represents a column that holds
+    :class:`libturpial.api.models.status.Status` objects. You need to specify
     to what *account_id* are they associated, as well as the column *slug*.
     Available column slugs are available in :class:`libturpial.common.ColumnType`.
 
@@ -18,7 +18,7 @@ class Column:
     def __init__(self, account_id, slug, singular_unit='tweet',
             plural_unit='tweets'):
         self.size = 0
-        self.id_ = "%s-%s" % (account_id, slug) # username-protocol-column
+        self.id_ = "%s-%s" % (account_id, slug)  # username-protocol-column
         self.slug = slug
         self.account_id = account_id
         self.updating = False

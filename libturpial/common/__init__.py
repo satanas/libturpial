@@ -63,11 +63,11 @@ def is_preview_service_supported(url):
 
 class StatusColumn:
     """Status column"""
-    TIMELINE = 'timeline' #: Timeline column
+    TIMELINE = 'timeline'  #: Timeline column
     REPLIES = 'replies'  #: Replies column
     DIRECTS = 'directs'  #: Directs column
-    FAVORITES = 'favorites' #: Favs column
-    PUBLIC = 'public' #: Public column
+    FAVORITES = 'favorites'  #: Favs column
+    PUBLIC = 'public'  #: Public column
     SENT = 'sent'
     CONVERSATION = 'conversation'
     PROFILE = 'profile'

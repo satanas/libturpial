@@ -23,7 +23,7 @@ APP_CFG = {
     'General': {
         'update-interval': '5',
         'queue-interval': '30',
-        'minimize-on-close': 'on', # TODO: Deprecate in next mayor version
+        'minimize-on-close': 'on',  # TODO: Deprecate in next mayor version
         'statuses': '60',
     },
     'Columns': {
