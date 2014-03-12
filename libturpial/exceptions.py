@@ -13,6 +13,7 @@ class ErrorCreatingAccount(Exception):
 class ErrorLoadingAccount(Exception):
     def __init__(self, message):
         self.message = message
+
     def __str__(self):
         return repr(self.message)
 
@@ -64,6 +65,7 @@ class BadOAuthTimestamp(Exception):
 class ErrorSendingDirectMessage(Exception):
     def __init__(self, message):
         self.message = message
+
     def __str__(self):
         return repr(self.message)
 
