@@ -517,7 +517,7 @@ class Core:
         account = self.accman.get(account_id)
         basename = "%s-%s-profile-image" % (account_id, username)
         img_destination_path = os.path.join(account.config.imgdir, basename)
-        if not os.path.isfile(img_destination_path) or use_cache == False:
+        if not os.path.isfile(img_destination_path) or use_cache is False:
             img_url = account.get_profile_image(username)
             fd = open(img_destination_path, 'w')
             fd.write(self.fetch_image(img_url))
