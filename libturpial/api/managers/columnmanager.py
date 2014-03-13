@@ -73,12 +73,12 @@ class ColumnManager:
         """
         index = 0
         to_store = {}
-        for account_id, columns in self.__registered_columns.iteritems():
-            for col in columns:
-                if col.id_ != column_id:
-                    index += 1
-                    key = "column%s" % index
-                    to_store[key] = col.id_
+        ordered_columns = self.columns_by_order()
+        columns = [col for col in ordered_columns if col.id_ != column_id]
+        for col in columns:
+            index += 1
+            key = "column%s" % index
+            to_store[key] = col.id_
         self.config.write_section('Columns', to_store)
 
         self.__load_registered()

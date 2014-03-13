@@ -160,8 +160,16 @@ class ConfigBase:
             self.cfg.remove_section(section)
             self.__config[section] = {}
 
+        if not self.cfg.has_section(section):
+            self.cfg.add_section(section)
+
         for option, value in items.iteritems():
-            self.write(section, option, value)
+            self.__config[section][option] = value
+            self.cfg.set(section, option, value)
+
+        _fd = open(self.configpath, 'w')
+        self.cfg.write(_fd)
+        _fd.close()
 
     # WARN: Next version boolean will be the default answer
     def read(self, section, option, boolean=False):
@@ -282,10 +290,13 @@ class AppConfig(ConfigBase):
         return accounts
 
     def get_stored_columns(self):
+        columns = []
         stored_cols = self.read_section('Columns')
+        if not stored_cols or len(stored_cols) == 0:
+            return columns
+
         indexes = stored_cols.keys()
         indexes.sort()
-        columns = []
 
         for i in indexes:
             value = stored_cols[i]
