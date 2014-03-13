@@ -158,10 +158,9 @@ class ConfigBase:
     def write_section(self, section, items):
         if self.cfg.has_section(section):
             self.cfg.remove_section(section)
-            self.__config[section] = {}
-
-        if not self.cfg.has_section(section):
+        else:
             self.cfg.add_section(section)
+        self.__config[section] = {}
 
         for option, value in items.iteritems():
             self.__config[section][option] = value
