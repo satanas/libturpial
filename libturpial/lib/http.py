@@ -116,7 +116,7 @@ class TurpialHTTPBase:
                                headers=httpreq.headers, verify=httpreq.secure,
                                proxies=self.proxies, timeout=self.timeout)
         elif httpreq.method == 'POST':
-            req = requests.post(httpreq.uri, params=httpreq.params,
+            req = requests.post(httpreq.uri, data=httpreq.params,
                                 headers=httpreq.headers, verify=httpreq.secure,
                                 proxies=self.proxies, timeout=self.timeout)
         if httpreq._format == FORMAT_JSON:
@@ -180,7 +180,7 @@ class TurpialHTTPBase:
                             id_in_url)
 
     def post(self, uri, args=None, _format=FORMAT_JSON, base_url=None,
-             secure=False, id_in_url=True, files=None):
+             secure=False, id_in_url=False, files=None):
         """
         Performs a POST request against the *uri* resource with *args*. You
         can specify the *_format* ('json' or 'xml') and can specify a different
@@ -193,7 +193,7 @@ class TurpialHTTPBase:
                             id_in_url, files)
 
     def request(self, method, uri, args=None, _format=FORMAT_JSON,
-                alt_base_url=None, secure=False, id_in_url=True, files=None):
+                alt_base_url=None, secure=False, id_in_url=False, files=None):
         """
         Performs a GET or POST request against the *uri* resource with
         *args*. You can specify the *_format* ('json' or 'xml') and can specify

@@ -350,12 +350,12 @@ class Main(Protocol):
 
     def destroy_status(self, status_id):
         rtn = self.http.post('/statuses/destroy', {'id': status_id,
-                             'include_entities': True})
+                             'include_entities': True}, id_in_url=True)
         self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def repeat_status(self, status_id):
-        rtn = self.http.post('/statuses/retweet', {'id': status_id})
+        rtn = self.http.post('/statuses/retweet', {'id': status_id}, id_in_url=True)
         self.check_for_errors(rtn)
         status = self.json_to_status(rtn)
         status.repeated_by = self.get_repeaters(status_id)
@@ -363,13 +363,13 @@ class Main(Protocol):
 
     def mark_as_favorite(self, status_id):
         rtn = self.http.post('/favorites/create', {'id': status_id,
-                             'include_entities': True}, id_in_url=False)
+                             'include_entities': True})
         self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
     def unmark_as_favorite(self, status_id):
         rtn = self.http.post('/favorites/destroy', {'id': status_id,
-                             'include_entities': True}, id_in_url=False)
+                             'include_entities': True})
         self.check_for_errors(rtn)
         return self.json_to_status(rtn)
 
