@@ -21,16 +21,16 @@ class Account(object):
     :class:`libturpial.api.models.profile.Profile` model that store the user
     details.
 
-    This is the class you must instanciate if you want to handle/authenticate
+    This is the class you must instantiate if you want to handle/authenticate
     a user account.
 
     *Account* let you perform three actions to build an account: create a new
-    account from scratch, create a new account from params and load a
+    account from scratch, create a new account from parameters and load a
     previously registered account. To create a new account from scratch do:
 
     >>> account = Account.new('twitter')
 
-    If you know the username too, then you can pass it as argument:
+    If you know the user name too, then you can pass it as argument:
 
     >>> account = Account.new('twitter', 'username')
 
@@ -41,16 +41,16 @@ class Account(object):
     >>> url = account.request_oauth_access()
 
     That method will return an URL that your user must visit to authorize the
-    app. After that, you must to ask for the PIN returned by the service and
-    execute:
+    application. After that, you must to ask for the PIN returned by the
+    service and execute:
 
     >>> account.authorize_oauth_access('the_pin')
 
     And voilá! You now have a valid and fully authenticated account ready to be
     registered in :class:`libturpial.api.core.Core`.
 
-    But *Account* let you create accounts passing all the params needed for
-    the OAuth authentication. If you already know those params (user key,
+    But *Account* let you create accounts passing all the parameters needed for
+    the OAuth authentication. If you already know those parameters (user key,
     user secret and PIN) then you just need to execute:
 
     >>> account = Account.new_from_params('twitter', 'username', 'key', \
