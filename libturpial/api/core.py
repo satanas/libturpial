@@ -764,6 +764,7 @@ class Core:
     def read_config_value(self, section, option):
         return self.config.read(section, option)
 
+    # Should it be deprecated?
     # WARN: Will be deprecated on next mayor version
     def write_config_value(self, section, option, value):
         self.config.write(section, option, value)
