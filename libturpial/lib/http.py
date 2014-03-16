@@ -108,7 +108,7 @@ class TurpialHTTPBase:
             uri = "%s.%s" % (uri, _format)
 
         return TurpialHTTPRequest(method, uri, _format=_format, params=args,
-                                  secure=secure)
+                                  secure=secure, files=files)
 
     def __fetch_resource(self, httpreq):
         if httpreq.method == 'GET':
@@ -116,9 +116,10 @@ class TurpialHTTPBase:
                                headers=httpreq.headers, verify=httpreq.secure,
                                proxies=self.proxies, timeout=self.timeout)
         elif httpreq.method == 'POST':
-            req = requests.post(httpreq.uri, data=httpreq.params,
+            req = requests.post(httpreq.uri, params=httpreq.params,
                                 headers=httpreq.headers, verify=httpreq.secure,
-                                proxies=self.proxies, timeout=self.timeout)
+                                proxies=self.proxies, timeout=self.timeout,
+                                files=httpreq.files)
         if httpreq._format == FORMAT_JSON:
             return req.json()
         else:
@@ -326,20 +327,16 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
         Ask to the service for a fresh new token. Returns an URL that the
         user must access in order to authorize the client.
         """
-        oauth_request = \
-            oauth.OAuthRequest.from_consumer_and_token(self.consumer,
-                                                       http_url=self.request_token_url)  # noqa
+        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
+                                                                   http_url=self.request_token_url)
 
-        oauth_request.sign_request(self.sign_method_hmac_sha1, self.consumer,
-                                   None)
+        oauth_request.sign_request(self.sign_method_hmac_sha1, self.consumer, None)
 
-        req = requests.get(self.request_token_url,
-                           headers=oauth_request.to_header())
+        req = requests.get(self.request_token_url, headers=oauth_request.to_header())
         self.token = oauth.OAuthToken.from_string(req.text)
 
-        oauth_request = \
-            oauth.OAuthRequest.from_token_and_callback(token=self.token,
-                                                       http_url=self.authorize_token_url)  # noqa
+        oauth_request = oauth.OAuthRequest.from_token_and_callback(token=self.token,
+                                                                   http_url=self.authorize_token_url)
 
         return oauth_request.to_url()
 
@@ -348,17 +345,14 @@ class TurpialHTTPOAuth(TurpialHTTPBase):
         Uses the *pin* returned by the service to authorize the current token.
         Returns an :class:`oauth.OAuthToken` object.
         """
-        oauth_request = \
-            oauth.OAuthRequest.from_consumer_and_token(self.consumer,
-                                                       token=self.token,
-                                                       verifier=pin,
-                                                       http_url=self.access_token_url)  # noqa
+        oauth_request = oauth.OAuthRequest.from_consumer_and_token(self.consumer,
+                                                                   token=self.token,
+                                                                   verifier=pin,
+                                                                   http_url=self.access_token_url)
 
-        oauth_request.sign_request(self.sign_method_hmac_sha1, self.consumer,
-                                   self.token)
+        oauth_request.sign_request(self.sign_method_hmac_sha1, self.consumer, self.token)
 
-        req = requests.get(self.access_token_url,
-                           headers=oauth_request.to_header())
+        req = requests.get(self.access_token_url, headers=oauth_request.to_header())
         self.token = oauth.OAuthToken.from_string(req.text)
 
         return self.token
