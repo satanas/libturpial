@@ -758,6 +758,7 @@ class Core:
         minimize = self.config.read('General', 'minimize-on-close')
         return True if minimize == 'on' else False
 
+    # Should it be deprecated?
     # WARN: Will be deprecated on next mayor version
     def get_config(self):
         return self.config.read_all()
