@@ -8,6 +8,7 @@ v1.7.0
 	* Set pic.twitter.com as default service to upload images
 	* Support for list names with hyphens
 	* Improved POST requests to be RESTful compliant (b3)
+	* Included configuration files in MANIFEST.in (rc1)
 
 v1.6.0
 	* Fixed proxy support

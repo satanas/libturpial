@@ -3,4 +3,8 @@ include COPYING
 include AUTHORS
 include ez_setup.py
 include pylintrc
+include requirements.txt
+include tox.ini
+include .coveragerc
+include README.rst
 include libturpial/certs/*
