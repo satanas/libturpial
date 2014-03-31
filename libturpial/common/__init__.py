@@ -70,6 +70,14 @@ def is_preview_service_supported(url):
         return True
     return False
 
+def escape_list_name(list_name):
+    list_name = list_name.replace('-', '%2D')
+    return list_name
+
+def unescape_list_name(list_name):
+    list_name = list_name.replace('%2D', '-')
+    return list_name
+
 
 class StatusColumn:
     """Status column"""

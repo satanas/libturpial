@@ -9,7 +9,8 @@ import requests
 from libturpial.common import (NUM_STATUSES,
                                ColumnType,
                                is_preview_service_supported,
-                               get_preview_service_from_url)
+                               get_preview_service_from_url,
+                               unescape_list_name)
 from libturpial.exceptions import (URLAlreadyShort,
                                    NoURLToShorten,
                                    PreviewServiceNotSupported,
@@ -276,7 +277,8 @@ class Core:
         elif column_id == ColumnType.PUBLIC:
             rtn = account.get_public_timeline(count, since_id)
         else:
-            list_id = account.get_list_id(column_id)
+            column_slug = unescape_list_name(column_id)
+            list_id = account.get_list_id(column_slug)
             if list_id is None:
                 raise UserListNotFound
             rtn = account.get_list_statuses(list_id, count, since_id)
@@ -756,6 +758,7 @@ class Core:
         minimize = self.config.read('General', 'minimize-on-close')
         return True if minimize == 'on' else False
 
+    # Should it be deprecated?
     # WARN: Will be deprecated on next mayor version
     def get_config(self):
         return self.config.read_all()
@@ -764,6 +767,7 @@ class Core:
     def read_config_value(self, section, option):
         return self.config.read(section, option)
 
+    # Should it be deprecated?
     # WARN: Will be deprecated on next mayor version
     def write_config_value(self, section, option, value):
         self.config.write(section, option, value)

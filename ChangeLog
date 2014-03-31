@@ -1,6 +1,14 @@
 v1.7.0
-	* Added tests for core, managers, models, tools, config, interfaces and service bases
-	* Fixed source URL in media objects through info field
+	* Added tests for core, managers, models, tools, config, interfaces and service bases (b1)
+	* Fixed source URL in media objects through info field (b2)
+	* Fixed minor style issues
+	* Fixed issue when registering new config options
+	* Fixed filters
+	* Fixed several config methods
+	* Set pic.twitter.com as default service to upload images
+	* Support for list names with hyphens
+	* Improved POST requests to be RESTful compliant (b3)
+	* Included configuration files in MANIFEST.in (rc1)
 
 v1.6.0
 	* Fixed proxy support

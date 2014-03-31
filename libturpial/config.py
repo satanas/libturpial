@@ -30,7 +30,7 @@ APP_CFG = {
     },
     'Services':{
         'shorten-url': 'is.gd',
-        'upload-pic': 'twitpic',
+        'upload-pic': 'pic.twitter.com',
     },
     'Proxy':{
         'username': '',
