@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import warnings
+
 from libturpial.config import AccountConfig
 from libturpial.api.models.column import Column
 from libturpial.lib.protocols.twitter import twitter
@@ -53,8 +55,8 @@ class Account(object):
     the OAuth authentication. If you already know those parameters (user key,
     user secret and PIN) then you just need to execute:
 
-    >>> account = Account.new_from_params('twitter', 'username', 'key', \
-                                          'secret', 'the_pin')
+    >>> account = Account.new('twitter', 'username', 'key', \
+                              'secret', 'the_pin')
 
     And you will have a valid and fully authenticated account ready to be
     registered in :class:`libturpial.api.core.Core` too.
@@ -69,6 +71,7 @@ class Account(object):
 
     From this point you can use the method described here to handle the
     account object.
+
     """
 
     def __init__(self, protocol_id, username=None):
@@ -97,37 +100,39 @@ class Account(object):
         self.username = username
 
     @staticmethod
-    def new(protocol_id, username=None):
+    def new(protocol_id, username=None, key=None, secret=None):
         """
         Return a new account object associated to the protocol identified by
         *protocol_id*. If *username* is not None it will build the account_id
         for the account.
 
-        This account is empty and must be authenticated before it can be
-        registered in :class:`libturpial.api.core.Core`.
+        If you don't enter the `key` and `secret` parameters this account is
+        empty and must be authenticated before it can be registered
+        in :class:`libturpial.api.core.Core`. Otherwise, this account is
+        authenticated after their creation, so it can be registered in
+        :class:`libturpial.api.core.Core` immediately.
 
         .. warning::
             None information is stored at disk at this point.
+
         """
         account = Account(protocol_id, username)
+        if key and secret:
+            account.setup_user_credentials(account.id_, key, secret)
         return account
 
     @staticmethod
     def new_from_params(protocol_id, username, key, secret, verifier):
         """
-        Return a new account object associated to the protocol identified by
-        *protocol_id* and authenticated against the respective service
-        (Twitter, Identi.ca, etc) using *username*, *key*, *secret* and
-        *verifier* (aka PIN).
+        .. deprecated:: 2.0
 
-        This account is authenticated after creation, so it can be registered
-        in :class:`libturpial.api.core.Core` immediately.
+        Use :method:`new` instead.
 
-        .. warning::
-            None information is stored at disk at this point.
         """
-        account = Account(protocol_id, username)
-        account.setup_user_credentials(account.id_, key, secret)
+        warnings.warn("Shouldn't use this method anymore, please use new",
+                      DeprecationWarning)
+        account = Account.new(protocol_id, username, key, secret)
+
         return account
 
     @staticmethod
