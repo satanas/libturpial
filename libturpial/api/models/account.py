@@ -126,7 +126,7 @@ class Account(object):
         """
         .. deprecated:: 2.0
 
-        Use :method:`new` instead.
+        Use :meth:`new` instead.
 
         """
         warnings.warn("Shouldn't use this method anymore, please use new",
