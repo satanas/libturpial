@@ -35,10 +35,8 @@ class TestAccount:
         assert isinstance(account, Account)
 
     def test_new_with_params(self, monkeypatch):
-        monkeypatch.setattr('libturpial.api.models.account.Account', DummyAccount)
-
         account = Account.new_from_params('twitter', 'foo', '123', '456', '789')
-        assert isinstance(account, DummyAccount)
+        assert isinstance(account, Account)
 
     def test_load(self, monkeypatch):
         monkeypatch.setattr('libturpial.config.AccountConfig', DummyConfig)
