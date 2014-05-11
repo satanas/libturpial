@@ -37,9 +37,9 @@ class Status:
     :ivar entities: A dict with all the entities found in status
     :ivar type_: Status type.
 
-    Sometimes a status can hold one or more entities (URLs, hashtags, etc).
-    In this case the entities variable will store a dict with lists for each
-    category. For example:
+    Sometimes a status can hold one or more entities (URLs, hashtags, etc). In this
+    case the entities variable will store a dict with lists for each category.
+    For example:
 
     >>> status = Status()
     >>> status.entities
@@ -76,7 +76,7 @@ class Status:
         self.entities = {}
         self.original_status_id = None
         self.created_at = None
-        self.local_datetime = None # Store the timestamp as long integer in local time
+        self.local_datetime = None  # Store the timestamp as long integer in local time
 
     def __eq__(self, status):
         return self.id_ == status.id_

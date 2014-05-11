@@ -13,10 +13,11 @@ class ColumnManager:
     This manager can be iterated and each element will have a list of columns
     per account. For example:
 
-    >>> from libturpial.config import AppConfig
-    >>> config = AppConfig()
     >>> column_manager = ColumnManager(config)
-    >>> [column for column in column_manager.columns()]
+    >>> for item in column_manager:
+            print item
+    ('foo-twitter', [<libturpial.api.models.column.Column instance at 0x10a9ce368>,
+        <libturpial.api.models.column.Column instance at 0x10a9ce8c0>])
 
     """
     def __init__(self, config):
@@ -35,7 +36,7 @@ class ColumnManager:
         for column_id in self.config.get_stored_columns():
             account_id = get_account_id_from(column_id)
             column_slug = get_column_slug_from(column_id)
-            if account_id not in self.__registered_columns:
+            if not account_id in self.__registered_columns:
                 self.__registered_columns[account_id] = []
             self.__registered_columns[account_id].append(Column(account_id,
                                                                 column_slug))
@@ -86,7 +87,7 @@ class ColumnManager:
 
     def get(self, column_id):
         """
-        Obtain the column identified by *column_id* and return a 
+        Obtain the column identified by *column_id* and return a
         :class:`libturpial.api.models.column.Column` object on success. None
         otherwise.
         """
@@ -108,6 +109,8 @@ class ColumnManager:
         >>> config = AppConfig()
         >>> column_manager = ColumnManager(config)
         >>> column_manager.columns()
+        {'foo-twitter': [<libturpial.api.models.column.Column instance at 0x10a9cbb48>,
+            <libturpial.api.models.column.Column instance at 0x10a9cb6c8>]}
         """
         return self.__registered_columns
 

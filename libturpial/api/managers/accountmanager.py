@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from libturpial.api.models.account import Account
-from libturpial.exceptions import (AccountNotAuthenticated,
-                                   AccountAlreadyRegistered)
+from libturpial.exceptions import AccountNotAuthenticated, AccountAlreadyRegistered
 
 
 class AccountManager:
@@ -75,11 +74,10 @@ class AccountManager:
 
     def unregister(self, account_id, delete_all):
         """
-        Remove the account identified by *account_id* from memory.
-        If *delete_all* is `True` all configuration files are deleted
-        from disk. Be careful because this operation can not be undone.
-        Return the id of the unregistered column on success,
-        `None` otherwise
+        Remove the account identified by *account_id* from memory. If *delete_all*
+        is `True` all configuration files are deleted from disk. Be careful
+        because this operation can not be undone. Return the id of the
+        unregistered column on success, `None` otherwise
         """
         if account_id in self.__accounts:
             if delete_all:

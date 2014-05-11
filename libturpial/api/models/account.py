@@ -7,15 +7,14 @@ from libturpial.lib.protocols.identica import identica
 from libturpial.lib.interfaces.protocol import Protocol
 
 from libturpial.common import (ColumnType, build_account_id,
-                               get_protocol_from, get_username_from)
+    get_protocol_from, get_username_from)
 from libturpial.exceptions import ErrorLoadingAccount, AccountNotAuthenticated
 
 
 class Account(object):
     """
     This class represents an user account and holds all it related methods.
-    This is done thanks to one
-    :class:`libturpial.lib.interfaces.protocol.Protocol`
+    This is done thanks to one :class:`libturpial.lib.interfaces.protocol.Protocol`
     instance associated to the user account that handles all the dirty work
     against the service (Twitter, Identi.ca, etc) as well as one
     :class:`libturpial.api.models.profile.Profile` model that store the user
@@ -116,9 +115,9 @@ class Account(object):
     def new_from_params(protocol_id, username, key, secret, verifier):
         """
         Return a new account object associated to the protocol identified by
-        *protocol_id* and authenticated against the respective service
-        (Twitter, Identi.ca, etc) using *username*, *key*, *secret* and
-        *verifier* (aka PIN).
+        *protocol_id* and authenticated against the respective service (Twitter,
+        Identi.ca, etc) using *username*, *key*, *secret* and *verifier* (aka
+        PIN).
 
         This account is authenticated after creation, so it can be registered
         in :class:`libturpial.api.core.Core` immediately.
