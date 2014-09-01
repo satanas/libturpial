@@ -55,6 +55,8 @@ class Main(Protocol):
                 raise RateLimitExceeded
             elif code == 89:
                 raise InvalidOAuthToken
+            elif code == 92:
+                raise ProtocolNotSupported
             elif code == 130 or code == 503 or code == 504:
                 raise ServiceOverCapacity
             elif code == 131 or code == 500:
