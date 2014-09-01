@@ -124,6 +124,6 @@ class NotSupported(Exception):
     pass
 
 
-class ProtocolNotSupported(Exception):
+class SSLRequired(Exception):
     pass
 
