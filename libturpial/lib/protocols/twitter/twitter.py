@@ -71,6 +71,8 @@ class Main(Protocol):
                 raise StatusDuplicated
             elif code == 502:
                 raise ServiceDown
+            else:
+                raise UnlistedException(data=response['errors'][0])
 
 
     def initialize_http(self):

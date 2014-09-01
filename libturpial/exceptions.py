@@ -127,3 +127,11 @@ class NotSupported(Exception):
 class SSLRequired(Exception):
     pass
 
+
+class UnlistedException(Exception):
+    def __init__(self, data=None):
+        if data:
+            self.message = 'Status: %(status)s, %(message)s' % data
+        else:
+            self.message = 'Something went wrong'
+
