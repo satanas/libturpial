@@ -82,6 +82,7 @@ class BadOAuthTimestamp(Exception):
 
 
 class ErrorSendingDirectMessage(Exception):
+
     def __init__(self, message):
         self.message = message
 
@@ -98,6 +99,7 @@ class InvalidOAuthToken(Exception):
 
 
 class URLShortenError(Exception):
+
     def __init__(self, message):
         self.message = message
 
@@ -121,3 +123,16 @@ class UploadImageError(Exception):
 
 class NotSupported(Exception):
     pass
+
+
+class SSLRequired(Exception):
+    pass
+
+
+class UnlistedException(Exception):
+    def __init__(self, data=None):
+        if data:
+            self.message = 'Status: %(status)s, %(message)s' % data
+        else:
+            self.message = 'Something went wrong'
+
