@@ -3,7 +3,7 @@
 """ Twitter implementation for Turpial"""
 
 from libturpial.config import AppConfig
-from libturpial.exceptions import ExceptionManager, InvalidOrMissingArguments
+from libturpial.exceptions import APIExceptionManager, InvalidOrMissingArguments
 from libturpial.api.models.list import List
 from libturpial.api.models.trend import Trend
 from libturpial.api.models.status import Status
