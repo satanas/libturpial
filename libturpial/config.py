@@ -304,9 +304,10 @@ class AppConfig(ConfigBase):
                 columns.append(value)
         return columns
 
+    # Assumes secure request by default
     def get_proxy(self):
         temp = self.read_section('Proxy')
-        secure = True if temp['protocol'].lower() == 'https' else False
+        secure = True if temp.get('protocol', 'https').lower() == 'https' else False
         return Proxy(temp['server'], temp['port'], temp['username'], temp['password'], secure)
 
     def get_socket_timeout(self):
