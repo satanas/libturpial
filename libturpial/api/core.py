@@ -154,8 +154,6 @@ class Core(object):
         return self.accman.unregister(account_id, delete_all)
 
     def all_columns(self):
-        # TODO: add __str__ function to libturpial.api.models.column.Column
-        # objects
         """
         Return a dictionary with all columns per account. Example:
 
