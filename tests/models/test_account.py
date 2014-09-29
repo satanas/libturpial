@@ -28,7 +28,7 @@ class TestAccount:
         assert isinstance(account.protocol, MainIdentica)
 
     def test_repr(self):
-        assert str(self.account) == "libturpial.api.models.Account foo-twitter"
+        assert repr(self.account) == "libturpial.api.models.Account foo-twitter"
 
     def test_new(self):
         account = Account.new('twitter', 'foo')

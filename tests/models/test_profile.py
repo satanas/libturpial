@@ -38,7 +38,7 @@ class TestProfile:
         assert profile.muted == False
 
     def test_repr(self):
-        assert str(self.profile) == "libturpial.api.models.Profile foo"
+        assert repr(self.profile) == "libturpial.api.models.Profile foo"
 
     def test_is_me(self, monkeypatch):
         assert self.profile.is_me() == True

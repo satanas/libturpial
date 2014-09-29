@@ -92,7 +92,7 @@ class ConfigBase:
             if option in self.__config[section]:
                 return
 
-        if not section in self.extra_sections:
+        if section not in self.extra_sections:
             self.extra_sections[section] = {}
         self.extra_sections[section][option] = default_value
         self.write(section, option, default_value)
@@ -112,7 +112,7 @@ class ConfigBase:
         self.cfg.read(self.configpath)
 
         for section in self.cfg.sections():
-            if not section in on_disk:
+            if section not in on_disk:
                 on_disk[section] = {}
 
             for option in self.cfg.options(section):
@@ -143,7 +143,7 @@ class ConfigBase:
                 self.write(section, option, value)
 
     def write(self, section, option, value):
-        if not section in self.__config:
+        if section not in self.__config:
             self.__config[section] = {}
 
         self.__config[section][option] = value
