@@ -58,6 +58,12 @@ class Profile:
     def __repr__(self):
         return "libturpial.api.models.Profile %s" % (self.username)
 
+    def __str__(self):
+        return '%s: %s' % (self.username, self.fullname)
+
+    def __unicode__(self):
+        return u'%s' % self.__str__()
+
     def is_me(self):
         """
         Return `True` if the username of the profile is the same of the
