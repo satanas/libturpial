@@ -244,7 +244,7 @@ class AppConfig(ConfigBase):
             _fd.write(expression + '\n')
         _fd.close()
 
-    # TODO: Return added expresion?
+    # TODO: Return added expresion?
     def append_filter(self, expression):
         for term in self.load_filters():
             if term == expression:
@@ -253,7 +253,7 @@ class AppConfig(ConfigBase):
         _fd.write(expression + '\n')
         _fd.close()
 
-    # TODO: Return removed expression?
+    # TODO: Return removed expression?
     def remove_filter(self, expression):
         new_list = []
         for term in self.load_filters():
@@ -272,7 +272,7 @@ class AppConfig(ConfigBase):
         _fd.close()
         return friends
 
-    # TODO: Return saved friends?
+    # TODO: Return saved friends?
     def save_friends(self, lst):
         _fd = open(self.friendspath, 'w')
         for friend in lst:
@@ -313,7 +313,7 @@ class AppConfig(ConfigBase):
     def get_socket_timeout(self):
         return int(self.read('Advanced', 'socket-timeout'))
 
-    # TODO: Return True when success?
+    # TODO: Return True when success?
     def delete(self):
         os.remove(self.configpath)
         self.log.debug('Deleted current config. Please restart Turpial')
