@@ -3,19 +3,7 @@
 """ Twitter implementation for Turpial"""
 
 from libturpial.config import AppConfig
-from libturpial.exceptions import (AccountSuspended,
-                                   StatusMessageTooLong,
-                                   StatusDuplicated,
-                                   ResourceNotFound,
-                                   ServiceOverCapacity,
-                                   InternalServerError,
-                                   ServiceDown,
-                                   InvalidOrMissingCredentials,
-                                   InvalidOrMissingArguments,
-                                   BadOAuthTimestamp,
-                                   ErrorSendingDirectMessage,
-                                   RateLimitExceeded,
-                                   InvalidOAuthToken)
+from libturpial.exceptions import APIExceptionManager, InvalidOrMissingArguments
 from libturpial.api.models.list import List
 from libturpial.api.models.trend import Trend
 from libturpial.api.models.status import Status
@@ -59,36 +47,10 @@ class Main(Protocol):
             return
 
         if 'errors' in response:
-            print response
             code = response['errors'][0]['code']
-            if code == 32 or code == 215 or code == 401:
-                raise InvalidOrMissingCredentials
-            elif code == 34 or code == 404:
-                raise ResourceNotFound
-            elif code == 64:
-                raise AccountSuspended
-            elif code == 88:
-                raise RateLimitExceeded
-            elif code == 89:
-                raise InvalidOAuthToken
-            elif code == 92:
-                raise ProtocolNotSupported
-            elif code == 130 or code == 503 or code == 504:
-                raise ServiceOverCapacity
-            elif code == 131 or code == 500:
-                raise InternalServerError
-            elif code == 135:
-                raise BadOAuthTimestamp
-            elif code == 150:
-                raise ErrorSendingDirectMessage('User is not following you')
-            elif code == 186:
-                raise StatusMessageTooLong
-            elif code == 187:
-                raise StatusDuplicated
-            elif code == 502:
-                raise ServiceDown
-            else:
-                raise UnlistedException(data=response['errors'][0])
+            message = response['errors'][0].get('message', '')
+            exception = APIExceptionManager.get_exception_class(code)
+            raise exception(message)
 
     def initialize_http(self):
         app_config = AppConfig()
@@ -194,7 +156,7 @@ class Main(Protocol):
     def get_conversation(self, status_id):
         conversation = []
 
-        while 1:
+        while True:
             rtn = self.http.get('/statuses/show', {'id': status_id,
                                 'include_entities': True})
             conversation.append(self.json_to_status(rtn,

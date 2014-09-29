@@ -136,3 +136,32 @@ class UnlistedException(Exception):
         else:
             self.message = 'Something went wrong'
 
+
+class APIExceptionManager(object):
+    code_exception_map = {
+            32: InvalidOrMissingCredentials,
+            34: ResourceNotFound,
+            64: AccountSuspended,
+            88: RateLimitExceeded,
+            89: InvalidOAuthToken,
+            92: SSLRequired,
+            130: ServiceOverCapacity,
+            131: InternalServerError,
+            135: BadOAuthTimestamp,
+            150: ErrorSendingDirectMessage,
+            186: StatusMessageTooLong,
+            187: StatusMessageTooLong,
+            215: InvalidOrMissingCredentials,
+            401: InvalidOrMissingCredentials,
+            404: ResourceNotFound,
+            500: InternalServerError,
+            502: ServiceDown,
+            503: ServiceOverCapacity,
+            504: ServiceOverCapacity
+        }
+
+    @classmethod
+    def get_exception_class(cls, error_code):
+        except_class = cls.code_exception_map.get(error_code, UnlistedException)
+        return except_class
+
