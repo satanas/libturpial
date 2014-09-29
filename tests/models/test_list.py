@@ -22,4 +22,4 @@ class TestColumn:
         assert self.list_.plural_unit == "tweets"
 
     def test_repr(self):
-        assert str(self.list_) == "libturpial.api.models.List foo-twitter-list"
+        assert repr(self.list_) == "libturpial.api.models.List foo-twitter-list"

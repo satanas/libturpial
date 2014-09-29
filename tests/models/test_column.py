@@ -14,4 +14,4 @@ class TestColumn:
         assert self.column.plural_unit == "tweets"
 
     def test_repr(self):
-        assert str(self.column) == "libturpial.api.models.Column foo-twitter-timeline"
+        assert repr(self.column) == "libturpial.api.models.Column foo-twitter-timeline"
