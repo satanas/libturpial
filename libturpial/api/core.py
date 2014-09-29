@@ -359,7 +359,6 @@ class Core(object):
         return account.update_status(text, in_reply_id, media)
 
     def broadcast_status(self, account_id_array, text):
-        # TODO: add __str__ to libturpial.api.models.account.Account
         """
         Updates all the accounts in account_id_array with the content of *text*
 
