@@ -48,8 +48,7 @@ class Main(Protocol):
 
         if 'errors' in response:
             code = response['errors'][0]['code']
-            message = response['errors'][0].get(message, '')
-
+            message = response['errors'][0].get('message', '')
             exception = APIExceptionManager.get_exception_class(code)
             raise exception(message)
 
