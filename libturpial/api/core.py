@@ -28,7 +28,7 @@ from libturpial.api.managers.accountmanager import AccountManager
 from libturpial.api.managers.columnmanager import ColumnManager
 
 
-class Core:
+class Core(object):
     """
     This is the main object in libturpial. This should be the only class you
     need to instantiate to use libturpial. Most important arguments used in
@@ -69,6 +69,8 @@ class Core:
         *column_id* must be a string ("columnname-username-service")
     """
 
+    #TODO: make this default False, it blows when the token is expired
+    # or at least account loading should be Lazy
     def __init__(self, load_accounts=True):
         self.config = AppConfig()
         self.accman = AccountManager(self.config, load_accounts)
@@ -152,8 +154,6 @@ class Core:
         return self.accman.unregister(account_id, delete_all)
 
     def all_columns(self):
-        # TODO: add __str__ function to libturpial.api.models.column.Column
-        # objects
         """
         Return a dictionary with all columns per account. Example:
 
