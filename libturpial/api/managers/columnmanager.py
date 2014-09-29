@@ -36,7 +36,7 @@ class ColumnManager:
         for column_id in self.config.get_stored_columns():
             account_id = get_account_id_from(column_id)
             column_slug = get_column_slug_from(column_id)
-            if not account_id in self.__registered_columns:
+            if account_id not in self.__registered_columns:
                 self.__registered_columns[account_id] = []
             self.__registered_columns[account_id].append(Column(account_id,
                                                                 column_slug))

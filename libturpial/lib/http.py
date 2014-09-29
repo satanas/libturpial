@@ -64,11 +64,11 @@ class TurpialHTTPBase:
         self.log = logging.getLogger('TurpialHTTP')
 
         try:
-            #if getattr(sys, 'frozen', None):
+            # if getattr(sys, 'frozen', None):
             basedir = sys._MEIPASS
             self.ca_certs_file = os.path.realpath(os.path.join(basedir,
                                                                'cacert.pem'))
-            #else:
+            # else:
         except:
             basedir = os.path.dirname(__file__)
             self.ca_certs_file = os.path.realpath(os.path.join(basedir,

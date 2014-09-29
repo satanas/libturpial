@@ -18,7 +18,7 @@ POST_ACTIONS = [
     'retweet',
 ]
 
-#a582137ead001f08b58a2b47c5fae9e3
+# a582137ead001f08b58a2b47c5fae9e3
 
 CK = '966a0f0efe22d898d3cb4659575fb916'
 CS = 'YTU4MjEzN2VhZDAwMWYwOGI1OGEyYj'

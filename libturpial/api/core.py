@@ -69,7 +69,7 @@ class Core(object):
         *column_id* must be a string ("columnname-username-service")
     """
 
-    #TODO: make this default False, it blows when the token is expired
+    # TODO: make this default False, it blows when the token is expired
     # or at least account loading should be Lazy
     def __init__(self, load_accounts=True):
         self.config = AppConfig()

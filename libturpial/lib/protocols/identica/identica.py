@@ -56,21 +56,21 @@ class Main(Protocol):
             elif message.find('Maximum notice size is 140 characters') > 0:
                 raise StatusMessageTooLong
 
-            #elif code == 34 or code == 404:
+            # elif code == 34 or code == 404:
             #    raise ResourceNotFound
-            #elif code == 64:
+            # elif code == 64:
             #    raise AccountSuspended
-            #elif code == 88:
+            # elif code == 88:
             #    raise RateLimitExceeded
-            #elif code == 89:
+            # elif code == 89:
             #    raise InvalidOAuthToken
-            #elif code == 130 or code == 503 or code == 504:
+            # elif code == 130 or code == 503 or code == 504:
             #    raise ServiceOverCapacity
-            #elif code == 131 or code == 500:
+            # elif code == 131 or code == 500:
             #    raise InternalServerError
-            #elif code == 135:
+            # elif code == 135:
             #    raise BadOAuthTimestamp
-            #elif code == 502:
+            # elif code == 502:
             #    raise ServiceDown
 
     def initialize_http(self):
@@ -345,7 +345,7 @@ class Main(Protocol):
             if 'status' in response:
                 profile.last_update = response['status']['text']
                 profile.last_update_id = response['status']['id']
-            #profile.link_color = Profile.DEFAULT_LINK_COLOR
+            # profile.link_color = Profile.DEFAULT_LINK_COLOR
             return profile
 
     def json_to_status(self, response, column_id='', type_=Status.NORMAL):
