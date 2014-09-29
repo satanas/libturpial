@@ -296,8 +296,6 @@ class Core(object):
         return account.get_public_timeline(count, since_id)
 
     def get_followers(self, account_id, only_id=False):
-        # TODO: define __str__ function for
-        # in libturpial.api.models.profile.Profile Class
         """
         Returns a :class:`libturpial.api.models.profile.Profile` list with
         all the followers of the account *account_id*
