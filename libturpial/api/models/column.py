@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-class Column:
+class Column(object):
     """
     This model represents a column that holds
     :class:`libturpial.api.models.status.Status` objects. You need to specify
@@ -29,3 +29,9 @@ class Column:
 
     def __repr__(self):
         return "libturpial.api.models.Column %s" % (self.id_)
+
+    def __str__(self):
+        return '%s: %s' % (self.account_id, self.slug)
+
+    def __unicode__(self):
+        return u'%s' % self.__str__()

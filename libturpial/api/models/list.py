@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-class List:
+class List(object):
     """
     This class handles the information about a user list. It receives the
     *id_*, the *user* who owns it, the *name* (also known as slug), the *title*
@@ -30,3 +30,10 @@ class List:
 
     def __repr__(self):
         return "libturpial.api.models.List %s" % (self.id_)
+
+    def __str__(self):
+        return '{user}: {title}'.format(title=self.title, user=self.user.get('screen_name', ''))
+
+    def __unicode__(self):
+        return u'%s' % self.__str__()
+

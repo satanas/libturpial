@@ -28,7 +28,7 @@ from libturpial.api.managers.accountmanager import AccountManager
 from libturpial.api.managers.columnmanager import ColumnManager
 
 
-class Core:
+class Core(object):
     """
     This is the main object in libturpial. This should be the only class you
     need to instantiate to use libturpial. Most important arguments used in
@@ -69,6 +69,8 @@ class Core:
         *column_id* must be a string ("columnname-username-service")
     """
 
+    #TODO: make this default False, it blows when the token is expired
+    # or at least account loading should be Lazy
     def __init__(self, load_accounts=True):
         self.config = AppConfig()
         self.accman = AccountManager(self.config, load_accounts)
@@ -152,8 +154,6 @@ class Core:
         return self.accman.unregister(account_id, delete_all)
 
     def all_columns(self):
-        # TODO: add __str__ function to libturpial.api.models.column.Column
-        # objects
         """
         Return a dictionary with all columns per account. Example:
 
@@ -296,8 +296,6 @@ class Core:
         return account.get_public_timeline(count, since_id)
 
     def get_followers(self, account_id, only_id=False):
-        # TODO: define __str__ function for
-        # in libturpial.api.models.profile.Profile Class
         """
         Returns a :class:`libturpial.api.models.profile.Profile` list with
         all the followers of the account *account_id*
@@ -361,7 +359,6 @@ class Core:
         return account.update_status(text, in_reply_id, media)
 
     def broadcast_status(self, account_id_array, text):
-        # TODO: add __str__ to libturpial.api.models.account.Account
         """
         Updates all the accounts in account_id_array with the content of *text*
 
