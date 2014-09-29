@@ -95,7 +95,7 @@ class Account(object):
         try:
             value = self.username
         except AttributeError:
-            value 'Unknown %s account' % self.protocol
+            value = 'Unknown %s account' % self.protocol
         finally:
             return value
 
