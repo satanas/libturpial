@@ -46,8 +46,8 @@ class AccountManager:
         will raise. Return the id of the account loaded on success
         """
         # TODO: Set the timeout
-        #timeout = int(self.config.read('Advanced', 'socket-timeout'))
-        #self.protocol.timeout = timeout
+        # timeout = int(self.config.read('Advanced', 'socket-timeout'))
+        # self.protocol.timeout = timeout
 
         self.__accounts[account_id] = Account.load(account_id)
         return account_id
