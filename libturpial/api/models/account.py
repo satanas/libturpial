@@ -91,6 +91,17 @@ class Account(object):
         elif self.protocol_id == Protocol.IDENTICA:
             self.protocol = identica.Main()
 
+    def __str__(self):
+        try:
+            value = self.username
+        except AttributeError:
+            value 'Unknown %s account' % self.protocol
+        finally:
+            return value
+
+    def __unicode__(self):
+        return u'%s' % self.__str__()
+
     def __repr__(self):
         return "libturpial.api.models.Account %s-%s" % (self.username, self.protocol_id)
 
