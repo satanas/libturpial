@@ -12,6 +12,8 @@ from libturpial.lib.services.media.preview import PREVIEW_MEDIA_SERVICES
 NUM_STATUSES = 20
 
 OS_LINUX = 'linux'  #: Constant to identify Linux based operating systems
+OS_FREEBSD = 'freebsd'  #: Constant to identify FreeBSD based operating systems
+OS_DFLY = 'dragonfly'   #: Constant to identify DragonFly BSD based operating systems
 OS_WINDOWS = 'windows'  #: Constant to identify Windows operating systems
 OS_MAC = 'darwin'  #: Constant to identify Mac operating systems
 OS_JAVA = 'java'  #: Constant to identify Java based operating systems

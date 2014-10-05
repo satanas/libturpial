@@ -53,6 +53,12 @@ class TestCommon:
         monkeypatch.setattr(sys, 'platform', 'linux')
         assert detect_os() == OS_LINUX
 
+        monkeypatch.setattr(sys, 'platform', 'freebsd')
+        assert detect_os() == OS_FREEBSD
+
+        monkeypatch.setattr(sys, 'platform', 'dragonfly')
+        assert detect_os() == OS_DFLY
+
         monkeypatch.setattr(sys, 'platform', 'win32')
         assert detect_os() == OS_WINDOWS
 
