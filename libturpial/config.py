@@ -244,12 +244,12 @@ class AppConfig(ConfigBase):
         _fd.close()
         return muted
 
-    # TODO: Return saved filters?
     def save_filters(self, filter_list):
         _fd = open(self.filterpath, 'w')
         for expression in filter_list:
             _fd.write(expression + '\n')
         _fd.close()
+        return filter_list
 
     # TODO: Return added expresion?
     def append_filter(self, expression):

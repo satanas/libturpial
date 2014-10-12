@@ -778,7 +778,6 @@ class Core(object):
         """
         return self.config.load_filters()
 
-    # TODO: Return saved filters or True
     def save_filters(self, lst):
         """
         Save *lst* a the new filters list

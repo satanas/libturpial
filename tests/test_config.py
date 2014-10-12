@@ -224,7 +224,7 @@ class TestAppConfig:
 
     # TODO: How to test that this works? Return 0 maybe?
     def test_save_filters(self):
-        assert self.app_config.save_filters(['foo', 'bar']) == None
+        assert self.app_config.save_filters(['foo', 'bar']) == ['foo', 'bar']
 
     # TODO: How to test that this works? Return 0 maybe?
     def test_append_filter(self, monkeypatch):
