@@ -784,20 +784,21 @@ class Core(object):
         """
         self.config.save_filters(lst)
 
-    # TODO: Return True on success
     def delete_current_config(self):
         """
         Delete current configuration file. This action can not be undone
         """
-        self.config.delete()
+        return self.config.delete()
 
-    # TODO: Return True on success
     def delete_cache(self):
         """
         Delete all files in cache
         """
+        results = list()
         for account in self.registered_accounts():
-            account.delete_cache()
+            results.append(account.delete_cache())
+
+        return not any(results)
 
     def get_cache_size(self):
         """

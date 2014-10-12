@@ -320,11 +320,13 @@ class AppConfig(ConfigBase):
     def get_socket_timeout(self):
         return int(self.read('Advanced', 'socket-timeout'))
 
-    # TODO: Return True when success?
     def delete(self):
-        os.remove(self.configpath)
-        self.log.debug('Deleted current config. Please restart Turpial')
-
+        try:
+            os.remove(self.configpath)
+            self.log.debug('Deleted current config. Please restart Turpial')
+            return True
+        except AttributeError:
+            return False
 
 class AccountConfig(ConfigBase):
 
@@ -422,13 +424,21 @@ class AccountConfig(ConfigBase):
             shutil.rmtree(self.basedir)
             self.log.debug('Removed base directory')
 
-    # TODO: Return True on success?
     def delete_cache(self):
+        """
+        Returns a list of unsusccessful deletions
+        """
+        unsuccessful = list()
         for root, dirs, files in os.walk(self.imgdir):
             for f in files:
-                path = os.path.join(root, f)
-                self.log.debug("Deleting %s" % path)
-                os.remove(path)
+                try:
+                    path = os.path.join(root, f)
+                    self.log.debug("Deleting %s" % path)
+                    os.remove(path)
+                except AttributeError:
+                    unsuccessful.append(path)
+        self.log.debug('There were unsuccessful deletions %s' % unsuccessful)
+        return unsuccessful 
 
     def calculate_cache_size(self):
         size = 0

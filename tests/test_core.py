@@ -807,7 +807,7 @@ class TestCore:
         monkeypatch.setattr(self.core, "registered_accounts", lambda: [self.account])
 
         response = self.core.delete_cache()
-        assert response is None
+        assert response is True
 
     def test_get_cache_size(self, monkeypatch):
         monkeypatch.setattr(self.account, "get_cache_size", lambda: 10)
