@@ -246,7 +246,7 @@ class TestAppConfig:
 
     # TODO: How to test that this works? Return 0 maybe?
     def test_save_friends(self):
-        assert self.app_config.save_friends(['foo', 'bar']) == None
+        assert self.app_config.save_friends(['foo', 'bar']) == ['foo', 'bar']
 
     def test_get_stored_accounts(self, monkeypatch):
         monkeypatch.setattr(os, 'walk', lambda x: DummyGenerator([('foopath', ['dirpath1', 'dirpath2'], ['filename1'])]))

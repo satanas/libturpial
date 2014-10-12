@@ -809,16 +809,14 @@ class Core(object):
             total_size += account.get_cache_size()
         return total_size
 
-    # TODO: Return added friend
     def add_friend(self, username):
         """
         Save *username* into the friends list
         """
         friends = self.config.load_friends()
         friends.append(username)
-        self.config.save_friends(friends)
+        return self.config.save_friends(friends)
 
-    # TODO: Return removed friend
     def remove_friend(self, username):
         """
         Remove *username* from friends list
@@ -826,4 +824,7 @@ class Core(object):
         friends = self.config.load_friends()
         if username in friends:
             friends.remove(username)
-            self.config.save_friends(friends)
+            result = self.config.save_friends(friends)
+
+        return username if username not in result else None
+

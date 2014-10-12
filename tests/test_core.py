@@ -424,7 +424,7 @@ class TestCore:
         profile = Profile()
         profile.username = "foo"
         monkeypatch.setattr(self.account, "unfollow", lambda x: profile)
-        monkeypatch.setattr(self.core, "remove_friend", lambda x: None)
+        monkeypatch.setattr(self.core, "remove_friend", lambda x: [])
 
         response = self.core.unfollow(self.acc_id, "foo")
         assert response == profile
@@ -433,7 +433,7 @@ class TestCore:
         profile = Profile()
         profile.username = "foo"
         monkeypatch.setattr(self.account, "block", lambda x: profile)
-        monkeypatch.setattr(self.core, "remove_friend", lambda x: None)
+        monkeypatch.setattr(self.core, "remove_friend", lambda x: [])
 
         response = self.core.block(self.acc_id, "foo")
         assert response == profile
@@ -450,7 +450,7 @@ class TestCore:
         profile = Profile()
         profile.username = "foo"
         monkeypatch.setattr(self.account, "report_as_spam", lambda x: profile)
-        monkeypatch.setattr(self.core, "remove_friend", lambda x: None)
+        monkeypatch.setattr(self.core, "remove_friend", lambda x: [])
 
         response = self.core.report_as_spam(self.acc_id, "foo")
         assert response == profile
@@ -823,8 +823,8 @@ class TestCore:
         assert response is None
 
     def test_remove_friend(self, monkeypatch):
-        monkeypatch.setattr(self.core.config, "save_friends", lambda x: None)
+        monkeypatch.setattr(self.core.config, "save_friends", lambda x: [])
         monkeypatch.setattr(self.core.config, "load_friends", lambda: ['foo'])
 
         response = self.core.remove_friend("foo")
-        assert response is None
+        assert response is 'foo'

@@ -279,12 +279,13 @@ class AppConfig(ConfigBase):
         _fd.close()
         return friends
 
-    # TODO: Return saved friends?
+    # TODO: Validate success somehow
     def save_friends(self, lst):
         _fd = open(self.friendspath, 'w')
         for friend in lst:
             _fd.write(friend + '\n')
         _fd.close()
+        return lst
 
     def get_stored_accounts(self):
         accounts = []
