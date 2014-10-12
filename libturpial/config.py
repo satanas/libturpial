@@ -75,7 +75,7 @@ USERDIR = os.path.expanduser('~')
 BASEDIR = os.path.join(USERDIR, '.config', 'turpial')
 
 
-class ConfigBase:
+class ConfigBase(object):
     """Base configuration"""
     def __init__(self, default=None):
         self.__config = {}
@@ -88,14 +88,21 @@ class ConfigBase:
         self.extra_sections = {}
 
     def register_extra_option(self, section, option, default_value):
+        """
+        Registers a new configuration option under a specified section
+        with a default value. Returns a maping with the new option as a key
+        and the value
+        """
         if section in self.__config:
             if option in self.__config[section]:
+                # TODO: raise an exception maybe?
                 return
 
         if section not in self.extra_sections:
             self.extra_sections[section] = {}
         self.extra_sections[section][option] = default_value
         self.write(section, option, default_value)
+        return {option: default_value}
 
     def create(self):
         for section, v in self.default.iteritems():

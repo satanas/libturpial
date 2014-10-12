@@ -636,7 +636,6 @@ class Core(object):
     # Configuration API
     ###########################################################################
 
-    # TODO: Return added option?
     def register_new_config_option(self, section, option, default_value):
         """
         Register a new configuration *option* in *section* to be handled by
@@ -654,7 +653,7 @@ class Core(object):
 
         From this point you can use config methods over this value as usual.
         """
-        self.config.register_extra_option(section, option, default_value)
+        return self.config.register_extra_option(section, option, default_value)
 
     def get_shorten_url_service(self):
         return self.config.read('Services', 'shorten-url')
