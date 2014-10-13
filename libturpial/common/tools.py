@@ -33,6 +33,10 @@ def detect_os():
     """ Returns a string according to the OS host """
     if sys.platform.startswith('linux'):
         return OS_LINUX
+    elif sys.platform.startswith('freebsd'):
+        return OS_FREEBSD
+    elif sys.platform.startswith('dragonfly'):
+        return OS_DFLY
     elif sys.platform.startswith('win32'):
         return OS_WINDOWS
     elif sys.platform.startswith('darwin'):
