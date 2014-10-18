@@ -75,7 +75,7 @@ USERDIR = os.path.expanduser('~')
 BASEDIR = os.path.join(USERDIR, '.config', 'turpial')
 
 
-class ConfigBase:
+class ConfigBase(object):
     """Base configuration"""
     def __init__(self, default=None):
         self.__config = {}
@@ -88,14 +88,21 @@ class ConfigBase:
         self.extra_sections = {}
 
     def register_extra_option(self, section, option, default_value):
+        """
+        Registers a new configuration option under a specified section
+        with a default value. Returns a maping with the new option as a key
+        and the value
+        """
         if section in self.__config:
             if option in self.__config[section]:
+                # TODO: raise an exception maybe?
                 return
 
         if section not in self.extra_sections:
             self.extra_sections[section] = {}
         self.extra_sections[section][option] = default_value
         self.write(section, option, default_value)
+        return {option: default_value}
 
     def create(self):
         for section, v in self.default.iteritems():
@@ -237,12 +244,12 @@ class AppConfig(ConfigBase):
         _fd.close()
         return muted
 
-    # TODO: Return saved filters?
     def save_filters(self, filter_list):
         _fd = open(self.filterpath, 'w')
         for expression in filter_list:
             _fd.write(expression + '\n')
         _fd.close()
+        return filter_list
 
     # TODO: Return added expresion?
     def append_filter(self, expression):
@@ -272,12 +279,13 @@ class AppConfig(ConfigBase):
         _fd.close()
         return friends
 
-    # TODO: Return saved friends?
+    # TODO: Validate success somehow
     def save_friends(self, lst):
         _fd = open(self.friendspath, 'w')
         for friend in lst:
             _fd.write(friend + '\n')
         _fd.close()
+        return lst
 
     def get_stored_accounts(self):
         accounts = []
@@ -313,11 +321,13 @@ class AppConfig(ConfigBase):
     def get_socket_timeout(self):
         return int(self.read('Advanced', 'socket-timeout'))
 
-    # TODO: Return True when success?
     def delete(self):
-        os.remove(self.configpath)
-        self.log.debug('Deleted current config. Please restart Turpial')
-
+        try:
+            os.remove(self.configpath)
+            self.log.debug('Deleted current config. Please restart Turpial')
+            return True
+        except AttributeError:
+            return False
 
 class AccountConfig(ConfigBase):
 
@@ -415,13 +425,21 @@ class AccountConfig(ConfigBase):
             shutil.rmtree(self.basedir)
             self.log.debug('Removed base directory')
 
-    # TODO: Return True on success?
     def delete_cache(self):
+        """
+        Returns a list of unsusccessful deletions
+        """
+        unsuccessful = list()
         for root, dirs, files in os.walk(self.imgdir):
             for f in files:
-                path = os.path.join(root, f)
-                self.log.debug("Deleting %s" % path)
-                os.remove(path)
+                try:
+                    path = os.path.join(root, f)
+                    self.log.debug("Deleting %s" % path)
+                    os.remove(path)
+                except AttributeError:
+                    unsuccessful.append(path)
+        self.log.debug('There were unsuccessful deletions %s' % unsuccessful)
+        return unsuccessful 
 
     def calculate_cache_size(self):
         size = 0

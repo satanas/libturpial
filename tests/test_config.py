@@ -224,7 +224,7 @@ class TestAppConfig:
 
     # TODO: How to test that this works? Return 0 maybe?
     def test_save_filters(self):
-        assert self.app_config.save_filters(['foo', 'bar']) == None
+        assert self.app_config.save_filters(['foo', 'bar']) == ['foo', 'bar']
 
     # TODO: How to test that this works? Return 0 maybe?
     def test_append_filter(self, monkeypatch):
@@ -246,7 +246,7 @@ class TestAppConfig:
 
     # TODO: How to test that this works? Return 0 maybe?
     def test_save_friends(self):
-        assert self.app_config.save_friends(['foo', 'bar']) == None
+        assert self.app_config.save_friends(['foo', 'bar']) == ['foo', 'bar']
 
     def test_get_stored_accounts(self, monkeypatch):
         monkeypatch.setattr(os, 'walk', lambda x: DummyGenerator([('foopath', ['dirpath1', 'dirpath2'], ['filename1'])]))
@@ -287,7 +287,7 @@ class TestAppConfig:
     # TODO: How to test that this works? Return 0 maybe?
     def test_delete(self, monkeypatch):
         monkeypatch.setattr(os, 'remove', lambda x: None)
-        assert self.app_config.delete() == None
+        assert self.app_config.delete() == True
 
 class TestAccountConfig:
     @classmethod
@@ -342,7 +342,7 @@ class TestAccountConfig:
         monkeypatch.setattr(os, 'walk', lambda x: [('/tmp', ['my_dir'], ['file1', 'file2'])])
 
         # TODO: How to test this?
-        assert self.account_config.delete_cache() == None
+        assert self.account_config.delete_cache() == list()
 
     def test_calculate_cache_size(self, monkeypatch):
         monkeypatch.setattr(os, 'walk', lambda x: [('/tmp', ['my_dir'], ['file1', 'file2'])])

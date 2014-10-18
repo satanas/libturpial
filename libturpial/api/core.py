@@ -636,7 +636,6 @@ class Core(object):
     # Configuration API
     ###########################################################################
 
-    # TODO: Return added option?
     def register_new_config_option(self, section, option, default_value):
         """
         Register a new configuration *option* in *section* to be handled by
@@ -654,7 +653,7 @@ class Core(object):
 
         From this point you can use config methods over this value as usual.
         """
-        self.config.register_extra_option(section, option, default_value)
+        return self.config.register_extra_option(section, option, default_value)
 
     def get_shorten_url_service(self):
         return self.config.read('Services', 'shorten-url')
@@ -779,27 +778,27 @@ class Core(object):
         """
         return self.config.load_filters()
 
-    # TODO: Return saved filters or True
     def save_filters(self, lst):
         """
         Save *lst* a the new filters list
         """
         self.config.save_filters(lst)
 
-    # TODO: Return True on success
     def delete_current_config(self):
         """
         Delete current configuration file. This action can not be undone
         """
-        self.config.delete()
+        return self.config.delete()
 
-    # TODO: Return True on success
     def delete_cache(self):
         """
         Delete all files in cache
         """
+        results = list()
         for account in self.registered_accounts():
-            account.delete_cache()
+            results.append(account.delete_cache())
+
+        return not any(results)
 
     def get_cache_size(self):
         """
@@ -810,16 +809,14 @@ class Core(object):
             total_size += account.get_cache_size()
         return total_size
 
-    # TODO: Return added friend
     def add_friend(self, username):
         """
         Save *username* into the friends list
         """
         friends = self.config.load_friends()
         friends.append(username)
-        self.config.save_friends(friends)
+        return self.config.save_friends(friends)
 
-    # TODO: Return removed friend
     def remove_friend(self, username):
         """
         Remove *username* from friends list
@@ -827,4 +824,7 @@ class Core(object):
         friends = self.config.load_friends()
         if username in friends:
             friends.remove(username)
-            self.config.save_friends(friends)
+            result = self.config.save_friends(friends)
+
+        return username if username not in result else None
+
