@@ -517,6 +517,14 @@ class Main(Protocol):
             if 'retweet_count' in post:
                 retweet_count = int(post['retweet_count'])
 
+            quoted_status = None
+            if 'quoted_status' in post:
+                quoted_status = self.json_to_status(post['quoted_status'])
+
+            is_quote_status = False
+            if 'is_quote_status' in post:
+                is_quote_status = post['is_quote_status']
+
             status = Status()
             status.id_ = str(post['id'])
             status.original_status_id = retweeted_id
@@ -540,6 +548,8 @@ class Main(Protocol):
             status.repeated_count = retweet_count
             status.local_timestamp = timestamp_to_localtime(status.timestamp)
             status.get_source(source)
+            status.quoted_status = quoted_status
+            status.is_quote_status = is_quote_status
             return status
 
     def json_to_list(self, response):
