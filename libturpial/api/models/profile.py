@@ -39,6 +39,7 @@ class Profile:
         self.location = ''
         self.url = ''
         self.bio = ''
+        self.entities = {}
         self.following = None
         self.followed_by = None
         self.follow_request = False

@@ -257,7 +257,7 @@ class Main(Protocol):
         return following
 
     def get_profile(self, user):
-        rtn = self.http.get('/users/show', {'screen_name': user})
+        rtn = self.http.get('/users/show', {'screen_name': user, 'include_entities': True})
         profile = self.json_to_profile(rtn)
         rtn = self.http.get('/statuses/user_timeline',
                             {'screen_name': user, 'count': 10,
@@ -443,6 +443,8 @@ class Main(Protocol):
             profile.location = response['location']
             profile.url = response['url']
             profile.bio = response['description']
+            if 'url' in response['entities']:
+                profile.entities = self.get_entities(response['entities']['url'])
             profile.following = response['following']
             profile.followers_count = response['followers_count']
             profile.friends_count = response['friends_count']
@@ -540,7 +542,7 @@ class Main(Protocol):
             status.repeated_by = repeated_by
             status.datetime = self.get_str_time(post['created_at'])
             status.timestamp = self.get_int_time(post['created_at'])
-            status.entities = self.get_entities(post)
+            status.entities = self.get_entities(post['entities'])
             status.type_ = type_
             status.account_id = self.account_id
             status.is_own = (username.lower() == self.uname.lower())
@@ -602,44 +604,47 @@ class Main(Protocol):
             location.placetype_name = response['placeType']['name']
             return location
 
-    def get_entities(self, tweet):
-        if 'entities' in tweet:
+    def get_entities(self, raw_entities):
+        if raw_entities:
             entities = {
                 'urls': [],
                 'hashtags': [],
                 'mentions': [],
                 'groups': [],
             }
-            for mention in tweet['entities']['user_mentions']:
-                text = '@' + mention['screen_name']
-                entities['mentions'].append(Entity(self.account_id,
-                                            mention['screen_name'], text,
-                                            text))
+            if 'user_mentions' in raw_entities:
+                for mention in raw_entities['user_mentions']:
+                    text = '@' + mention['screen_name']
+                    entities['mentions'].append(Entity(self.account_id,
+                                                mention['screen_name'], text,
+                                                text))
 
-            for url in tweet['entities']['urls']:
-                try:
-                    expanded_url = url['expanded_url']
-                except KeyError:
-                    expanded_url = url['url']
+            if 'urls' in raw_entities:
+                for url in raw_entities['urls']:
+                    try:
+                        expanded_url = url['expanded_url']
+                    except KeyError:
+                        expanded_url = url['url']
+    
+                    try:
+                        display_url = ''.join(['http://', url['display_url']])
+                    except KeyError:
+                        display_url = url['url']
+    
+                    entities['urls'].append(Entity(self.account_id, expanded_url,
+                                            display_url, url['url']))
 
-                try:
-                    display_url = ''.join(['http://', url['display_url']])
-                except KeyError:
-                    display_url = url['url']
-
-                entities['urls'].append(Entity(self.account_id, expanded_url,
-                                        display_url, url['url']))
-
-            if 'media' in tweet['entities']:
-                for url in tweet['entities']['media']:
+            if 'media' in raw_entities:
+                for url in raw_entities['media']:
                     display_url = ''.join(['http://', url['display_url']])
                     entities['urls'].append(Entity(self.account_id,
                                             url['media_url'], display_url,
                                             url['url']))
 
-            for ht in tweet['entities']['hashtags']:
-                text = ''.join(['#', ht['text']])
-                url = "%s%s" % (self.hashtags_url, ht['text'])
-                entities['hashtags'].append(Entity(self.account_id, url, text,
-                                            text))
+            if 'hashtags' in raw_entities:
+                for ht in raw_entities['hashtags']:
+                    text = ''.join(['#', ht['text']])
+                    url = "%s%s" % (self.hashtags_url, ht['text'])
+                    entities['hashtags'].append(Entity(self.account_id, url, text,
+                                                text))
         return entities
