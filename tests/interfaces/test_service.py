@@ -1,5 +1,5 @@
 import pytest
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 try:
     import json
@@ -19,14 +19,14 @@ class TestService:
         self.service = GenericService()
 
     def test_get_request(self, monkeypatch):
-        monkeypatch.setattr(urllib2, 'urlopen', lambda x, y: DummyHandler())
+        monkeypatch.setattr(urllib.request, 'urlopen', lambda x, y: DummyHandler())
         response = self.service._get_request('http://example.com')
         assert response == '123'
         response = self.service._get_request('http://example.com', 'dummy_data')
         assert response == '123'
 
     def test_json_request(self, monkeypatch):
-        monkeypatch.setattr(urllib2, 'urlopen', lambda x: DummyHandler())
+        monkeypatch.setattr(urllib.request, 'urlopen', lambda x: DummyHandler())
         monkeypatch.setattr(json, 'loads', lambda x: {'response': '123'})
         response = self.service._json_request('http://example.com')
         assert response == {'response': '123'}

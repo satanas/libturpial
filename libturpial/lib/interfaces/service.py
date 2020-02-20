@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import logging
 
 try:
@@ -16,15 +16,15 @@ class GenericService:
     def _get_request(self, url, data=None):
         ''' Process a GET request and returns a text plain response '''
         self.log.debug('GET Request: %s' % url)
-        return urllib2.urlopen(url, data).read()
+        return urllib.request.urlopen(url, data).read()
 
     def _json_request(self, url):
         ''' Process a GET request and returns a json hash '''
         self.log.debug('JSON Request: %s' % url)
-        return json.loads(urllib2.urlopen(url).read())
+        return json.loads(urllib.request.urlopen(url).read())
 
     def _quote_url(self, url):
-        longurl = urllib2.quote(url)
+        longurl = urllib.parse.quote(url)
         longurl = longurl.replace('/', '%2F')
         return longurl
 

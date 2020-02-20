@@ -2,7 +2,6 @@
 
 """Flic.kr show media content service"""
 
-import httplib
 import re
 
 from libturpial.api.models.media import Media
