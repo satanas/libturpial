@@ -1,6 +1,7 @@
 build/
 dist/
 venv/
+.venv/
 .tox
 .coverage
 *.egg-info/
@@ -11,3 +12,4 @@ venv/
 *~
 setuptools*
 tests/account_id
+Pipfile*
