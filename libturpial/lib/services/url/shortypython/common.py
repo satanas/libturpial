@@ -31,7 +31,7 @@ def request(url, parameters=None, username_pass=None, post_data=None, headers={}
         if post_data:
             req.add_data(post_data)
         return urlopen(req)
-    except URLError, e:
+    except URLError as e:
         raise ShortyError(e)
 
 def get_redirect(url):
@@ -44,12 +44,12 @@ def get_redirect(url):
     o = build_opener(StopRedirectHandler())
     try:
         o.open(url)
-    except HTTPError, e:
+    except HTTPError as e:
         if e.code == 301 or e.code == 302:
             return e.headers['Location']
         else:
             raise ShortyError(e)
-    except URLError, e:
+    except URLError as e:
         raise ShortyError(e)
     return None
 
@@ -64,7 +64,7 @@ class Service(object):
         # first shrink an url
         try:
             turl = self.shrink('http://test.com')
-        except ShortyError, e:
+        except ShortyError as e:
             raise ShortyError('@shrink ' + e.reason)
 
         # second expand url and verify
@@ -75,7 +75,7 @@ class Service(object):
                 return True
             else:
                 return False
-        except ShortyError, e:
+        except ShortyError as e:
             raise ShortyError('@expand ' + e.reason)
 
     def shrink(self, bigurl):

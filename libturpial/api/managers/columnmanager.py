@@ -28,7 +28,7 @@ class ColumnManager:
         return len(self.__registered_columns)
 
     def __iter__(self):
-        return self.__registered_columns.iteritems()
+        return iter(self.__registered_columns.items())
 
     def __load_registered(self):
         self.__registered_columns = {}
@@ -43,7 +43,7 @@ class ColumnManager:
 
     def __count(self):
         count = 0
-        for account_id, columns in self.__registered_columns.iteritems():
+        for account_id, columns in self.__registered_columns.items():
             for col in columns:
                 count += 1
         return count
@@ -55,7 +55,7 @@ class ColumnManager:
         :class:`libturpial.exceptions.ColumnAlreadyRegistered` exception will
         raise. Return the id of the column registered on success
         """
-        for account_id, columns in self.__registered_columns.iteritems():
+        for account_id, columns in self.__registered_columns.items():
             for col in columns:
                 if col.id_ == column_id:
                     raise ColumnAlreadyRegistered
@@ -91,7 +91,7 @@ class ColumnManager:
         :class:`libturpial.api.models.column.Column` object on success. None
         otherwise.
         """
-        for account_id, columns in self.__registered_columns.iteritems():
+        for account_id, columns in self.__registered_columns.items():
             for col in columns:
                 if col.id_ == column_id:
                     return col
@@ -134,7 +134,7 @@ class ColumnManager:
         Return `True` if column identified by *column_id* is registered.
         `False` otherwise.
         """
-        for account_id, columns in self.__registered_columns.iteritems():
+        for account_id, columns in self.__registered_columns.items():
             for col in columns:
                 if col.id_ == column_id:
                     return True

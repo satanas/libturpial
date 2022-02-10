@@ -37,7 +37,7 @@ class UploadService(GenericService):
                                  'OAuth realm="http://api.twitter.com/"')
         headers['X-Verify-Credentials-Authorization'] = auth_headers
         if custom_headers:
-            headers = dict(headers.items() + custom_headers.items())
+            headers = dict(list(headers.items()) + list(custom_headers.items()))
 
         r = requests.post(self.end_point, files=files, data=fields,
                           headers=headers)

@@ -1,4 +1,4 @@
-import shorty
+from . import shorty
 
 # A long url that needs to be shorten.
 url = 'http://test.com/a/long/url/that/needs/to/be/shorten'
@@ -21,5 +21,5 @@ mysandbox.shrink(url)
 
 # If you require a list of all supported services
 # for displaying in your UI as a dropdown menu or such
-supported_services = shorty.services.keys()
+supported_services = list(shorty.services.keys())
 

@@ -3,7 +3,7 @@
 """ Minimalistic and agnostic core for Turpial """
 
 import os
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import requests
 
 from libturpial.common import (NUM_STATUSES,
@@ -90,7 +90,7 @@ class Core(object):
 
         for status in statuses:
             filtered = False
-            for term in map(lambda x: x.lower(), filtered_terms):
+            for term in [x.lower() for x in filtered_terms]:
                 if term.startswith('@'):
                     # Filter statuses by user
                     if status.username.lower() == term[1:]:
@@ -373,7 +373,7 @@ class Core(object):
             try:
                 account = self.accman.get(account_id)
                 response[account_id] = account.update_status(text)
-            except Exception, exc:
+            except Exception as exc:
                 response[account_id] = exc
         return response
 
@@ -526,7 +526,7 @@ class Core(object):
         account = self.accman.get(account_id)
         # The unquote is to ensure that the query is not url-encoded. The
         # encoding will be done automatically by the http module
-        unquoted_query = urllib2.unquote(query)
+        unquoted_query = urllib.parse.unquote(query)
         return account.search(unquoted_query, count, since_id, extra)
 
     def get_profile_image(self, account_id, username, use_cache=True):
@@ -590,7 +590,7 @@ class Core(object):
     ###########################################################################
 
     def available_short_url_services(self):
-        return URL_SERVICES.keys()
+        return list(URL_SERVICES.keys())
 
     def short_single_url(self, long_url):
         service = self.get_shorten_url_service()
@@ -614,7 +614,7 @@ class Core(object):
         return message
 
     def available_preview_media_services(self):
-        return PREVIEW_MEDIA_SERVICES.keys()
+        return list(PREVIEW_MEDIA_SERVICES.keys())
 
     def preview_media(self, url):
         if not is_preview_service_supported(url):
@@ -624,7 +624,7 @@ class Core(object):
         return service.do_service(url)
 
     def available_upload_media_services(self):
-        return UPLOAD_MEDIA_SERVICES.keys()
+        return list(UPLOAD_MEDIA_SERVICES.keys())
 
     def upload_media(self, account_id, filepath, message=None):
         service = self.get_upload_media_service()

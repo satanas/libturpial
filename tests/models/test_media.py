@@ -1,5 +1,5 @@
 import pytest
-import __builtin__
+import builtins
 
 from libturpial.api.models.media import Media
 
@@ -9,7 +9,7 @@ class TestMedia:
     @classmethod
     @pytest.fixture(autouse=True)
     def setup_class(self, monkeypatch):
-        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler())
+        monkeypatch.setattr(builtins, 'open', lambda x, y: DummyFileHandler())
 
     def test_init(self, monkeypatch):
         media = Media(Media.IMAGE, 'foo', 'binary', path='/path/to/ble/', info='lorem ipsum')
@@ -32,7 +32,7 @@ class TestMedia:
 
         def raise_ex():
             raise KeyError
-        monkeypatch.setattr(__builtin__, 'open', lambda x, y: raise_ex())
+        monkeypatch.setattr(builtins, 'open', lambda x, y: raise_ex())
 
         media = Media(Media.IMAGE, 'foo', 'binary', path='/path/to/ble/', info='lorem ipsum')
         assert media.save_content() == None

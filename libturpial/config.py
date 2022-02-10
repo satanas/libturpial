@@ -6,7 +6,7 @@ import os
 import base64
 import shutil
 import logging
-import ConfigParser
+import configparser
 
 from libturpial.api.models.proxy import Proxy
 from libturpial.common import get_username_from, get_protocol_from
@@ -83,7 +83,7 @@ class ConfigBase(object):
             self.default = APP_CFG
         else:
             self.default = default
-        self.cfg = ConfigParser.ConfigParser()
+        self.cfg = configparser.ConfigParser()
         self.filepath = ''
         self.extra_sections = {}
 
@@ -105,8 +105,8 @@ class ConfigBase(object):
         return {option: default_value}
 
     def create(self):
-        for section, v in self.default.iteritems():
-            for option, value in self.default[section].iteritems():
+        for section, v in self.default.items():
+            for option, value in self.default[section].items():
                 self.write(section, option, value)
 
     # TODO: Return True on success?
@@ -130,7 +130,7 @@ class ConfigBase(object):
         # ConfigParser doesn't store on disk empty sections, so we need to remove them
         # just to compare against saved on disk
         on_memory = dict(self.__config)
-        for key in on_memory.keys():
+        for key in list(on_memory.keys()):
             if on_memory[key] == {}:
                 del on_memory[key]
 
@@ -145,8 +145,8 @@ class ConfigBase(object):
             config = dict(self.__config)
 
         self.__config = {}
-        for section, _v in config.iteritems():
-            for option, value in config[section].iteritems():
+        for section, _v in config.items():
+            for option, value in config[section].items():
                 self.write(section, option, value)
 
     def write(self, section, option, value):
@@ -170,7 +170,7 @@ class ConfigBase(object):
             self.cfg.add_section(section)
         self.__config[section] = {}
 
-        for option, value in items.iteritems():
+        for option, value in items.items():
             self.__config[section][option] = value
             self.cfg.set(section, option, value)
 
@@ -303,7 +303,7 @@ class AppConfig(ConfigBase):
         if not stored_cols or len(stored_cols) == 0:
             return columns
 
-        indexes = stored_cols.keys()
+        indexes = list(stored_cols.keys())
         indexes.sort()
 
         for i in indexes:
@@ -357,7 +357,7 @@ class AccountConfig(ConfigBase):
 
         try:
             self.load()
-        except Exception, exc:
+        except Exception as exc:
             self.load_failsafe()
 
         if not self.exists(account_id):

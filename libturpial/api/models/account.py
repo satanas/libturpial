@@ -100,7 +100,7 @@ class Account(object):
             return value
 
     def __unicode__(self):
-        return u'%s' % self.__str__()
+        return '%s' % self.__str__()
 
     def __repr__(self):
         return "libturpial.api.models.Account %s-%s" % (self.username, self.protocol_id)

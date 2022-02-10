@@ -1,7 +1,7 @@
 import os
 import shutil
 import pytest
-import __builtin__
+import builtins
 
 from libturpial.config import *
 from libturpial.exceptions import EmptyOAuthCredentials
@@ -47,7 +47,7 @@ class TestConfigBase:
 
         self.config_base = ConfigBase(self.default)
 
-        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler())
+        monkeypatch.setattr(builtins, 'open', lambda x, y: DummyFileHandler())
         monkeypatch.setattr(self.config_base.cfg, 'add_section', lambda x: None)
         monkeypatch.setattr(self.config_base.cfg, 'set', lambda x, y, z: None)
         monkeypatch.setattr(self.config_base.cfg, 'write', lambda x: None)
@@ -206,7 +206,7 @@ class TestAppConfig:
         }
 
         monkeypatch.setattr(os, 'makedirs', lambda x: None)
-        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler())
+        monkeypatch.setattr(builtins, 'open', lambda x, y: DummyFileHandler())
         monkeypatch.setattr(ConfigParser, 'ConfigParser', lambda: DummyConfigParser())
 
         self.app_config = AppConfig('/tmp/user', self.default)
@@ -217,7 +217,7 @@ class TestAppConfig:
         assert self.app_config.friendspath == '/tmp/user/friends'
 
     def test_load_filters(self, monkeypatch):
-        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler(['@foo', 'bar', "\n"]))
+        monkeypatch.setattr(builtins, 'open', lambda x, y: DummyFileHandler(['@foo', 'bar', "\n"]))
         filters = self.app_config.load_filters()
         assert filters[0] == '@foo'
         assert len(filters) == 2
@@ -240,7 +240,7 @@ class TestAppConfig:
         assert self.app_config.remove_filter('bar') == None
 
     def test_load_friends(self, monkeypatch):
-        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler(['foo', 'bar\n', "\n"]))
+        monkeypatch.setattr(builtins, 'open', lambda x, y: DummyFileHandler(['foo', 'bar\n', "\n"]))
         friends = self.app_config.load_friends()
         assert friends == ['foo', 'bar']
 
@@ -296,7 +296,7 @@ class TestAccountConfig:
         monkeypatch.setattr(os, 'makedirs', lambda x: None)
         monkeypatch.setattr(os.path, 'isdir', lambda x: False)
         monkeypatch.setattr(os, 'remove', lambda x: None)
-        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler())
+        monkeypatch.setattr(builtins, 'open', lambda x, y: DummyFileHandler())
         monkeypatch.setattr('libturpial.config.AccountConfig.write', lambda w, x, y, z: None)
         monkeypatch.setattr('libturpial.config.AccountConfig.exists', lambda x, y: False)
         monkeypatch.setattr('libturpial.config.AccountConfig.create', lambda x: None)

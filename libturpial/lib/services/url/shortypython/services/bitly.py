@@ -14,14 +14,14 @@ class Bitly(Service):
 
     def _test(self):
         # prompt for login
-        self.login = raw_input('bitly login: ')
+        self.login = input('bitly login: ')
         
         # ask if tester wants to provide apikey or password
-        print 'auth with password(P) or apikey(K)?'
-        if raw_input() == 'P':
+        print('auth with password(P) or apikey(K)?')
+        if input() == 'P':
             self.password = getpass('bitly password: ')
         else:
-            self.apikey = raw_input('bitly apikey: ')
+            self.apikey = input('bitly apikey: ')
 
         Service._test(self)
 
@@ -57,7 +57,7 @@ class Bitly(Service):
         jdata = json.loads(resp.read())
         if jdata['errorCode'] != 0:
             raise ShortyError(jdata['errorMessage'])
-        return str(jdata['results'].values()[0]['longUrl'])
+        return str(list(jdata['results'].values())[0]['longUrl'])
 
     def stats(self, tinyurl):
         if not self.login:

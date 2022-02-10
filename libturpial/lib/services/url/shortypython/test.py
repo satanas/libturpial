@@ -4,9 +4,9 @@
 
 import sys
 
-import shorty
+from . import shorty
 
-print 'Running shorty tests...'
+print('Running shorty tests...')
 
 passes = 0
 fails = 0
@@ -15,23 +15,23 @@ fails = 0
 if len(sys.argv) > 1:
     try:
         services = dict((name, shorty.services[name]) for name in sys.argv[1:])
-    except KeyError, k:
-        print 'ERROR: %s not valid service' % k
+    except KeyError as k:
+        print('ERROR: %s not valid service' % k)
         exit(1)
 else:
     services = shorty.services
 
 # run tests
-for name, service in services.items():
+for name, service in list(services.items()):
     try:
         if service.tested:
             # skip services with aliases
             continue
         service._test()
         passes += 1
-        print 'PASS: <%s>' % name
-    except shorty.ShortyError, e:
+        print('PASS: <%s>' % name)
+    except shorty.ShortyError as e:
         fails += 1
-        print 'FAIL: <%s> %s' % (name, e)
+        print('FAIL: <%s> %s' % (name, e))
 
-print 'PASSES: %i  FAILS: %i' % (passes, fails)
+print('PASSES: %i  FAILS: %i' % (passes, fails))

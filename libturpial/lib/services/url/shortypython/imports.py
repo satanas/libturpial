@@ -1,11 +1,7 @@
-## Shorty
-## Copyright 2009 Joshua Roesslein
-## See LICENSE
-
-## Do all importing here
-from urllib2 import urlopen, Request, URLError, HTTPError, HTTPRedirectHandler, build_opener
-from urllib import urlencode, quote
-from urlparse import urlparse
+from urllib.request import urlopen, Request, HTTPRedirectHandler, build_opener
+from urllib.error import URLError, HTTPError
+from urllib.parse import urlencode, quote
+from urllib.parse import urlparse
 from random import randint
 import base64
 from getpass import getpass

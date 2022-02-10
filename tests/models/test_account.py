@@ -1,6 +1,6 @@
 import os
 import pytest
-import __builtin__
+import builtins
 
 from libturpial.config import AccountConfig
 from libturpial.api.models.list import List
@@ -49,7 +49,7 @@ class TestAccount:
 
         # Monkeypatching AppConfig create
         monkeypatch.setattr(os, 'makedirs', lambda x: None)
-        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler())
+        monkeypatch.setattr(builtins, 'open', lambda x, y: DummyFileHandler())
         monkeypatch.setattr(AccountConfig, 'create', lambda: None)
         monkeypatch.setattr(AccountConfig, 'load_oauth_credentials', lambda x: ('123', '456'))
 
