@@ -392,26 +392,33 @@ class AccountConfig(ConfigBase):
         self.write('OAuth', 'secret', '')
 
     def transform(self, pw, us):
+        # convert arguments to bytes because following operation work on bytes
+        pw = pw.encode('utf-8')
+        us = us.encode('utf-8')
+
+        # do the transformation
         a = base64.b16encode(pw)
-        b = us[0] + a + ('%s' % us[-1])
+        b = us[0:1] + a + us[-1:]
         c = base64.b32encode(b)
-        d = ('%s' % us[-1]) + c + us[0]
+        d = us[-1:] + c + us[0:1]
         e = base64.b64encode(d)
-        f = [e[i] for i in range(len(e))]
-        f.reverse()
-        return ''.join(f)
+
+        # go back to string
+        f = e.decode('utf-8')
+
+        return ''.join(reversed(f))
 
     def revert(self, pw, us):
         if pw == '':
             return None
-        z = [pw[i] for i in range(len(pw))]
-        z.reverse()
-        y = ''.join(z)
+
+        y = ''.join(reversed(pw))
         x = base64.b64decode(y)
-        w = ('%s' % x[1:len(x)])[:-1]
+        w = x[1:-1]
         v = base64.b32decode(w)
-        u = ('%s' % v[:len(v) - 1])[1:]
-        return base64.b16decode(u)
+        u = v[1:-1]
+
+        return base64.b16decode(u).decode('utf-8')
 
     # TODO: Return True on success?
     def dismiss(self):
@@ -439,7 +446,7 @@ class AccountConfig(ConfigBase):
                 except AttributeError:
                     unsuccessful.append(path)
         self.log.debug('There were unsuccessful deletions %s' % unsuccessful)
-        return unsuccessful 
+        return unsuccessful
 
     def calculate_cache_size(self):
         size = 0
