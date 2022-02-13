@@ -34,4 +34,4 @@ class Column(object):
         return '%s: %s' % (self.account_id, self.slug)
 
     def __unicode__(self):
-        return u'%s' % self.__str__()
+        return '%s' % self.__str__()

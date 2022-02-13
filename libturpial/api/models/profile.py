@@ -62,7 +62,7 @@ class Profile:
         return '%s: %s' % (self.username, self.fullname)
 
     def __unicode__(self):
-        return u'%s' % self.__str__()
+        return '%s' % self.__str__()
 
     def is_me(self):
         """

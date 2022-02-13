@@ -11,8 +11,8 @@ class Snipurl(Service):
 
     def _test(self):
         # prompt for username and apikey
-        self.user = raw_input('snipurl username: ')
-        self.apikey = raw_input('snipurl apikey: ')
+        self.user = input('snipurl username: ')
+        self.apikey = input('snipurl apikey: ')
         Service._test(self)
 
     def shrink(self, bigurl, custom=None, title=None, private_key=None,

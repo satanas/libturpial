@@ -45,7 +45,7 @@ class Main(Protocol):
         Receives a json response and raise an exception if there are errors
         """
         if 'error' in response:
-            print response
+            print(response)
             message = response['error']
             if message.find('Could not authenticate you') >= 0:
                 raise InvalidOrMissingCredentials

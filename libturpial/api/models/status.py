@@ -92,8 +92,7 @@ class Status:
         account = self.account_id.split('-')[0]
         mentions = [self.username]
         if 'mentions' in self.entities:
-            for user in map(lambda x: x.display_text[1:],
-                            self.entities['mentions']):
+            for user in [x.display_text[1:] for x in self.entities['mentions']]:
                 if user.lower() != account.lower() and user not in mentions:
                     mentions.append(user)
         return mentions

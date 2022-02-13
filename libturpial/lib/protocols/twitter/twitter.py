@@ -388,7 +388,7 @@ class Main(Protocol):
         args = self.__build_basic_args(count, since_id)
         args['q'] = query
         if extra:
-            args = dict(args.items() + extra.items())
+            args = dict(list(args.items()) + list(extra.items()))
 
         rtn = self.http.get('/search/tweets', args)
         self.check_for_errors(rtn)

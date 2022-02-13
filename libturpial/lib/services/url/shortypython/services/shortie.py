@@ -11,8 +11,8 @@ class Shortie(Service):
 
     def _test(self):
         # prompt for email and key
-        self.email = raw_input('shortie email: ')
-        self.secretkey = raw_input('shortie secretKey: ')
+        self.email = input('shortie email: ')
+        self.secretkey = input('shortie secretKey: ')
 
         Service._test(self)
 

@@ -5,8 +5,8 @@
 # Author: Andrea Stagi (4ndreaSt4gi)
 # 2010-07-28
 
-from shortypython.shorty import services
-from shorturladapter import ShortUrlAdapter
+from .shortypython.shorty import services
+from .shorturladapter import ShortUrlAdapter
 
 URL_SERVICES = {}
 

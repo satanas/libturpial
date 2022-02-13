@@ -18,7 +18,7 @@ class Sandbox(Service):
         while True:
             for i in range(self.length):
                 tpath += self.letters[randint(0, self.base)]
-            if self.urls.has_key(tpath):
+            if tpath in self.urls:
                 # tpath already in use, regen another
                 tpath = ''
             else:

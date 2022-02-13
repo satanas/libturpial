@@ -10,7 +10,7 @@ class Budurl(Service):
 
     def _test(self):
         #prompt for apikey
-        self.apikey = raw_input('budurl apikey: ')
+        self.apikey = input('budurl apikey: ')
         Service._test(self)
 
     def shrink(self, bigurl, notes=None):

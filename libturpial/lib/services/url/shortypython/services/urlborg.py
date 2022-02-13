@@ -10,7 +10,7 @@ class Urlborg(Service):
 
     def _test(self):
         # prompt tester for apikey
-        self.apikey = raw_input('urlborg apikey: ').strip()
+        self.apikey = input('urlborg apikey: ').strip()
         Service._test(self)
 
     def shrink(self, bigurl):
@@ -30,7 +30,7 @@ class Urlborg(Service):
         url = 'http://urlborg.com/api/%s/url/info.json%s' % (self.apikey, turl[2])
         resp = request(url)
         jdata = json.loads(resp.read())
-        if jdata.has_key('error'):
+        if 'error' in jdata:
             raise ShortyError('Invalid tiny url or apikey')
         return str(jdata['o_url'])
 

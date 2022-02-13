@@ -2,7 +2,7 @@ import os
 import pytest
 import requests
 import tempfile
-import __builtin__
+import builtins
 
 from libturpial.exceptions import *
 from libturpial.api.core import Core
@@ -499,7 +499,7 @@ class TestCore:
         monkeypatch.setattr(os.path, "join", lambda x, y: '/path/to/ble')
         monkeypatch.setattr(os.path, "isfile", lambda x: True)
         monkeypatch.setattr(self.core.accman, 'get', lambda x: DummyAccount())
-        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler())
+        monkeypatch.setattr(builtins, 'open', lambda x, y: DummyFileHandler())
 
         response = self.core.get_profile_image(self.acc_id, "foo")
         assert response == "/path/to/ble"
@@ -525,7 +525,7 @@ class TestCore:
 
         monkeypatch.setattr(os.path, "join", lambda x, y: '/path/to/bla')
         monkeypatch.setattr(os.path, "isfile", lambda x: False)
-        monkeypatch.setattr(__builtin__, 'open', lambda x, y: DummyFileHandler())
+        monkeypatch.setattr(builtins, 'open', lambda x, y: DummyFileHandler())
         monkeypatch.setattr(self.core, 'fetch_image', lambda x: 'binary')
 
         response = self.core.get_status_avatar(status)

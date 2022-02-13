@@ -36,11 +36,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
-## !!! This file is machine generated !! ##
-
-from urllib2 import urlopen, Request, URLError, HTTPError, HTTPRedirectHandler, build_opener
-from urllib import urlencode, quote
-from urlparse import urlparse
+from urllib.request import urlopen, Request, HTTPRedirectHandler, build_opener
+from urllib.error import URLError, HTTPError
+from urllib.parse import urlencode, quote
+from urllib.parse import urlparse
 from random import randint
 import base64
 from getpass import getpass
@@ -79,7 +78,7 @@ def request(url, parameters=None, username_pass=None, post_data=None, headers={}
         if post_data:
             req.add_data(post_data)
         return urlopen(req)
-    except URLError, e:
+    except URLError as e:
         raise ShortyError(e)
 
 def get_redirect(url):
@@ -92,12 +91,12 @@ def get_redirect(url):
     o = build_opener(StopRedirectHandler())
     try:
         o.open(url)
-    except HTTPError, e:
+    except HTTPError as e:
         if e.code == 301 or e.code == 302:
             return e.headers['Location']
         else:
             raise ShortyError(e)
-    except URLError, e:
+    except URLError as e:
         raise ShortyError(e)
     return None
 
@@ -112,7 +111,7 @@ class Service(object):
         # first shrink an url
         try:
             turl = self.shrink('http://test.com')
-        except ShortyError, e:
+        except ShortyError as e:
             raise ShortyError('@shrink ' + e.reason)
 
         # second expand url and verify
@@ -123,7 +122,7 @@ class Service(object):
                 return True
             else:
                 return False
-        except ShortyError, e:
+        except ShortyError as e:
             raise ShortyError('@expand ' + e.reason)
 
     def shrink(self, bigurl):
@@ -231,7 +230,7 @@ class Budurl(Service):
 
     def _test(self):
         #prompt for apikey
-        self.apikey = raw_input('budurl apikey: ')
+        self.apikey = input('budurl apikey: ')
         Service._test(self)
 
     def shrink(self, bigurl, notes=None):
@@ -279,8 +278,8 @@ class Snipurl(Service):
 
     def _test(self):
         # prompt for username and apikey
-        self.user = raw_input('snipurl username: ')
-        self.apikey = raw_input('snipurl apikey: ')
+        self.user = input('snipurl username: ')
+        self.apikey = input('snipurl apikey: ')
         Service._test(self)
 
     def shrink(self, bigurl, custom=None, title=None, private_key=None,
@@ -420,14 +419,14 @@ class Bitly(Service):
 
     def _test(self):
         # prompt for login
-        self.login = raw_input('bitly login: ')
+        self.login = input('bitly login: ')
         
         # ask if tester wants to provide apikey or password
-        print 'auth with password(P) or apikey(K)?'
-        if raw_input() == 'P':
+        print('auth with password(P) or apikey(K)?')
+        if input() == 'P':
             self.password = getpass('bitly password: ')
         else:
-            self.apikey = raw_input('bitly apikey: ')
+            self.apikey = input('bitly apikey: ')
 
         Service._test(self)
 
@@ -463,7 +462,7 @@ class Bitly(Service):
         jdata = json.loads(resp.read())
         if jdata['errorCode'] != 0:
             raise ShortyError(jdata['errorMessage'])
-        return str(jdata['results'].values()[0]['longUrl'])
+        return str(list(jdata['results'].values())[0]['longUrl'])
 
     def stats(self, tinyurl):
         if not self.login:
@@ -494,8 +493,8 @@ class Shortie(Service):
 
     def _test(self):
         # prompt for email and key
-        self.email = raw_input('shortie email: ')
-        self.secretkey = raw_input('shortie secretKey: ')
+        self.email = input('shortie email: ')
+        self.secretkey = input('shortie secretKey: ')
 
         Service._test(self)
 
@@ -735,7 +734,7 @@ class Urlborg(Service):
 
     def _test(self):
         # prompt tester for apikey
-        self.apikey = raw_input('urlborg apikey: ').strip()
+        self.apikey = input('urlborg apikey: ').strip()
         Service._test(self)
 
     def shrink(self, bigurl):
@@ -755,7 +754,7 @@ class Urlborg(Service):
         url = 'http://urlborg.com/api/%s/url/info.json%s' % (self.apikey, turl[2])
         resp = request(url)
         jdata = json.loads(resp.read())
-        if jdata.has_key('error'):
+        if 'error' in jdata:
             raise ShortyError('Invalid tiny url or apikey')
         return str(jdata['o_url'])
 
@@ -810,7 +809,7 @@ class Sandbox(Service):
         while True:
             for i in range(self.length):
                 tpath += self.letters[randint(0, self.base)]
-            if self.urls.has_key(tpath):
+            if tpath in self.urls:
                 # tpath already in use, regen another
                 tpath = ''
             else:

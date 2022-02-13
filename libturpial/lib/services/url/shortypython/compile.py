@@ -63,7 +63,7 @@ def compile_shorty(services):
         try:
             module = open('services/%s.py' % service, 'r')
         except IOError:
-            print '%s not found! Skipping' % service
+            print('%s not found! Skipping' % service)
             continue
 
         sfp.write(process_module(service, module.read()))
@@ -71,7 +71,7 @@ def compile_shorty(services):
 
     # write out services dict
     sfp.write('\nservices = {\n')
-    for k,v in _services.items():
+    for k,v in list(_services.items()):
         sfp.write("    '%s': %s,\n" % (k,v))
     sfp.write('}\n\n')
 
@@ -81,9 +81,9 @@ if __name__ == '__main__':
 
     # make sure enough args are provided
     if len(sys.argv) < 2:
-        print 'Usage: compile.py <services>'
-        print '  services -- names of the services to include in compiled module'
-        print 'Example: compile.py sandbox tinyurl bitly'
+        print('Usage: compile.py <services>')
+        print('  services -- names of the services to include in compiled module')
+        print('Example: compile.py sandbox tinyurl bitly')
         sys.exit(1)
 
     # get list of services to compile

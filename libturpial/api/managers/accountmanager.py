@@ -32,7 +32,7 @@ class AccountManager:
         return len(self.__accounts)
 
     def __iter__(self):
-        return self.__accounts.iteritems()
+        return iter(self.__accounts.items())
 
     def __load_registered(self):
         accounts = self.config.get_stored_accounts()
@@ -112,4 +112,4 @@ class AccountManager:
         Return a list of :class:`libturpial.api.models.account.Account` objects
         with all the accounts registered
         """
-        return self.__accounts.values()
+        return list(self.__accounts.values())

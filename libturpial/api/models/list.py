@@ -35,5 +35,5 @@ class List(object):
         return '{user}: {title}'.format(title=self.title, user=self.user.get('screen_name', ''))
 
     def __unicode__(self):
-        return u'%s' % self.__str__()
+        return '%s' % self.__str__()
 
