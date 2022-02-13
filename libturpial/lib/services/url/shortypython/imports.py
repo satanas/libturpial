@@ -1,3 +1,6 @@
+## Shorty
+## Copyright 2009 Joshua Roesslein
+## See LICENSE
 from urllib.request import urlopen, Request, HTTPRedirectHandler, build_opener
 from urllib.error import URLError, HTTPError
 from urllib.parse import urlencode, quote
