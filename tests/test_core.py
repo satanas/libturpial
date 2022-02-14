@@ -123,7 +123,8 @@ class TestCore:
         monkeypatch.setattr(self.core, 'registered_accounts', lambda: self.all_accounts)
         columns = self.core.all_columns()
         assert isinstance(columns, dict)
-        for key, value in columns.iteritems():
+
+        for key, value in columns.items():
             assert isinstance(value, list)
             for col in value:
                 assert (isinstance(col, Column) or isinstance(col, List))
@@ -132,7 +133,8 @@ class TestCore:
         monkeypatch.setattr(self.core, 'registered_accounts', lambda: self.all_accounts)
         columns = self.core.available_columns()
         assert isinstance(columns, dict)
-        for key, value in columns.iteritems():
+
+        for key, value in columns.items():
             assert isinstance(value, list)
             for col in value:
                 assert (isinstance(col, Column) or isinstance(col, List))
@@ -140,7 +142,8 @@ class TestCore:
     def test_registered_columns(self):
         columns = self.core.registered_columns()
         assert isinstance(columns, dict)
-        for key, value in columns.iteritems():
+
+        for key, value in columns.items():
             assert isinstance(value, list)
             for col in value:
                 assert (isinstance(col, Column) or isinstance(col, List))
@@ -596,12 +599,12 @@ class TestCore:
         assert isinstance(response[0], str)
 
     def test_preview_media(self, monkeypatch):
-        media = Media.new_image('foo', 'binary content')
+        media = Media.new_image('foo', b'binary content')
         with pytest.raises(PreviewServiceNotSupported):
             self.core.preview_media('http://unsupported.service.com/ble')
 
         monkeypatch.setattr('libturpial.lib.services.media.preview.pictwitter.PicTwitterMediaContent._get_content_from_url',
-                lambda x, y: '123')
+                lambda x, y: b'123')
         response = self.core.preview_media('http://pic.twitter.com/ble')
         assert isinstance(response, Media)
 

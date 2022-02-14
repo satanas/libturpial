@@ -33,4 +33,3 @@ class Shortie(Service):
         if jdata['error']['code'] != 0:
             raise ShortyError(jdata['error']['msg'])
         return str(jdata['shortened'])
-

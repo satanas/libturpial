@@ -22,7 +22,7 @@ from libturpial.exceptions import (StatusMessageTooLong,
 
 class Main(Protocol):
     """Identi.ca implementation for libturpial"""
-    GROUP_PATTERN = re.compile('(?<![\w])![\wáéíóúÁÉÍÓÚñÑçÇ]+')
+    GROUP_PATTERN = re.compile(r'(?<![\w])![\wáéíóúÁÉÍÓÚñÑçÇ]+')
 
     def __init__(self):
         self.uname = None
