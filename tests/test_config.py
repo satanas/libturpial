@@ -2,9 +2,14 @@ import os
 import shutil
 import pytest
 import builtins
+import configparser
 
-from libturpial.config import *
-from libturpial.exceptions import EmptyOAuthCredentials
+from libturpial.config import (
+    ConfigBase, AppConfig, AccountConfig, APP_CFG, ACCOUNT_CFG,
+)
+from libturpial.exceptions import (
+    EmptyOAuthCredentials, ExpressionAlreadyFiltered,
+)
 
 from tests.helpers import DummyFileHandler
 
@@ -207,7 +212,7 @@ class TestAppConfig:
 
         monkeypatch.setattr(os, 'makedirs', lambda x: None)
         monkeypatch.setattr(builtins, 'open', lambda x, y: DummyFileHandler())
-        monkeypatch.setattr(ConfigParser, 'ConfigParser', lambda: DummyConfigParser())
+        monkeypatch.setattr(configparser, 'ConfigParser', lambda: DummyConfigParser())
 
         self.app_config = AppConfig('/tmp/user', self.default)
 

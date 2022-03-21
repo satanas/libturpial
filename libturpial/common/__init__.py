@@ -23,13 +23,13 @@ OS_JAVA = 'java'  #: Constant to identify Java based operating systems
 OS_UNKNOWN = 'unknown'
 
 #: Regex pattern to match microblogging hashtags (for example: #hashtags)
-HASHTAG_PATTERN = re.compile('(?<![\w])#[\wáéíóúÁÉÍÓÚñÑçÇ]+')
+HASHTAG_PATTERN = re.compile(r'(?<![\w])#[\wáéíóúÁÉÍÓÚñÑçÇ]+')
 
 #: Regex pattern to match microblogging mentions (for example: @user)
-MENTION_PATTERN = re.compile('(?<![\w])@[\w]+')
+MENTION_PATTERN = re.compile(r'(?<![\w])@[\w]+')
 
 #: Regex pattern to match client names from an <a> tag
-CLIENT_PATTERN = re.compile('<a href="(.*?)">(.*?)</a>')
+CLIENT_PATTERN = re.compile(r'<a href="(.*?)">(.*?)</a>')
 
 #: Regex pattern to match URLs
 #: According to RFC 3986 - http://www.ietf.org/rfc/rfc3986.txt

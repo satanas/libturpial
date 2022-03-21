@@ -1,12 +1,11 @@
+#     _                _
+# ___| |__   ___  _ __| |_ _   _
+#/ __| '_ \ / _ \| '__| __| | | |
+#\__ \ | | | (_) | |  | |_| |_| |
+#|___/_| |_|\___/|_|   \__|\__, |
+#                           __/ |
+#                          |___/
 """
-     _                _
- ___| |__   ___  _ __| |_ _   _ 
-/ __| '_ \ / _ \| '__| __| | | |
-\__ \ | | | (_) | |  | |_| |_| |
-|___/_| |_|\___/|_|   \__|\__, |
-                           __/ |
-                          |___/ 
-
 Access many URL shortening services from one library.
 
 Python 2.4+
@@ -143,7 +142,7 @@ def shrink(service_domain, bigurl, *args, **kargs):
     if not s:
         return None
     return s.shrink(bigurl, *args, **kargs)
-    
+
 """
 Expand tiny url into its full url.
 Returns long url if successful or None if failure.
@@ -290,7 +289,7 @@ class Snipurl(Service):
             'sniplink': bigurl,
             'snipuser': self.user,
             'snipapi': self.apikey,
-            'snipformat': 'simple' 
+            'snipformat': 'simple'
         }
         if custom:
             parameters['snipnick'] = custom
@@ -420,7 +419,7 @@ class Bitly(Service):
     def _test(self):
         # prompt for login
         self.login = input('bitly login: ')
-        
+
         # ask if tester wants to provide apikey or password
         print('auth with password(P) or apikey(K)?')
         if input() == 'P':
@@ -660,8 +659,8 @@ migreme = Migreme()
 class Google(Service):
 
     def shrink(self, bigurl):
-        resp = request('https://www.googleapis.com/urlshortener/v1/url', 
-                        headers={"content-type":"application/json"}, 
+        resp = request('https://www.googleapis.com/urlshortener/v1/url',
+                        headers={"content-type":"application/json"},
                         post_data=json.dumps({"longUrl": bigurl}))
         data = resp.read()
         jdata = json.loads(data)
@@ -832,7 +831,7 @@ sandbox = Sandbox()
 class Github(Service):
 
     def shrink(self, bigurl):
-        gitio_pattern = 'http(s)?://((gist|raw|develop(er)?)\.)?github\.com'
+        gitio_pattern = r'http(s)?://((gist|raw|develop(er)?)\.)?github\.com'
         gitio_re = re.compile(gitio_pattern)
         if not gitio_re.search(bigurl):
             raise ShortyError('URL must match %s' % gitio_pattern)
